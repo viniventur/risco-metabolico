@@ -97,6 +97,11 @@ jobs:
       - name: Dependências
         working-directory: frontend
         run: npm ci
+      - name: Tipos da API em dia com o contrato (schema.d.ts é gerado, não editado)
+        working-directory: frontend
+        run: |
+          npx openapi-typescript ../backend/tests/contrato/openapi.json -o src/shared/api/schema.d.ts
+          git diff --exit-code -- src/shared/api/schema.d.ts
       - name: Lint, tipos, testes e build
         working-directory: frontend
         run: |

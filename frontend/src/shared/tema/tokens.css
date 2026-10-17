@@ -1,0 +1,166 @@
+/* tokens.css — o ÚNICO arquivo do front com cor literal (portão da seção ANCORA do plano).
+   Origem da paleta: PROVISÓRIA (docs/design-tokens.md) — derivada do token herdado #3262DA
+   (primária do painel de referência) e #005CA8 (secundária herdada do tema do app legado),
+   mais uma escala neutra. Quando as fotos do painel chegarem, só este arquivo, PainelPage.tsx
+   (grid), docs/design-tokens.md e os SVGs de icones/ podem mudar. */
+
+@import "tailwindcss";
+
+/* A paleta utilitária padrão do Tailwind é APAGADA (--color-*: initial): bg-slate-800 e
+   text-zinc-500 deixam de existir, e toda cor passa pelos tokens abaixo. @theme inline faz as
+   utilidades apontarem diretamente para as variáveis de tema (claro/escuro) de :root. */
+@theme inline {
+  --color-*: initial;
+  --color-fundo: var(--fundo);
+  --color-superficie: var(--superficie);
+  --color-superficie-alta: var(--superficie-alta);
+  --color-texto: var(--texto);
+  --color-texto-fraco: var(--texto-fraco);
+  --color-borda: var(--borda);
+  --color-primaria: var(--primaria);
+  --color-primaria-contraste: var(--primaria-contraste);
+  --color-secundaria: var(--secundaria);
+  --color-rosa: var(--rosa);
+  --color-azul-claro: var(--azul-claro);
+  --color-sucesso: var(--sucesso);
+  --color-alerta: var(--alerta);
+  --color-perigo: var(--perigo);
+  --color-foco: var(--foco);
+  --font-sans: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --radius-card: var(--raio);
+  --shadow-card: var(--sombra);
+}
+
+:root {
+  color-scheme: light;
+  --fundo: #f3f5f9;
+  --superficie: #ffffff;
+  --superficie-alta: #e9eef7;
+  --texto: #14213d;
+  --texto-fraco: #5b6478;
+  --borda: #d6dce8;
+  --primaria: #3262da;
+  --primaria-contraste: #ffffff;
+  --secundaria: #005ca8;
+  --rosa: #d6336c;
+  --azul-claro: #4f8fe6;
+  --sucesso: #1f8a4c;
+  --alerta: #c77700;
+  --perigo: #c0392b;
+  --foco: #3262da;
+  --raio: 12px;
+  --sombra: 0 1px 2px rgb(20 33 61 / 0.06), 0 4px 14px rgb(20 33 61 / 0.06);
+
+  /* escalas dos gráficos (cor segue a ENTIDADE, nunca o índice do array) */
+  --faixa-abaixo: #4f8fe6;
+  --faixa-normal: #1f8a4c;
+  --faixa-sobrepeso: #c77700;
+  --faixa-obesidade: #c0392b;
+  --nivel-1: #4f8fe6;
+  --nivel-2: #1f8a4c;
+  --nivel-3: #e0a200;
+  --nivel-4: #c77700;
+  --nivel-5: #e5673c;
+  --nivel-6: #c0392b;
+  --nivel-7: #7b1e3a;
+  --grade: #e2e7f0;
+  --eixo: #5b6478;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --fundo: #0f1626;
+    --superficie: #182238;
+    --superficie-alta: #223050;
+    --texto: #eef2fb;
+    --texto-fraco: #a3adc4;
+    --borda: #2c3a58;
+    --primaria: #6b8df0;
+    --primaria-contraste: #0f1626;
+    --secundaria: #4f9be0;
+    --rosa: #f06292;
+    --azul-claro: #7fb0ff;
+    --sucesso: #4fc27a;
+    --alerta: #f0a63c;
+    --perigo: #ef6b5e;
+    --foco: #8aa6ff;
+    --sombra: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 14px rgb(0 0 0 / 0.35);
+    --grade: #2c3a58;
+    --eixo: #a3adc4;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --fundo: #0f1626;
+  --superficie: #182238;
+  --superficie-alta: #223050;
+  --texto: #eef2fb;
+  --texto-fraco: #a3adc4;
+  --borda: #2c3a58;
+  --primaria: #6b8df0;
+  --primaria-contraste: #0f1626;
+  --secundaria: #4f9be0;
+  --rosa: #f06292;
+  --azul-claro: #7fb0ff;
+  --sucesso: #4fc27a;
+  --alerta: #f0a63c;
+  --perigo: #ef6b5e;
+  --foco: #8aa6ff;
+  --sombra: 0 1px 2px rgb(0 0 0 / 0.4), 0 4px 14px rgb(0 0 0 / 0.35);
+  --grade: #2c3a58;
+  --eixo: #a3adc4;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+*:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+}
+
+.cartao {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+}
+
+.recharts-cartesian-axis-tick text {
+  fill: var(--eixo);
+  font-size: 12px;
+}
+
+.recharts-cartesian-grid line {
+  stroke: var(--grade);
+}
+
+/* o frame anterior em opacidade enquanto um refetch está em voo — nunca skeleton (7.3) */
+.refetching {
+  opacity: 0.55;
+  transition: opacity 120ms ease-out;
+}
+
+@media print {
+  .trilho,
+  .nao-imprimir {
+    display: none !important;
+  }
+  body {
+    background: #ffffff;
+    color: #000000;
+  }
+}
