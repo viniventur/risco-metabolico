@@ -1,0 +1,48 @@
+# ---- Python ----
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+.coverage.*
+.ipynb_checkpoints/
+
+# ---- Node / front ----
+node_modules/
+dist/
+frontend/dist/
+frontend/.vite/
+playwright-report/
+test-results/
+
+# ---- Segredos e credenciais: NUNCA versionar (3.1, 4.3, 11.3) ----
+.env
+.env.*
+!.env.example
+*.dump
+*.backup
+*.pgpass
+
+# ---- Binarios pesados e derivados regeraveis ----
+models/*.pkl
+data/processado/
+*.parquet
+_estudo_*.parquet
+artifacts/_teste_execucao.ipynb
+artifacts/_teste_execucao*.ipynb
+*.xlsx
+# (o arquivo do painel de referencia nunca entra: a extensao dele esta na lista
+#  negra e a varredura de NOMES de scripts/verificar-proveniencia.ps1 o barra)
+
+# ---- Fotos do painel de referencia: ficam fora do repositorio (3.1, ANCORA) ----
+referencia-visual/
+
+# ---- Sistema / editor ----
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
