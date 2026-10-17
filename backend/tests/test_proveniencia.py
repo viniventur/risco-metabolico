@@ -20,8 +20,19 @@ PADRAO_TXT = RAIZ / "scripts" / "padrao-proveniencia.txt"
 FONTE_MD = RAIZ / "data" / "bruto" / "FONTE.md"
 
 DIRS_IGNORADOS = {
-    ".git", "node_modules", ".venv", "dist", "__pycache__", ".pytest_cache", ".ruff_cache",
-    ".mypy_cache", "htmlcov", ".vite", "playwright-report", "test-results", ".ipynb_checkpoints",
+    ".git",
+    "node_modules",
+    ".venv",
+    "dist",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".mypy_cache",
+    "htmlcov",
+    ".vite",
+    "playwright-report",
+    "test-results",
+    ".ipynb_checkpoints",
 }
 CONTEUDO_IGNORADO = (
     re.compile(r"verificar-proveniencia\.ps1$"),
@@ -30,7 +41,9 @@ CONTEUDO_IGNORADO = (
     re.compile(r"docs[\\/]auditoria-do-legado\.md$"),
     re.compile(r"PLANO-.*\.md$"),
 )
-BINARIOS = re.compile(r"\.(png|jpe?g|gif|ico|webp|woff2?|ttf|otf|eot|pdf|parquet|pkl|zip|gz|pyc|xlsx|pbix)$", re.I)
+BINARIOS = re.compile(
+    r"\.(png|jpe?g|gif|ico|webp|woff2?|ttf|otf|eot|pdf|parquet|pkl|zip|gz|pyc|xlsx|pbix)$", re.I
+)
 
 FRASE_DADOS_FICTICIOS = (
     "Os dados exibidos são fictícios e servem apenas para demonstração. "
@@ -58,8 +71,10 @@ def _relativo(p: Path) -> str:
 
 def _alvos_conteudo() -> list[Path]:
     return [
-        p for p in _arquivos()
-        if not any(r.search(_relativo(p)) for r in CONTEUDO_IGNORADO) and not BINARIOS.search(p.name)
+        p
+        for p in _arquivos()
+        if not any(r.search(_relativo(p)) for r in CONTEUDO_IGNORADO)
+        and not BINARIOS.search(p.name)
     ]
 
 
@@ -88,7 +103,11 @@ def test_sem_termos_proibidos_no_conteudo() -> None:
 
 def test_sem_termos_proibidos_em_nomes() -> None:
     amplo, estrito = _padroes()
-    ruins = [_relativo(p) for p in _arquivos() if amplo.search(_relativo(p)) or estrito.search(_relativo(p))]
+    ruins = [
+        _relativo(p)
+        for p in _arquivos()
+        if amplo.search(_relativo(p)) or estrito.search(_relativo(p))
+    ]
     assert not ruins, "termos proibidos em nomes de arquivo/pasta:\n" + "\n".join(ruins)
 
 
@@ -98,7 +117,9 @@ def test_citacao_presente_e_nao_pendente() -> None:
     bloco = re.search(r"(?s)citacao-inicio -->(.*?)<!-- citacao-fim", texto)
     assert bloco and bloco.group(1).strip(), "bloco de citação vazio"
     assert "PENDENTE" not in bloco.group(1), "citação ainda PENDENTE"
-    assert re.search(r"(?s)autores-inicio -->(.*?)<!-- autores-fim", bloco.group(1)), "sub-bloco de autores ausente"
+    assert re.search(r"(?s)autores-inicio -->(.*?)<!-- autores-fim", bloco.group(1)), (
+        "sub-bloco de autores ausente"
+    )
 
 
 def _tokens_de_autores() -> list[str]:
@@ -124,7 +145,9 @@ def test_aviso_de_dados_ficticios_presente() -> None:
     """O que é OBRIGATÓRIO também tem portão: a frase de §3.2 nos três lugares (§10.6)."""
     readme = (RAIZ / "README.md").read_text(encoding="utf-8")
     primeiro_bloco = readme.split("\n\n")[1] if "\n\n" in readme else readme
-    assert FRASE_DADOS_FICTICIOS in primeiro_bloco, "README: a frase precisa estar no primeiro bloco visível"
+    assert FRASE_DADOS_FICTICIOS in primeiro_bloco, (
+        "README: a frase precisa estar no primeiro bloco visível"
+    )
     for rel in ("frontend/src/shared/ui/RodapeAviso.tsx", "backend/app/dominio/relatorio.py"):
         arquivo = RAIZ / rel
         if not arquivo.exists():

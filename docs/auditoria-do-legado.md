@@ -81,6 +81,7 @@ O `app.py` oferecia `"Automóvel"` e `"Motocicleta"` em `Meio_Transporte`; o enc
 ## Outras observações, menores
 
 - `models/randomforest_n_smote_sem_smote.pkl`: o nome vem de `f"{name}_sem_smote"` aplicado a um `name` que já continha `_n_smote`. Vira teste de nomenclatura no CLI novo.
+- **O mesmo objeto estimador era reutilizado nos dois pipelines do RandomForest** (com e sem SMOTE): `Pipeline.fit` ajusta o estimador no lugar, então o segundo `fit` sobrescrevia o modelo do primeiro — e as duas linhas de RandomForest saíam com números idênticos no teste de overfitting (1,000 / 0,922 nos dois). O notebook migrado usa `sklearn.base.clone` em cada pipeline.
 - `label_encoder.pkl` solto, em formato diferente dos outros quatro artefatos; a ordem de classes passa a ser constante explícita em `dominio/regras.py`.
 - `requirements.txt` sem versão fixada e com `shap`, que nenhum arquivo importa.
 - `warnings.filterwarnings('ignore')` global no `app.py` — esconde exatamente o `InconsistentVersionWarning` que revela a divergência 1.
