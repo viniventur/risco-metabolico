@@ -27,8 +27,19 @@ export function MultiSelect({ rotulo, opcoes, selecionados, aoAlternar, aoLimpar
     function aoClicarFora(e: MouseEvent) {
       if (raiz.current && !raiz.current.contains(e.target as Node)) setAberto(false);
     }
+    // Esc com a lista aberta só fecha a lista: captura antes do atalho global que limpa os filtros.
+    function aoEscapar(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        setAberto(false);
+      }
+    }
     document.addEventListener("mousedown", aoClicarFora);
-    return () => document.removeEventListener("mousedown", aoClicarFora);
+    document.addEventListener("keydown", aoEscapar, true);
+    return () => {
+      document.removeEventListener("mousedown", aoClicarFora);
+      document.removeEventListener("keydown", aoEscapar, true);
+    };
   }, [aberto]);
 
   const visiveis = opcoes.filter((o) => o.rotulo.toLowerCase().includes(busca.toLowerCase()));

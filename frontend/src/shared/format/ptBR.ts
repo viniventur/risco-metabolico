@@ -20,9 +20,21 @@ export function fmtInt(valor: number | null | undefined): string {
   return numero.format(Math.round(valor));
 }
 
+const formatadores = new Map<number, Intl.NumberFormat>([
+  [0, new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 })],
+  [1, umaCasa],
+  [2, duasCasas],
+]);
+
+/** Qualquer número de casas (3 para o PSI); os formatadores são cacheados por casas. */
 export function fmtNum(valor: number | null | undefined, casas = 1): string {
   if (valor === null || valor === undefined || Number.isNaN(valor)) return "—";
-  return casas === 2 ? duasCasas.format(valor) : casas === 0 ? numero.format(Math.round(valor)) : umaCasa.format(valor);
+  let f = formatadores.get(casas);
+  if (!f) {
+    f = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
+    formatadores.set(casas, f);
+  }
+  return f.format(valor);
 }
 
 /** 24.22 -> "24,22" (IMC, 2 casas, como o app legado). */
