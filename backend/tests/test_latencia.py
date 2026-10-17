@@ -43,12 +43,16 @@ def _percentil(amostras: list[float], p: int) -> float:
 
 
 def test_p95_de_predicao_local(cliente) -> None:
-    casos = json.loads((Path(__file__).parent / "dados_ouro" / "entradas.json").read_text(encoding="utf-8"))
+    casos = json.loads(
+        (Path(__file__).parent / "dados_ouro" / "entradas.json").read_text(encoding="utf-8")
+    )
     entradas = [c["entrada"] if isinstance(c, dict) and "entrada" in c else c for c in casos]
     assert entradas, "dados_ouro/entradas.json vazio"
 
     for i in range(N_AQUECIMENTO):
-        assert cliente.post("/api/v1/predicoes", json=entradas[i % len(entradas)]).status_code == 200
+        assert (
+            cliente.post("/api/v1/predicoes", json=entradas[i % len(entradas)]).status_code == 200
+        )
 
     tempos_ms: list[float] = []
     for i in range(N_CHAMADAS):
@@ -76,6 +80,10 @@ def test_p95_de_predicao_local(cliente) -> None:
     }
     destino = Path(CONFIG.artefatos_dir) / "metricas" / "latencia.json"
     destino.parent.mkdir(parents=True, exist_ok=True)
-    destino.write_text(json.dumps(medicao, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    destino.write_text(
+        json.dumps(medicao, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n"
+    )
 
-    assert medicao["p95_ms"] < LIMITE_P95_MS, f"p95 = {medicao['p95_ms']} ms (limite {LIMITE_P95_MS} ms)"
+    assert medicao["p95_ms"] < LIMITE_P95_MS, (
+        f"p95 = {medicao['p95_ms']} ms (limite {LIMITE_P95_MS} ms)"
+    )
