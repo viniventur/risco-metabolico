@@ -6,8 +6,8 @@
 
 @import "tailwindcss";
 
-/* A paleta utilitária padrão do Tailwind é APAGADA (--color-*: initial): bg-slate-800 e
-   text-zinc-500 deixam de existir, e toda cor passa pelos tokens abaixo. @theme inline faz as
+/* A paleta utilitária padrão do Tailwind é APAGADA (--color-*: initial):
+   as classes da paleta padrão (slate, zinc, gray, …) deixam de existir e toda cor passa pelos tokens. @theme inline faz as
    utilidades apontarem diretamente para as variáveis de tema (claro/escuro) de :root. */
 @theme inline {
   --color-*: initial;
