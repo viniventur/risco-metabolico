@@ -352,6 +352,275 @@
         "title": "EntradaTriagem",
         "type": "object"
       },
+      "EstatisticaNumerica": {
+        "description": "Média, desvio e faixa de uma feature numérica, log contra treino (consulta 01).",
+        "properties": {
+          "deslocamento_desvios": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deslocamento Desvios"
+          },
+          "desvio_log": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desvio Log"
+          },
+          "desvio_treino": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Desvio Treino"
+          },
+          "extrapolou_faixa_de_treino": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extrapolou Faixa De Treino"
+          },
+          "feature": {
+            "title": "Feature",
+            "type": "string"
+          },
+          "maximo_log": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximo Log"
+          },
+          "maximo_treino": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximo Treino"
+          },
+          "media_log": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Log"
+          },
+          "media_treino": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Treino"
+          },
+          "minimo_log": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimo Log"
+          },
+          "minimo_treino": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimo Treino"
+          },
+          "n_linhas": {
+            "title": "N Linhas",
+            "type": "integer"
+          },
+          "n_nulos": {
+            "title": "N Nulos",
+            "type": "integer"
+          },
+          "n_validos": {
+            "title": "N Validos",
+            "type": "integer"
+          },
+          "p50_log": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50 Log"
+          },
+          "p50_treino": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P50 Treino"
+          }
+        },
+        "required": [
+          "feature",
+          "n_linhas",
+          "n_validos",
+          "n_nulos",
+          "media_log",
+          "media_treino",
+          "desvio_log",
+          "desvio_treino",
+          "p50_log",
+          "p50_treino",
+          "minimo_log",
+          "maximo_log",
+          "minimo_treino",
+          "maximo_treino",
+          "deslocamento_desvios",
+          "extrapolou_faixa_de_treino"
+        ],
+        "title": "EstatisticaNumerica",
+        "type": "object"
+      },
+      "FaixaComparada": {
+        "description": "Uma faixa de uma feature: proporção no treino e no log (consulta 02).",
+        "properties": {
+          "faixa_idx": {
+            "title": "Faixa Idx",
+            "type": "integer"
+          },
+          "faixa_rotulo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faixa Rotulo"
+          },
+          "feature": {
+            "title": "Feature",
+            "type": "string"
+          },
+          "limite_inf": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limite Inf"
+          },
+          "limite_sup": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limite Sup"
+          },
+          "n_log": {
+            "title": "N Log",
+            "type": "integer"
+          },
+          "n_total_log": {
+            "title": "N Total Log",
+            "type": "integer"
+          },
+          "n_treino": {
+            "title": "N Treino",
+            "type": "integer"
+          },
+          "prop_log": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prop Log"
+          },
+          "proporcao_treino": {
+            "title": "Proporcao Treino",
+            "type": "number"
+          },
+          "tipo": {
+            "enum": [
+              "numerica",
+              "categorica"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feature",
+          "faixa_idx",
+          "tipo",
+          "faixa_rotulo",
+          "limite_inf",
+          "limite_sup",
+          "n_log",
+          "prop_log",
+          "proporcao_treino",
+          "n_treino",
+          "n_total_log"
+        ],
+        "title": "FaixaComparada",
+        "type": "object"
+      },
       "FalhaLote": {
         "description": "Um item recusado dentro de um lote, com o índice de origem preservado.",
         "properties": {
@@ -537,6 +806,57 @@
           "itens"
         ],
         "title": "ImportanciaFeatures",
+        "type": "object"
+      },
+      "IndicadorFeature": {
+        "description": "PSI de uma feature sobre as faixas do treino (consulta 03).",
+        "properties": {
+          "classificacao": {
+            "enum": [
+              "estavel",
+              "atencao",
+              "deriva significativa",
+              "amostra insuficiente"
+            ],
+            "title": "Classificacao",
+            "type": "string"
+          },
+          "feature": {
+            "title": "Feature",
+            "type": "string"
+          },
+          "n_amostra": {
+            "title": "N Amostra",
+            "type": "integer"
+          },
+          "psi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Psi"
+          },
+          "tipo": {
+            "enum": [
+              "numerica",
+              "categorica"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feature",
+          "tipo",
+          "n_amostra",
+          "psi",
+          "classificacao"
+        ],
+        "title": "IndicadorFeature",
         "type": "object"
       },
       "InfoModelo": {
@@ -990,6 +1310,90 @@
           "agregados_carregados"
         ],
         "title": "Prontidao",
+        "type": "object"
+      },
+      "RespostaDeriva": {
+        "description": "Com o banco fora do ar: 200 com `disponivel: false` e `motivo` — nunca 5xx (§4.3.8).",
+        "properties": {
+          "atualizado_em": {
+            "title": "Atualizado Em",
+            "type": "string"
+          },
+          "consultas": {
+            "description": "os arquivos de sql/deriva/ executados",
+            "items": {
+              "type": "string"
+            },
+            "title": "Consultas",
+            "type": "array"
+          },
+          "disponivel": {
+            "title": "Disponivel",
+            "type": "boolean"
+          },
+          "estatisticas": {
+            "items": {
+              "$ref": "#/components/schemas/EstatisticaNumerica"
+            },
+            "title": "Estatisticas",
+            "type": "array"
+          },
+          "faixas": {
+            "items": {
+              "$ref": "#/components/schemas/FaixaComparada"
+            },
+            "title": "Faixas",
+            "type": "array"
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/IndicadorFeature"
+            },
+            "title": "Features",
+            "type": "array"
+          },
+          "janela_dias": {
+            "title": "Janela Dias",
+            "type": "integer"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          },
+          "n_amostra": {
+            "title": "N Amostra",
+            "type": "integer"
+          },
+          "n_minimo": {
+            "title": "N Minimo",
+            "type": "integer"
+          },
+          "versao_dados": {
+            "title": "Versao Dados",
+            "type": "string"
+          },
+          "versao_modelo": {
+            "title": "Versao Modelo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "janela_dias",
+          "n_minimo",
+          "n_amostra",
+          "versao_modelo",
+          "versao_dados",
+          "atualizado_em",
+          "disponivel"
+        ],
+        "title": "RespostaDeriva",
         "type": "object"
       },
       "RespostaLote": {
@@ -1513,6 +1917,88 @@
         "summary": "Manifest normalizado: versão, métricas, ambiente",
         "tags": [
           "modelo"
+        ]
+      }
+    },
+    "/api/v1/monitoramento/deriva": {
+      "get": {
+        "description": "Uma requisição, três consultas, `Cache-Control: public, max-age=300`.",
+        "operationId": "deriva_api_v1_monitoramento_deriva_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "janela_dias",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 365,
+              "minimum": 1,
+              "title": "Janela Dias",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "restringe `faixas` a uma feature",
+            "in": "query",
+            "name": "feature",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "restringe `faixas` a uma feature",
+              "title": "Feature"
+            }
+          },
+          {
+            "description": "Versão do modelo; padrão: a do manifest",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo; padrão: a do manifest",
+              "title": "Versao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaDeriva"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "A entrada real se parece com a de treino? PSI por feature; 200 mesmo com o banco fora",
+        "tags": [
+          "monitoramento"
         ]
       }
     },

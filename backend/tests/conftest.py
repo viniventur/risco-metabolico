@@ -26,7 +26,7 @@ CSV = RAIZ / "data" / "bruto" / "obesity.csv"
 # O ambiente de teste é fixado ANTES de importar `app`: nenhum .env local muda o resultado.
 os.environ.setdefault("LIMITE_TAXA_ATIVO", "false")
 os.environ.setdefault("EXIGIR_INTEGRIDADE", "true")
-os.environ.setdefault("N_MINIMO_DERIVA", "100")
+os.environ.setdefault("N_MINIMO_DERIVA", "200")  # ADR 0008
 if os.environ.get("BANCO_URL"):
     os.environ.setdefault("BANCO_HABILITADO", "true")
 else:

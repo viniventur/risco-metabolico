@@ -16,7 +16,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.rotas import metadados, modelo, painel, predicoes, registros, saude
+from app.api.rotas import metadados, modelo, monitoramento, painel, predicoes, registros, saude
 from app.config import CONFIG
 from app.dominio.agregados import BasePainel
 from app.nucleo.banco import Banco
@@ -112,6 +112,7 @@ def criar_app() -> FastAPI:
     app.include_router(predicoes.roteador, prefix=prefixo)
     app.include_router(painel.roteador, prefix=prefixo)
     app.include_router(registros.roteador, prefix=prefixo)
+    app.include_router(monitoramento.roteador, prefix=prefixo)
     return app
 
 

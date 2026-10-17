@@ -37,7 +37,8 @@ services:
       BANCO_HABILITADO: "true"
       BANCO_URL: "postgresql://postgres:postgres@banco:5432/app_local"
       # Sem default em app/config.py: a API recusa subir com BANCO_HABILITADO=true e esta vazia.
-      N_MINIMO_DERIVA: "100"
+      # Valor medido (ADR 0008).
+      N_MINIMO_DERIVA: "200"
       LIMITE_TAXA_ATIVO: "false"
     volumes:
       - ./models:/app/models:ro
