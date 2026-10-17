@@ -149,3 +149,13 @@ export function IconeAlerta(p: Props) {
     </svg>
   );
 }
+
+/** Marca decorativa da faixa de KPIs: puramente visual, sempre dentro de um contêiner aria-hidden. */
+export function Marca(p: Props) {
+  return (
+    <svg {...base({ width: 56, height: 56, strokeWidth: 1.5, ...p })}>
+      <circle cx="12" cy="12" r="9.5" />
+      <path d="M6.5 13.5l2.5-3 2.5 4 2.5-6 2.5 5" />
+    </svg>
+  );
+}

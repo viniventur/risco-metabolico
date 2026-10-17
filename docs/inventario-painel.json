@@ -1,0 +1,503 @@
+[
+ {
+  "pagina": "Início",
+  "visual": "shape",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 1582,
+   "y": 378,
+   "width": 400,
+   "height": 130
+  }
+ },
+ {
+  "pagina": "Início",
+  "visual": "shape",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 1582,
+   "y": 540,
+   "width": 400,
+   "height": 130
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "actionButton",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 10,
+   "y": 382,
+   "width": 91,
+   "height": 92
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "actionButton",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 10,
+   "y": 621,
+   "width": 91,
+   "height": 92
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "card",
+  "titulo": "Idade Média",
+  "campos": [
+   "Values:Avg(base.Idade)"
+  ],
+  "pos": {
+   "x": 496,
+   "y": 52,
+   "width": 184,
+   "height": 162
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "card",
+  "titulo": "Nível Predominante",
+  "campos": [
+   "Values:Min(base.Nivel_Obesidade)"
+  ],
+  "pos": {
+   "x": 1342,
+   "y": 66,
+   "width": 278,
+   "height": 148
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "card",
+  "titulo": "Altura Média",
+  "campos": [
+   "Values:Sum(base.Altura)"
+  ],
+  "pos": {
+   "x": 784,
+   "y": 64,
+   "width": 224,
+   "height": 158
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "card",
+  "titulo": "Qtd Pacientes",
+  "campos": [
+   "Values:Min(base.Genero)"
+  ],
+  "pos": {
+   "x": 178,
+   "y": 52,
+   "width": 216,
+   "height": 162
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "card",
+  "titulo": "Peso Médio",
+  "campos": [
+   "Values:Sum(base.Peso)"
+  ],
+  "pos": {
+   "x": 1062,
+   "y": 72,
+   "width": 246,
+   "height": 142
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "image",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 1667,
+   "y": 28,
+   "width": 357,
+   "height": 200
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "scatterChart",
+  "titulo": "Análise Cruzada - Altura, Peso e o Nível de Obesidade",
+  "campos": [
+   "Series:base.Nivel_Obesidade",
+   "Y:Sum(base.Altura)",
+   "X:Sum(base.Peso)"
+  ],
+  "pos": {
+   "x": 122,
+   "y": 683,
+   "width": 862,
+   "height": 382
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "image",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 7,
+   "y": 134,
+   "width": 111,
+   "height": 80
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "textbox",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 1,
+   "y": 215,
+   "width": 122,
+   "height": 38
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "actionButton",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 0,
+   "y": 118,
+   "width": 122,
+   "height": 145
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "htmlContent443BE3AD55E043BF878BED274D3A6855",
+  "titulo": "",
+  "campos": [
+   "content:base.HTML_analise_homens"
+  ],
+  "pos": {
+   "x": 871,
+   "y": 290,
+   "width": 276,
+   "height": 377
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "htmlContent443BE3AD55E043BF878BED274D3A6855",
+  "titulo": "",
+  "campos": [
+   "content:base.HTML_analise_mulheres"
+  ],
+  "pos": {
+   "x": 598,
+   "y": 290,
+   "width": 290,
+   "height": 364
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "card",
+  "titulo": "",
+  "campos": [
+   "Values:base.percent_homens"
+  ],
+  "pos": {
+   "x": 1060,
+   "y": 292,
+   "width": 101,
+   "height": 103
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "card",
+  "titulo": "",
+  "campos": [
+   "Values:base.percent_mulheres"
+  ],
+  "pos": {
+   "x": 589,
+   "y": 292,
+   "width": 100,
+   "height": 102
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "textbox",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 666,
+   "y": 236,
+   "width": 446,
+   "height": 56
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "barChart",
+  "titulo": "Divisão por Nível de Obesidade",
+  "campos": [
+   "Category:base.Nivel_Obesidade",
+   "Y:CountNonNull(base.Nivel_Obesidade)"
+  ],
+  "pos": {
+   "x": 124,
+   "y": 242,
+   "width": 440,
+   "height": 412
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "columnChart",
+  "titulo": "IMC Médio por Frequência Atividade Física",
+  "campos": [
+   "Y:Sum(base.IMC)",
+   "Category:base.Atividade_Fisica_Frequencia",
+   "Series:base.Genero"
+  ],
+  "pos": {
+   "x": 1008,
+   "y": 684,
+   "width": 612,
+   "height": 382
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "barChart",
+  "titulo": "IMC Médio por Consumo de Álcool",
+  "campos": [
+   "Y:Sum(base.IMC)",
+   "Category:base.Consumo_Alcool"
+  ],
+  "pos": {
+   "x": 1636,
+   "y": 684,
+   "width": 401,
+   "height": 382
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "donutChart",
+  "titulo": "Consumo de Alimentos Calóricos",
+  "campos": [
+   "Category:base.Consumo_Calorico_Frequente",
+   "Y:CountNonNull(base.Nivel_Obesidade)"
+  ],
+  "pos": {
+   "x": 1647,
+   "y": 241,
+   "width": 390,
+   "height": 426
+  }
+ },
+ {
+  "pagina": "Visão Geral",
+  "visual": "columnChart",
+  "titulo": "",
+  "campos": [
+   "Category:base.Genero",
+   "Y:Avg(base.IMC)"
+  ],
+  "pos": {
+   "x": 1186,
+   "y": 246,
+   "width": 434,
+   "height": 408
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "actionButton",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 10,
+   "y": 382,
+   "width": 91,
+   "height": 92
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "actionButton",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 9,
+   "y": 494,
+   "width": 91,
+   "height": 91
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "tableEx",
+  "titulo": "",
+  "campos": [
+   "Values:base.Nivel_Obesidade",
+   "Values:Sum(base.IMC)",
+   "Values:Sum(base.Altura)",
+   "Values:Sum(base.Peso)",
+   "Values:Sum(base.Idade)",
+   "Values:base.Atividade_Fisica_Frequencia",
+   "Values:base.Consumo_Agua_Diario",
+   "Values:base.Consumo_Alcool",
+   "Values:base.Consumo_Calorico_Frequente",
+   "Values:base.Consumo_Alimentos_Entre_Refeicoes",
+   "Values:base.Consumo_Vegetais",
+   "Values:base.Fumante",
+   "Values:base.Genero",
+   "Values:base.Historico_Familiar_Sobrepeso",
+   "Values:base.Meio_Transporte",
+   "Values:base.Monitoramento_Calorias",
+   "Values:base.Numero_Refeicoes_Principais",
+   "Values:base.Tempo_Dispositivos_Tecnologicos"
+  ],
+  "pos": {
+   "x": 120,
+   "y": 142,
+   "width": 1902,
+   "height": 921
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "slicer",
+  "titulo": "",
+  "campos": [
+   "Values:base.Consumo_Agua_Diario"
+  ],
+  "pos": {
+   "x": 441,
+   "y": 22,
+   "width": 306,
+   "height": 83
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "slicer",
+  "titulo": "",
+  "campos": [
+   "Values:base.Consumo_Alcool"
+  ],
+  "pos": {
+   "x": 764,
+   "y": 22,
+   "width": 307,
+   "height": 83
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "slicer",
+  "titulo": "",
+  "campos": [
+   "Values:base.Consumo_Calorico_Frequente"
+  ],
+  "pos": {
+   "x": 1083,
+   "y": 22,
+   "width": 306,
+   "height": 83
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "slicer",
+  "titulo": "",
+  "campos": [
+   "Values:base.Genero"
+  ],
+  "pos": {
+   "x": 1401,
+   "y": 22,
+   "width": 306,
+   "height": 83
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "slicer",
+  "titulo": "",
+  "campos": [
+   "Values:base.Historico_Familiar_Sobrepeso"
+  ],
+  "pos": {
+   "x": 1719,
+   "y": 27,
+   "width": 303,
+   "height": 83
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "slicer",
+  "titulo": "",
+  "campos": [
+   "Values:base.Nivel_Obesidade"
+  ],
+  "pos": {
+   "x": 120,
+   "y": 22,
+   "width": 306,
+   "height": 94
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "actionButton",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 0,
+   "y": 116,
+   "width": 118,
+   "height": 147
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "textbox",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 1,
+   "y": 215,
+   "width": 122,
+   "height": 38
+  }
+ },
+ {
+  "pagina": "Consulta",
+  "visual": "image",
+  "titulo": "",
+  "campos": [],
+  "pos": {
+   "x": 7,
+   "y": 134,
+   "width": 111,
+   "height": 80
+  }
+ }
+]

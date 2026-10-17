@@ -32,3 +32,31 @@ export function classificarImc(imc: number): { faixa: string; tom: "info" | "suc
 export function calcularImc(peso: number, altura: number): number {
   return Math.round((peso / (altura * altura)) * 100) / 100;
 }
+
+/** Rótulos curtos de apresentação para a escala ordinal de atividade física (eixo; o tooltip mostra o rótulo de /metadata). */
+export const ROTULO_CURTO_ATIVIDADE: Record<string, string> = {
+  "0": "nenhuma",
+  "1": "1–2×/sem",
+  "2": "3–4×/sem",
+  "3": "5+×/sem",
+};
+
+type Forma = "circle" | "square" | "diamond" | "triangle";
+
+/** Forma da marca na dispersão: segundo canal além da cor por macro-faixa (7.3). */
+export const FORMA_DO_NIVEL: Record<Nivel, Forma> = {
+  "Abaixo do Peso": "circle",
+  "Peso Normal": "square",
+  "Sobrepeso I": "diamond",
+  "Sobrepeso II": "triangle",
+  "Obesidade I": "circle",
+  "Obesidade II": "square",
+  "Obesidade III": "diamond",
+};
+
+export const FORMA_LEGENDA: Record<Forma, "circulo" | "quadrado" | "losango" | "triangulo"> = {
+  circle: "circulo",
+  square: "quadrado",
+  diamond: "losango",
+  triangle: "triangulo",
+};

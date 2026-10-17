@@ -25,6 +25,22 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   // O alias "@" -> src vale para Vite e Vitest; o `paths` do tsconfig só vale para o tsc.
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
+  // Dependências que só as rotas lazy importam: pré-otimizadas de saída, senão o dev server as
+  // descobre no primeiro acesso, reconstrói o bundle e recarrega a página no meio da navegação.
+  optimizeDeps: {
+    include: [
+      "recharts",
+      "@tanstack/react-table",
+      "@tanstack/react-virtual",
+      "react-hook-form",
+      "@hookform/resolvers/zod",
+      "react-markdown",
+      "remark-gfm",
+      "remark-math",
+      "rehype-katex",
+      "dompurify",
+    ],
+  },
   build: {
     sourcemap: false,
     rollupOptions: {
