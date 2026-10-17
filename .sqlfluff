@@ -1,0 +1,14 @@
+[sqlfluff]
+# O templater só pode ser definido no .sqlfluff do diretório de trabalho (raiz). Os arquivos de
+# sql/deriva/ contêm :janela_dias e :'versao_modelo'; com o templater padrão (jinja) o sqlfluff
+# devolve "Found unparsable section" e o portão fica permanentemente vermelho. As regras de
+# estilo vivem em sql/.sqlfluff.
+templater = placeholder
+dialect = postgres
+
+[sqlfluff:templater:placeholder]
+param_style = colon
+janela_dias = 30
+n_minimo = 100
+versao_modelo = 2.0.0
+versao_dados = 000000000000

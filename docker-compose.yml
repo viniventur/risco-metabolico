@@ -1,0 +1,50 @@
+# docker-compose.yml — "git clone + um comando e sobe", sem nenhuma credencial (plano, §4.3.9).
+# O MESMO schema.sql, o MESMO grants.sql e o MESMO seed da instância publicada rodam aqui.
+#
+# Armadilha do initdb: os scripts de /docker-entrypoint-initdb.d só rodam quando o volume está
+# VAZIO. Depois de alterar sql/schema.sql: `docker compose down -v` antes de subir de novo.
+# E sempre `docker compose up -d --wait banco`: sem --wait o seed corre contra um banco que ainda
+# está aplicando o schema, e a falha é intermitente.
+services:
+  banco:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres     # local e descartável: versionado de propósito
+      POSTGRES_DB: app_local
+    ports: ["55432:5432"]             # 55432 evita colidir com Postgres do host
+    volumes:
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql:ro
+      - ./sql/grants.sql:/docker-entrypoint-initdb.d/20-grants.sql:ro
+      - banco_local:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d app_local"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: { context: ., dockerfile: backend/Dockerfile }   # contexto na RAIZ: lê scripts/, artifacts/ e sql/
+    ports: ["8000:8000"]
+    environment:
+      ORIGENS_CORS: "http://localhost:5173"
+      MODELOS_DIR: /app/models
+      ARTEFATOS_DIR: /app/artifacts
+      # /painel/* e /registros são servidos DESTE parquet (§6.2). Sem a variável e sem o volume,
+      # o aceite de F10 ("o produto abre com o banco parado") falha por arquivo ausente.
+      DADOS_DIR: /app/data/processado
+      SQL_DIR: /app/sql
+      BANCO_HABILITADO: "true"
+      BANCO_URL: "postgresql://postgres:postgres@banco:5432/app_local"
+      # Sem default em app/config.py: a API recusa subir com BANCO_HABILITADO=true e esta vazia.
+      N_MINIMO_DERIVA: "100"
+      LIMITE_TAXA_ATIVO: "false"
+    volumes:
+      - ./models:/app/models:ro
+      - ./artifacts:/app/artifacts:ro
+      - ./data/processado:/app/data/processado:ro
+    depends_on:
+      banco: { condition: service_healthy }
+
+volumes:
+  banco_local: {}
