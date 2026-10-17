@@ -1,0 +1,11 @@
+# LF em tudo que é texto, em qualquer sistema: hooks, scripts, SQL e Dockerfile viajam para
+# dentro de imagens Linux, e CRLF num shebang vira "bad interpreter".
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pkl binary
+*.parquet binary
