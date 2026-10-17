@@ -1,6 +1,96 @@
 {
   "components": {
     "schemas": {
+      "Agregado": {
+        "description": "`GET /painel/por-categoria`: tabela longa, uma medida por linha, domínio completo.",
+        "properties": {
+          "amostra_minima": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amostra Minima"
+          },
+          "campo": {
+            "title": "Campo",
+            "type": "string"
+          },
+          "dimensoes": {
+            "items": {
+              "$ref": "#/components/schemas/Dimensao"
+            },
+            "title": "Dimensoes",
+            "type": "array"
+          },
+          "linhas": {
+            "description": "{ordem, <dimensões como string>, medida, valor|valor_texto, n, suprimido}",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Linhas",
+            "type": "array"
+          },
+          "medidas": {
+            "items": {
+              "$ref": "#/components/schemas/Medida"
+            },
+            "title": "Medidas",
+            "type": "array"
+          },
+          "metrica": {
+            "enum": [
+              "contagem",
+              "imc_medio"
+            ],
+            "title": "Metrica",
+            "type": "string"
+          },
+          "recorte": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Recorte",
+            "type": "object"
+          },
+          "serie": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serie"
+          },
+          "total_filtrado": {
+            "title": "Total Filtrado",
+            "type": "integer"
+          },
+          "total_global": {
+            "title": "Total Global",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "campo",
+          "metrica",
+          "dimensoes",
+          "medidas",
+          "total_filtrado",
+          "total_global",
+          "recorte",
+          "linhas"
+        ],
+        "title": "Agregado",
+        "type": "object"
+      },
       "CampoFormulario": {
         "additionalProperties": false,
         "description": "Um campo do formulário de triagem; `nome` é a CHAVE do JSON de `EntradaTriagem`.",
@@ -96,6 +186,29 @@
           "tipo"
         ],
         "title": "CampoFormulario",
+        "type": "object"
+      },
+      "Dimensao": {
+        "description": "Uma dimensão do agregado; `tipo` diz ao front como converter o valor (sempre string).",
+        "properties": {
+          "nome": {
+            "title": "Nome",
+            "type": "string"
+          },
+          "tipo": {
+            "enum": [
+              "texto",
+              "inteiro"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nome",
+          "tipo"
+        ],
+        "title": "Dimensao",
         "type": "object"
       },
       "EntradaRelatorio": {
@@ -288,6 +401,71 @@
         ],
         "title": "Genero",
         "type": "string"
+      },
+      "GeneroResumo": {
+        "description": "Uma linha de `GET /painel/genero`.",
+        "properties": {
+          "genero": {
+            "title": "Genero",
+            "type": "string"
+          },
+          "imc_medio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imc Medio"
+          },
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "n_imc": {
+            "title": "N Imc",
+            "type": "integer"
+          },
+          "n_predominante": {
+            "title": "N Predominante",
+            "type": "integer"
+          },
+          "nivel_predominante": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nivel Predominante"
+          },
+          "percentual": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentual"
+          }
+        },
+        "required": [
+          "genero",
+          "n",
+          "percentual",
+          "imc_medio",
+          "n_imc",
+          "nivel_predominante",
+          "n_predominante"
+        ],
+        "title": "GeneroResumo",
+        "type": "object"
       },
       "GrupoFormulario": {
         "description": "Os três agrupamentos do legado: dados iniciais, dieta, hábitos.",
@@ -537,6 +715,31 @@
         "title": "LoteTriagem",
         "type": "object"
       },
+      "Medida": {
+        "description": "Uma medida do agregado; a classe escolhe a tolerância do teste de paridade.",
+        "properties": {
+          "classe": {
+            "enum": [
+              "contagem",
+              "media_limitada",
+              "proporcao",
+              "texto"
+            ],
+            "title": "Classe",
+            "type": "string"
+          },
+          "nome": {
+            "title": "Nome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nome",
+          "classe"
+        ],
+        "title": "Medida",
+        "type": "object"
+      },
       "MeioTransporte": {
         "description": "Domínio corrigido: o formulário legado enviava \"Automóvel\" e \"Motocicleta\", valores que não existem nas `categories_` do encoder (divergência 4).",
         "enum": [
@@ -624,6 +827,108 @@
           "valor"
         ],
         "title": "OpcaoCampo",
+        "type": "object"
+      },
+      "OpcaoDimensao": {
+        "description": "Um valor de dimensão filtrável, com rótulo de exibição e contagem global.",
+        "properties": {
+          "n": {
+            "title": "N",
+            "type": "integer"
+          },
+          "rotulo": {
+            "title": "Rotulo",
+            "type": "string"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Valor"
+          }
+        },
+        "required": [
+          "valor",
+          "rotulo",
+          "n"
+        ],
+        "title": "OpcaoDimensao",
+        "type": "object"
+      },
+      "PaginaRegistros": {
+        "description": "`GET /registros`: página ordenada do recorte, com as 18 colunas e o `id`.",
+        "properties": {
+          "linhas": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Linhas",
+            "type": "array"
+          },
+          "pagina": {
+            "title": "Pagina",
+            "type": "integer"
+          },
+          "recorte": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Recorte",
+            "type": "object"
+          },
+          "tamanho": {
+            "title": "Tamanho",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "pagina",
+          "tamanho",
+          "linhas",
+          "recorte"
+        ],
+        "title": "PaginaRegistros",
+        "type": "object"
+      },
+      "Ponto": {
+        "description": "Um registro da nuvem altura × peso.",
+        "properties": {
+          "altura": {
+            "title": "Altura",
+            "type": "number"
+          },
+          "imc": {
+            "title": "Imc",
+            "type": "number"
+          },
+          "nivel": {
+            "title": "Nivel",
+            "type": "string"
+          },
+          "peso": {
+            "title": "Peso",
+            "type": "number"
+          }
+        },
+        "required": [
+          "altura",
+          "peso",
+          "imc",
+          "nivel"
+        ],
+        "title": "Ponto",
         "type": "object"
       },
       "ProbabilidadeClasse": {
@@ -788,6 +1093,87 @@
         "title": "RespostaTriagem",
         "type": "object"
       },
+      "Resumo": {
+        "description": "`GET /painel/resumo`: os 6 KPIs da faixa superior.",
+        "properties": {
+          "altura_media": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Altura Media"
+          },
+          "idade_media": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idade Media"
+          },
+          "n_predominante": {
+            "title": "N Predominante",
+            "type": "integer"
+          },
+          "nivel_predominante": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nivel Predominante"
+          },
+          "peso_medio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peso Medio"
+          },
+          "recorte": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Recorte",
+            "type": "object"
+          },
+          "total_global": {
+            "title": "Total Global",
+            "type": "integer"
+          },
+          "total_registros": {
+            "title": "Total Registros",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_registros",
+          "idade_media",
+          "altura_media",
+          "peso_medio",
+          "nivel_predominante",
+          "n_predominante",
+          "total_global",
+          "recorte"
+        ],
+        "title": "Resumo",
+        "type": "object"
+      },
       "Saude": {
         "description": "Resposta de `GET /health` — sempre 200; o banco não é requisito de vivacidade.",
         "properties": {
@@ -911,6 +1297,35 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/dimensoes": {
+      "get": {
+        "description": "Os slicers mostram TODAS as opções do domínio global, não só as sobreviventes ao filtro.",
+        "operationId": "dimensoes_api_v1_dimensoes_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "items": {
+                      "$ref": "#/components/schemas/OpcaoDimensao"
+                    },
+                    "type": "array"
+                  },
+                  "title": "Response Dimensoes Api V1 Dimensoes Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Valores distintos das 6 dimensões filtráveis, com rótulo e contagem global",
+        "tags": [
+          "painel"
+        ]
+      }
+    },
     "/api/v1/health": {
       "get": {
         "description": "Estado do serviço. O banco e o log de predição aparecem, mas nunca derrubam a resposta.",
@@ -1098,6 +1513,515 @@
         "summary": "Manifest normalizado: versão, métricas, ambiente",
         "tags": [
           "modelo"
+        ]
+      }
+    },
+    "/api/v1/painel/genero": {
+      "get": {
+        "description": "JSON tipado por gênero — nunca HTML injetado, como no painel de referência.",
+        "operationId": "genero_api_v1_painel_genero_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "nivel",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Nivel",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "genero",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Genero",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agua",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Agua",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "alcool",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Alcool",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "caloricos",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Caloricos",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "historico_familiar",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Historico Familiar",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GeneroResumo"
+                  },
+                  "title": "Response Genero Api V1 Painel Genero Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Divisão por gênero",
+        "tags": [
+          "painel"
+        ]
+      }
+    },
+    "/api/v1/painel/pontos": {
+      "get": {
+        "description": "Até `amostra` pontos, amostra determinística; o IMC vem calculado.",
+        "operationId": "pontos_api_v1_painel_pontos_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "amostra",
+            "required": false,
+            "schema": {
+              "default": 2000,
+              "maximum": 2500,
+              "minimum": 1,
+              "title": "Amostra",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "nivel",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Nivel",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "genero",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Genero",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agua",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Agua",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "alcool",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Alcool",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "caloricos",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Caloricos",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "historico_familiar",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Historico Familiar",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Ponto"
+                  },
+                  "title": "Response Pontos Api V1 Painel Pontos Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Nuvem altura × peso do recorte",
+        "tags": [
+          "painel"
+        ]
+      }
+    },
+    "/api/v1/painel/por-categoria": {
+      "get": {
+        "description": "Domínio completo (grupo ausente vira n=0), dimensão sempre string, supressão explícita.",
+        "operationId": "por_categoria_api_v1_painel_por_categoria_get",
+        "parameters": [
+          {
+            "description": "nivel | genero | caloricos | alcool | atividade | agua | historico_familiar | transporte",
+            "in": "query",
+            "name": "campo",
+            "required": true,
+            "schema": {
+              "description": "nivel | genero | caloricos | alcool | atividade | agua | historico_familiar | transporte",
+              "title": "Campo",
+              "type": "string"
+            }
+          },
+          {
+            "description": "contagem | imc_medio",
+            "in": "query",
+            "name": "metrica",
+            "required": false,
+            "schema": {
+              "default": "contagem",
+              "description": "contagem | imc_medio",
+              "title": "Metrica",
+              "type": "string"
+            }
+          },
+          {
+            "description": "segunda dimensão, ex.: genero",
+            "in": "query",
+            "name": "serie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "segunda dimensão, ex.: genero",
+              "title": "Serie"
+            }
+          },
+          {
+            "in": "query",
+            "name": "nivel",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Nivel",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "genero",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Genero",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agua",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Agua",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "alcool",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Alcool",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "caloricos",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Caloricos",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "historico_familiar",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Historico Familiar",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Agregado"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tabela longa por categoria (e série opcional): contagem+pct ou IMC médio",
+        "tags": [
+          "painel"
+        ]
+      }
+    },
+    "/api/v1/painel/resumo": {
+      "get": {
+        "description": "count(*) do recorte, médias com n = count da coluna, e a MODA explícita (não Max + TopN).",
+        "operationId": "resumo_api_v1_painel_resumo_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "nivel",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Nivel",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "genero",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Genero",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agua",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Agua",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "alcool",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Alcool",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "caloricos",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Caloricos",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "historico_familiar",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Historico Familiar",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Resumo"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Os 6 KPIs do recorte",
+        "tags": [
+          "painel"
         ]
       }
     },
@@ -1315,6 +2239,272 @@
         "summary": "Prontidão: 200 com artefato e agregados carregados, 503 caso contrário.",
         "tags": [
           "infraestrutura"
+        ]
+      }
+    },
+    "/api/v1/registros": {
+      "get": {
+        "description": "Ordenação e paginação no servidor; `linha_origem` desempata para a ordem ser estável.",
+        "operationId": "registros_api_v1_registros_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "nivel",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Nivel",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "genero",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Genero",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agua",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Agua",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "alcool",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Alcool",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "caloricos",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Caloricos",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "historico_familiar",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Historico Familiar",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pagina",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Pagina",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tamanho",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Tamanho",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "uma de ['Nivel_Obesidade', 'IMC', 'Altura', 'Peso', 'Idade', 'Atividade_Fisica_Frequencia', 'Consumo_Agua_Diario', 'Consumo_Alcool', 'Consumo_Calorico_Frequente', 'Consumo_Alimentos_Entre_Refeicoes', 'Consumo_Vegetais', 'Fumante', 'Genero', 'Historico_Familiar_Sobrepeso', 'Meio_Transporte', 'Monitoramento_Calorias', 'Numero_Refeicoes_Principais', 'Tempo_Dispositivos_Tecnologicos']",
+            "in": "query",
+            "name": "ordenar_por",
+            "required": false,
+            "schema": {
+              "default": "IMC",
+              "description": "uma de ['Nivel_Obesidade', 'IMC', 'Altura', 'Peso', 'Idade', 'Atividade_Fisica_Frequencia', 'Consumo_Agua_Diario', 'Consumo_Alcool', 'Consumo_Calorico_Frequente', 'Consumo_Alimentos_Entre_Refeicoes', 'Consumo_Vegetais', 'Fumante', 'Genero', 'Historico_Familiar_Sobrepeso', 'Meio_Transporte', 'Monitoramento_Calorias', 'Numero_Refeicoes_Principais', 'Tempo_Dispositivos_Tecnologicos']",
+              "title": "Ordenar Por",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "direcao",
+            "required": false,
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Direcao",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaRegistros"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Página ordenada do recorte, 18 colunas",
+        "tags": [
+          "registros"
+        ]
+      }
+    },
+    "/api/v1/registros/exportar": {
+      "get": {
+        "description": "`text/csv` com `Content-Disposition`, na ordem de `linha_origem`.",
+        "operationId": "exportar_api_v1_registros_exportar_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "nivel",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Nivel",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "genero",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Genero",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "agua",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Agua",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "alcool",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Alcool",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "caloricos",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Caloricos",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "historico_familiar",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Historico Familiar",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "O recorte inteiro em CSV",
+        "tags": [
+          "registros"
         ]
       }
     }

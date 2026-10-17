@@ -25,7 +25,7 @@ def test_openapi_snapshot(cliente) -> None:
     atual = cliente.get("/openapi.json").json()
     if os.environ.get("ATUALIZAR_CONTRATO") == "1" or not SNAPSHOT.exists():
         SNAPSHOT.parent.mkdir(parents=True, exist_ok=True)
-        SNAPSHOT.write_text(_normalizar(atual) + "\n", encoding="utf-8")
+        SNAPSHOT.write_text(_normalizar(atual) + "\n", encoding="utf-8", newline="\n")
     esperado = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     assert _normalizar(atual) == _normalizar(esperado), (
         "o contrato OpenAPI mudou; se foi de propósito, regenere com ATUALIZAR_CONTRATO=1"

@@ -1,0 +1,145 @@
+{
+  "id": "por-nivel",
+  "titulo": "Distribuição dos registros pelas 7 faixas",
+  "mede": "Quantos registros a base tem em cada faixa de composição corporal, e quanto isso representa do total.",
+  "origem": "docs/agregados.md, seção \"Visão Geral\"; visual <BarrasPorNivel> (7.3)",
+  "fonte": [
+    "dados.registros_triagem"
+  ],
+  "versao_dados": "f3b7296728f8",
+  "sql_sha256": "0e30d03746adb2d19b476e04c179db628838d4cd8f09d784e2528d109313c97a",
+  "gerado_em": "2026-10-17T17:26:52+00:00",
+  "dimensoes": [
+    {
+      "nome": "nivel",
+      "tipo": "texto"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "contagem",
+      "classe": "contagem"
+    },
+    {
+      "nome": "pct",
+      "classe": "proporcao"
+    }
+  ],
+  "amostra_minima": null,
+  "divergencia": null,
+  "total_linhas": 14,
+  "linhas": [
+    {
+      "ordem": 1,
+      "nivel": "Abaixo do Peso",
+      "medida": "contagem",
+      "valor": 272.0,
+      "n": 272,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "nivel": "Abaixo do Peso",
+      "medida": "pct",
+      "valor": 12.884888678351492,
+      "n": 272,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "nivel": "Peso Normal",
+      "medida": "contagem",
+      "valor": 287.0,
+      "n": 287,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "nivel": "Peso Normal",
+      "medida": "pct",
+      "valor": 13.59545239223117,
+      "n": 287,
+      "suprimido": false
+    },
+    {
+      "ordem": 5,
+      "nivel": "Sobrepeso I",
+      "medida": "contagem",
+      "valor": 290.0,
+      "n": 290,
+      "suprimido": false
+    },
+    {
+      "ordem": 6,
+      "nivel": "Sobrepeso I",
+      "medida": "pct",
+      "valor": 13.737565135007106,
+      "n": 290,
+      "suprimido": false
+    },
+    {
+      "ordem": 7,
+      "nivel": "Sobrepeso II",
+      "medida": "contagem",
+      "valor": 290.0,
+      "n": 290,
+      "suprimido": false
+    },
+    {
+      "ordem": 8,
+      "nivel": "Sobrepeso II",
+      "medida": "pct",
+      "valor": 13.737565135007106,
+      "n": 290,
+      "suprimido": false
+    },
+    {
+      "ordem": 9,
+      "nivel": "Obesidade I",
+      "medida": "contagem",
+      "valor": 351.0,
+      "n": 351,
+      "suprimido": false
+    },
+    {
+      "ordem": 10,
+      "nivel": "Obesidade I",
+      "medida": "pct",
+      "valor": 16.627190904784463,
+      "n": 351,
+      "suprimido": false
+    },
+    {
+      "ordem": 11,
+      "nivel": "Obesidade II",
+      "medida": "contagem",
+      "valor": 297.0,
+      "n": 297,
+      "suprimido": false
+    },
+    {
+      "ordem": 12,
+      "nivel": "Obesidade II",
+      "medida": "pct",
+      "valor": 14.069161534817622,
+      "n": 297,
+      "suprimido": false
+    },
+    {
+      "ordem": 13,
+      "nivel": "Obesidade III",
+      "medida": "contagem",
+      "valor": 324.0,
+      "n": 324,
+      "suprimido": false
+    },
+    {
+      "ordem": 14,
+      "nivel": "Obesidade III",
+      "medida": "pct",
+      "valor": 15.348176219801042,
+      "n": 324,
+      "suprimido": false
+    }
+  ]
+}

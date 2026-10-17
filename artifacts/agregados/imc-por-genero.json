@@ -1,0 +1,45 @@
+{
+  "id": "imc-por-genero",
+  "titulo": "IMC médio por gênero",
+  "mede": "Média do IMC (peso dividido pela altura ao quadrado) de cada gênero, sobre a base inteira, sem filtro.",
+  "origem": "docs/agregados.md, seção \"Visão Geral\"; visual <ImcPorGenero> (7.3)",
+  "fonte": [
+    "dados.registros_triagem"
+  ],
+  "versao_dados": "f3b7296728f8",
+  "sql_sha256": "472e3ef6047010b9be40debe874bef31b9b4253e332d04401ed31b22778dbb04",
+  "gerado_em": "2026-10-17T17:26:52+00:00",
+  "dimensoes": [
+    {
+      "nome": "genero",
+      "tipo": "texto"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "imc_medio",
+      "classe": "media_limitada"
+    }
+  ],
+  "amostra_minima": 15,
+  "divergencia": null,
+  "total_linhas": 2,
+  "linhas": [
+    {
+      "ordem": 1,
+      "genero": "Feminino",
+      "medida": "imc_medio",
+      "valor": 30.130002026448054,
+      "n": 1043,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "genero": "Masculino",
+      "medida": "imc_medio",
+      "valor": 29.280377404164767,
+      "n": 1068,
+      "suprimido": false
+    }
+  ]
+}

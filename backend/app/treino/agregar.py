@@ -299,7 +299,7 @@ def materializar(
         raise ContratoViolado(f"{cab.id}: {len(bruto)} bytes acima do teto de {TETO_BYTES}")
     destino.mkdir(parents=True, exist_ok=True)
     arquivo = destino / f"{cab.id}.json"
-    arquivo.write_text(bruto + "\n", encoding="utf-8")
+    arquivo.write_text(bruto + "\n", encoding="utf-8", newline="\n")
     return arquivo
 
 

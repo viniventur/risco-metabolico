@@ -1,0 +1,105 @@
+{
+  "id": "genero",
+  "titulo": "Divisão por gênero",
+  "mede": "Para cada gênero: quantos registros, a fração do total, o IMC médio e a faixa predominante (moda, desempate por nome), sobre a base inteira.",
+  "origem": "docs/agregados.md, seção \"Visão Geral\"; <PainelGenero> e <AnaliseGenero> (7.3)",
+  "fonte": [
+    "dados.registros_triagem"
+  ],
+  "versao_dados": "f3b7296728f8",
+  "sql_sha256": "599e900227dd468ef62a6b81cc38cd43de8e11dc6593c641ac4725d5b30be4fe",
+  "gerado_em": "2026-10-17T17:26:52+00:00",
+  "dimensoes": [
+    {
+      "nome": "genero",
+      "tipo": "texto"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "n",
+      "classe": "contagem"
+    },
+    {
+      "nome": "percentual",
+      "classe": "proporcao"
+    },
+    {
+      "nome": "imc_medio",
+      "classe": "media_limitada"
+    },
+    {
+      "nome": "nivel_predominante",
+      "classe": "texto"
+    }
+  ],
+  "amostra_minima": 15,
+  "divergencia": null,
+  "total_linhas": 8,
+  "linhas": [
+    {
+      "ordem": 1,
+      "genero": "Feminino",
+      "medida": "n",
+      "valor": 1043.0,
+      "n": 1043,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "genero": "Feminino",
+      "medida": "percentual",
+      "valor": 49.40786357176694,
+      "n": 1043,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "genero": "Feminino",
+      "medida": "imc_medio",
+      "valor": 30.130002026448054,
+      "n": 1043,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "genero": "Feminino",
+      "medida": "nivel_predominante",
+      "valor_texto": "Obesidade III",
+      "n": 323,
+      "suprimido": false
+    },
+    {
+      "ordem": 5,
+      "genero": "Masculino",
+      "medida": "n",
+      "valor": 1068.0,
+      "n": 1068,
+      "suprimido": false
+    },
+    {
+      "ordem": 6,
+      "genero": "Masculino",
+      "medida": "percentual",
+      "valor": 50.59213642823306,
+      "n": 1068,
+      "suprimido": false
+    },
+    {
+      "ordem": 7,
+      "genero": "Masculino",
+      "medida": "imc_medio",
+      "valor": 29.280377404164767,
+      "n": 1068,
+      "suprimido": false
+    },
+    {
+      "ordem": 8,
+      "genero": "Masculino",
+      "medida": "nivel_predominante",
+      "valor_texto": "Obesidade II",
+      "n": 295,
+      "suprimido": false
+    }
+  ]
+}

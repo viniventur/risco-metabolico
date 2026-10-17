@@ -1,0 +1,106 @@
+{
+  "id": "imc-por-atividade-genero",
+  "titulo": "IMC médio por frequência de atividade física e gênero",
+  "mede": "Média do IMC (peso dividido pela altura ao quadrado) de cada combinação de frequência semanal de atividade física e gênero, sobre a base inteira.",
+  "origem": "study/01_comparacao_de_modelos.ipynb, célula de agregados; visual <ImcPorAtividade> (7.3)",
+  "fonte": [
+    "dados.registros_triagem",
+    "dados.rotulos_escala"
+  ],
+  "versao_dados": "f3b7296728f8",
+  "sql_sha256": "2c4d87cf91dec5d6678e1ab2dbb575d8a45d882405ea5eacad80c201ae3ec63a",
+  "gerado_em": "2026-10-17T17:26:52+00:00",
+  "dimensoes": [
+    {
+      "nome": "atividade",
+      "tipo": "inteiro"
+    },
+    {
+      "nome": "genero",
+      "tipo": "texto"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "imc_medio",
+      "classe": "media_limitada"
+    }
+  ],
+  "amostra_minima": 15,
+  "divergencia": null,
+  "total_linhas": 8,
+  "linhas": [
+    {
+      "ordem": 1,
+      "atividade": "0",
+      "genero": "Feminino",
+      "medida": "imc_medio",
+      "valor": 31.54386447966845,
+      "n": 475,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "atividade": "0",
+      "genero": "Masculino",
+      "medida": "imc_medio",
+      "valor": 29.97134400991957,
+      "n": 245,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "atividade": "1",
+      "genero": "Feminino",
+      "medida": "imc_medio",
+      "valor": 29.20480358130251,
+      "n": 305,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "atividade": "1",
+      "genero": "Masculino",
+      "medida": "imc_medio",
+      "valor": 30.410317263596365,
+      "n": 471,
+      "suprimido": false
+    },
+    {
+      "ordem": 5,
+      "atividade": "2",
+      "genero": "Feminino",
+      "medida": "imc_medio",
+      "valor": 29.53064749497708,
+      "n": 226,
+      "suprimido": false
+    },
+    {
+      "ordem": 6,
+      "atividade": "2",
+      "genero": "Masculino",
+      "medida": "imc_medio",
+      "valor": 27.648963120272104,
+      "n": 270,
+      "suprimido": false
+    },
+    {
+      "ordem": 7,
+      "atividade": "3",
+      "genero": "Feminino",
+      "medida": "imc_medio",
+      "valor": 23.26662323191096,
+      "n": 37,
+      "suprimido": false
+    },
+    {
+      "ordem": 8,
+      "atividade": "3",
+      "genero": "Masculino",
+      "medida": "imc_medio",
+      "valor": 26.097369653540827,
+      "n": 82,
+      "suprimido": false
+    }
+  ]
+}

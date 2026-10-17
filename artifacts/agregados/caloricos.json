@@ -1,0 +1,65 @@
+{
+  "id": "caloricos",
+  "titulo": "Consumo frequente de alimentos calóricos",
+  "mede": "Quantos registros declaram consumo frequente de alimentos muito calóricos (Sim/Não), e quanto cada resposta representa do total.",
+  "origem": "docs/agregados.md, seção \"Visão Geral\"; visual <DonutCaloricos> (7.3)",
+  "fonte": [
+    "dados.registros_triagem"
+  ],
+  "versao_dados": "f3b7296728f8",
+  "sql_sha256": "e3e3b9e59230dd90bf588ef90b06ea24d23e487d47b0eb34e7fa543d472ac67e",
+  "gerado_em": "2026-10-17T17:26:52+00:00",
+  "dimensoes": [
+    {
+      "nome": "caloricos",
+      "tipo": "texto"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "contagem",
+      "classe": "contagem"
+    },
+    {
+      "nome": "pct",
+      "classe": "proporcao"
+    }
+  ],
+  "amostra_minima": null,
+  "divergencia": null,
+  "total_linhas": 4,
+  "linhas": [
+    {
+      "ordem": 1,
+      "caloricos": "Não",
+      "medida": "contagem",
+      "valor": 245.0,
+      "n": 245,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "caloricos": "Não",
+      "medida": "pct",
+      "valor": 11.605873993368071,
+      "n": 245,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "caloricos": "Sim",
+      "medida": "contagem",
+      "valor": 1866.0,
+      "n": 1866,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "caloricos": "Sim",
+      "medida": "pct",
+      "valor": 88.39412600663192,
+      "n": 1866,
+      "suprimido": false
+    }
+  ]
+}

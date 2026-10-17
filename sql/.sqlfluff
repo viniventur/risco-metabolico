@@ -4,7 +4,9 @@ dialect = postgres
 max_line_length = 120
 # Regras de layout e de estilo que brigam com o SQL comentado e alinhado deste projeto.
 # As regras de capitalização, aliasing, ambiguidade e referência continuam ligadas.
-exclude_rules = LT01, LT02, LT05, LT09, LT12, LT13, LT14, ST06, ST09, AM04, AL05, RF02, RF03, CV03, CV06, CV11
+# AL09 (self-alias) fica de fora de propósito: o contrato de saída dos agregados exige que TODA
+# coluna saia com alias explícito, inclusive `m.valor AS valor` (docs/agregados.md).
+exclude_rules = LT01, LT02, LT05, LT09, LT12, LT13, LT14, ST06, ST09, AM04, AL05, AL09, RF02, RF03, CV03, CV06, CV11
 
 [sqlfluff:rules:capitalisation.keywords]
 capitalisation_policy = upper

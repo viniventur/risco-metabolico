@@ -1,0 +1,86 @@
+{
+  "id": "resumo",
+  "titulo": "Resumo do recorte",
+  "mede": "Quantos registros a base tem, as médias de idade, altura e peso, e a faixa predominante — a MODA, com desempate por nome — sobre a base inteira.",
+  "origem": "docs/agregados.md, seção \"Visão Geral\"; faixa de KPIs <FaixaKpis> (7.3)",
+  "fonte": [
+    "dados.registros_triagem"
+  ],
+  "versao_dados": "f3b7296728f8",
+  "sql_sha256": "1d31d61b932c9f638bac8896a91d75d57e9801d670bec3024beb266788d26c0d",
+  "gerado_em": "2026-10-17T17:26:52+00:00",
+  "dimensoes": [],
+  "medidas": [
+    {
+      "nome": "total_registros",
+      "classe": "contagem"
+    },
+    {
+      "nome": "idade_media",
+      "classe": "media_limitada"
+    },
+    {
+      "nome": "altura_media",
+      "classe": "media_limitada"
+    },
+    {
+      "nome": "peso_medio",
+      "classe": "media_limitada"
+    },
+    {
+      "nome": "nivel_predominante",
+      "classe": "texto"
+    },
+    {
+      "nome": "n_predominante",
+      "classe": "contagem"
+    }
+  ],
+  "amostra_minima": null,
+  "divergencia": null,
+  "total_linhas": 6,
+  "linhas": [
+    {
+      "ordem": 1,
+      "medida": "total_registros",
+      "valor": 2111.0,
+      "n": 2111,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "medida": "idade_media",
+      "valor": 24.31259990857412,
+      "n": 2111,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "medida": "altura_media",
+      "valor": 1.7016773533870178,
+      "n": 2111,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "medida": "peso_medio",
+      "valor": 86.58605812648037,
+      "n": 2111,
+      "suprimido": false
+    },
+    {
+      "ordem": 5,
+      "medida": "nivel_predominante",
+      "valor_texto": "Obesidade I",
+      "n": 351,
+      "suprimido": false
+    },
+    {
+      "ordem": 6,
+      "medida": "n_predominante",
+      "valor": 351.0,
+      "n": 351,
+      "suprimido": false
+    }
+  ]
+}

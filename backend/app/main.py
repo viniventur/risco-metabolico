@@ -16,8 +16,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.rotas import metadados, modelo, predicoes, saude
+from app.api.rotas import metadados, modelo, painel, predicoes, registros, saude
 from app.config import CONFIG
+from app.dominio.agregados import BasePainel
 from app.nucleo.banco import Banco
 from app.nucleo.erros import ArtefatoIndisponivel, registrar_handlers
 from app.nucleo.limite_taxa import registrar_limitador
@@ -38,6 +39,16 @@ def carregar_registro() -> RegistroArtefatos | None:
         return None
 
 
+def carregar_base_painel() -> BasePainel | None:
+    """Lê `base_painel.parquet` de DADOS_DIR; ausente, `/painel/*` e `/ready` respondem 503."""
+    caminho = CONFIG.dados_dir / "base_painel.parquet"
+    try:
+        return BasePainel.carregar(caminho)
+    except (OSError, ValueError) as erro:
+        log.error("base do painel não carregada (%s): %s", caminho.name, erro)
+        return None
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Carrega o que o serviço precisa antes de aceitar requisições; nenhuma espera por banco.
@@ -47,7 +58,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     app.state.iniciado_em = time.monotonic()
     app.state.registro = carregar_registro()
-    app.state.agregados = None  # base do painel em memória (F8)
+    app.state.agregados = carregar_base_painel()  # base do painel em memória; nunca o banco
     banco = Banco()
     await banco.abrir()  # não abre conexão: min_size=0
     app.state.banco = banco
@@ -99,6 +110,8 @@ def criar_app() -> FastAPI:
     app.include_router(modelo.roteador, prefix=prefixo)
     app.include_router(metadados.roteador, prefix=prefixo)
     app.include_router(predicoes.roteador, prefix=prefixo)
+    app.include_router(painel.roteador, prefix=prefixo)
+    app.include_router(registros.roteador, prefix=prefixo)
     return app
 
 

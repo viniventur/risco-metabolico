@@ -34,7 +34,7 @@ Cada fórmula existe **uma única vez** no backend, com uma cópia visível no n
 | 18, 21, 23 | hiperparâmetros dos 3 candidatos | `treino/pipeline.py::CANDIDATOS` |
 | 25-28 | `summary`, `check_overfitting` | `treino/avaliacao.py` |
 | 30-31 | persistência | `treino/__main__.py` (joblib, sem `dill`); a célula 31 foi **removida** |
-| 33-34 | base de estudo do painel | `sql/agregados/*.sql` (definição) + `dominio/agregados.py` (runtime); a célula de paridade dos agregados entra em F8 |
+| 33-34 | base de estudo do painel | `sql/agregados/*.sql` (definição) + `dominio/agregados.py` (runtime); a célula seguinte prova a paridade do IMC médio por atividade × gênero contra o backend |
 
 ## O que está congelado (contrato dos números)
 

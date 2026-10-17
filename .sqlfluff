@@ -7,7 +7,8 @@ templater = placeholder
 dialect = postgres
 
 [sqlfluff:templater:placeholder]
-param_style = colon
+# colon_optional_quotes: cobre :janela_dias (numérico) E :'versao_modelo' (textual, com aspas).
+param_style = colon_optional_quotes
 janela_dias = 30
 n_minimo = 100
 versao_modelo = 2.0.0

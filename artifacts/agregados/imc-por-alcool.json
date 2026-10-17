@@ -1,0 +1,61 @@
+{
+  "id": "imc-por-alcool",
+  "titulo": "IMC médio por consumo de álcool",
+  "mede": "Média do IMC (peso dividido pela altura ao quadrado) de cada nível de consumo de álcool, sobre a base inteira. Grupos com menos de 15 registros são suprimidos (\"Sempre\" tem 1).",
+  "origem": "docs/agregados.md, seção \"Visão Geral\"; visual <ImcPorAlcool> (7.3)",
+  "fonte": [
+    "dados.registros_triagem"
+  ],
+  "versao_dados": "f3b7296728f8",
+  "sql_sha256": "b23b3be2991509a01232da004f34dac480d2b0c9c937394c47333ecbb12a2596",
+  "gerado_em": "2026-10-17T17:26:52+00:00",
+  "dimensoes": [
+    {
+      "nome": "alcool",
+      "tipo": "texto"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "imc_medio",
+      "classe": "media_limitada"
+    }
+  ],
+  "amostra_minima": 15,
+  "divergencia": null,
+  "total_linhas": 4,
+  "linhas": [
+    {
+      "ordem": 1,
+      "alcool": "Frequentemente",
+      "medida": "imc_medio",
+      "valor": 26.98115089580155,
+      "n": 70,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "alcool": "Não",
+      "medida": "imc_medio",
+      "valor": 27.064136302360982,
+      "n": 639,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "alcool": "Sempre",
+      "medida": "imc_medio",
+      "valor": null,
+      "n": 1,
+      "suprimido": true
+    },
+    {
+      "ordem": 4,
+      "alcool": "Às vezes",
+      "medida": "imc_medio",
+      "valor": 31.043454797885435,
+      "n": 1401,
+      "suprimido": false
+    }
+  ]
+}
