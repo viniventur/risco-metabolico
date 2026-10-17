@@ -1,0 +1,2 @@
+(?i)(\bFIAP\b|\bPOSTECH\b|\bP[oó]s[- ]?Tech\b|Tech ?Challenge|TechChallenge|\bDatathon\b|\bFase[ _]?[45]\b|Passos ?M[aá]gicos|app\.powerbi\.com|https://link\.com|painel_ ?obesidade|dicionario_obesity|C:\\Users\\|\.pbix\b)
+\bPEDE\b|(?<![A-Za-z0-9+/=])f[45](?![A-Za-z0-9+/=])
