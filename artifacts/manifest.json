@@ -1,0 +1,91 @@
+{
+  "nome": "risco-metabolico",
+  "versao": "2.0.0",
+  "arquivo": "modelo-2.0.0.pkl",
+  "sha256": "c3386ed55cc894a9d1366bd54241d741892cb0b7d166eda7b8b209beb7f9dc30",
+  "sha256_predicoes_ouro": "2accea16285d693d6b051028c82f54ec5fdf7b44c338447049ab64f37838ec70",
+  "treinado_em": "2026-10-17T16:29:44+00:00",
+  "algoritmo": "XGBClassifier",
+  "random_state": 42,
+  "binning_ativo": false,
+  "imc_como_feature": true,
+  "n_features_entrada": 16,
+  "n_features_modelo": 44,
+  "classes": [
+    "Abaixo do Peso",
+    "Obesidade I",
+    "Obesidade II",
+    "Obesidade III",
+    "Peso Normal",
+    "Sobrepeso I",
+    "Sobrepeso II"
+  ],
+  "dataset": {
+    "tabela_origem": "dados.registros_triagem",
+    "insumo_de_semeadura": "data/bruto/obesity.csv",
+    "proveniencia": "data/bruto/FONTE.md",
+    "snapshot": "data/processado/snapshot-f3b7296728f8.parquet",
+    "versao_dados": "f3b7296728f8",
+    "sha256_snapshot": "f3b7296728f80009cc1a560490b6251097633ac4e011d993e43be521f99687af",
+    "sha256_conteudo": "55acd232f88929dfbf440ec92656dbef3f70776357c87a26a74c2c0fb8edebce",
+    "sha256_carga": "6214bfbca5dab06768f903f5e1cf4e7d80169cda4f323a9fd2ff240783527665",
+    "pyarrow": "26.0.0",
+    "linhas": 2111,
+    "colunas": 17
+  },
+  "split": {
+    "test_size": 0.2,
+    "stratify": true,
+    "linhas_treino": 1688,
+    "linhas_teste": 423
+  },
+  "hiperparametros": {
+    "n_estimators": 400,
+    "learning_rate": 0.05,
+    "max_depth": 5,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "objective": "multi:softprob",
+    "eval_metric": "mlogloss",
+    "random_state": 42,
+    "num_class": 7,
+    "n_jobs": 4
+  },
+  "smote": {
+    "sampling_strategy": "auto",
+    "k_neighbors": 5,
+    "random_state": 42
+  },
+  "metricas_teste": {
+    "acuracia": 0.9881796690307328,
+    "f1_macro": 0.9875945763151402,
+    "recall_risco": 0.9935691318327974
+  },
+  "overfitting": {
+    "acuracia_treino": 1.0,
+    "acuracia_teste": 0.9881796690307328,
+    "diff_acuracia": 0.011820330969267157,
+    "f1_treino": 1.0,
+    "f1_teste": 0.9875945763151402,
+    "diff_f1": 0.012405423684859751,
+    "alerta": false
+  },
+  "categoria_rara_no_treino": true,
+  "ambiente": {
+    "python": "3.12.15",
+    "sistema": "Windows",
+    "scikit-learn": "1.9.1",
+    "xgboost": "3.4.1",
+    "lightgbm": "4.7.0",
+    "imbalanced-learn": "0.14.2",
+    "numpy": "2.5.4",
+    "pandas": "2.3.3",
+    "pyarrow": "26.0.0",
+    "joblib": "1.6.0"
+  },
+  "dados_ouro": {
+    "entradas": "backend/tests/dados_ouro/entradas.json",
+    "n": 24
+  },
+  "notebook_origem": "study/01_comparacao_de_modelos.ipynb"
+}

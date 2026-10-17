@@ -1,4 +1,4 @@
-"""Fábrica do app FastAPI: lifespan, CORS, handlers de erro e os routers.
+"""Fábrica do app FastAPI: lifespan, CORS, limitador, handlers de erro e os routers.
 
 `criar_app()` é uma fábrica, não uma instância de módulo, porque o teste de resiliência do log
 (§10.9.2) precisa construir o app com o ambiente já sujo, antes do `lifespan`.
@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import logging
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -14,28 +16,57 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.rotas import saude
+from app.api.rotas import metadados, modelo, predicoes, saude
 from app.config import CONFIG
-from app.nucleo.erros import registrar_handlers
+from app.nucleo.banco import Banco
+from app.nucleo.erros import ArtefatoIndisponivel, registrar_handlers
+from app.nucleo.limite_taxa import registrar_limitador
+from app.nucleo.log_predicao import SumidouroLog
+from app.nucleo.registro import RegistroArtefatos
+
+log = logging.getLogger(__name__)
+
+
+def carregar_registro() -> RegistroArtefatos | None:
+    """Carrega o artefato do manifest; falha vira log e `/ready` 503, nunca silêncio."""
+    try:
+        return RegistroArtefatos.carregar(
+            CONFIG.modelos_dir, CONFIG.artefatos_dir, exigir_integridade=CONFIG.exigir_integridade
+        )
+    except ArtefatoIndisponivel as erro:
+        log.error("artefato não carregado: %s", erro.mensagem)
+        return None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Carrega o que o serviço precisa antes de aceitar requisições; nenhuma espera por banco.
 
-    As fases seguintes acrescentam aqui o artefato de modelo, os agregados do painel, o pool
-    preguiçoso do banco (sem abrir conexão) e o consumidor do log de predição.
+    O pool nasce sem abrir conexão (`min_size=0`), o aquecimento roda em segundo plano e o
+    consumidor do log é a única tarefa que fala com o banco.
     """
     app.state.iniciado_em = time.monotonic()
-    app.state.registro = None  # RegistroArtefatos (F6)
+    app.state.registro = carregar_registro()
     app.state.agregados = None  # base do painel em memória (F8)
-    app.state.banco = None  # nucleo.banco.Banco (F3b/F6)
-    app.state.sumidouro = None  # nucleo.log_predicao.SumidouroLog (F6)
-    yield
+    banco = Banco()
+    await banco.abrir()  # não abre conexão: min_size=0
+    app.state.banco = banco
+    app.state.sumidouro = SumidouroLog()
+    consumidor = asyncio.create_task(app.state.sumidouro.consumir(banco))
+    aquecimento = asyncio.create_task(banco.consultar("SELECT 1"))  # aquecimento, sem await
+    try:
+        yield
+    finally:
+        # Ordem importa: o consumidor para sozinho (sentinela), depois o pool fecha. Cancelar
+        # o consumidor no meio de um INSERT travaria o desligamento (ver SumidouroLog.encerrar).
+        await app.state.sumidouro.encerrar(consumidor)
+        if not aquecimento.done():
+            aquecimento.cancel()
+        await banco.fechar()
 
 
 def criar_app() -> FastAPI:
-    """Monta o app com CORS, envelope de erro e os routers sob `/api/v{VERSAO_API}`."""
+    """Monta o app com CORS, limitador, envelope de erro e os routers sob `/api/v{VERSAO_API}`."""
     app = FastAPI(
         title=CONFIG.nome_app,
         version="2.0.0",
@@ -62,8 +93,12 @@ def criar_app() -> FastAPI:
         max_age=86400,
     )
     registrar_handlers(app)
+    registrar_limitador(app)
     prefixo = f"/api/v{CONFIG.versao_api}"
     app.include_router(saude.roteador, prefix=prefixo)
+    app.include_router(modelo.roteador, prefix=prefixo)
+    app.include_router(metadados.roteador, prefix=prefixo)
+    app.include_router(predicoes.roteador, prefix=prefixo)
     return app
 
 

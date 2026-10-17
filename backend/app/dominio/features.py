@@ -147,6 +147,18 @@ BINS_CELULA_14: dict[str, tuple[list[float], list[str]]] = {
 }
 
 
+def adicionar_imc(df: pd.DataFrame) -> pd.DataFrame:
+    """Acrescenta `IMC = Peso / Altura²` como feature do modelo (ADR 0003), sem arredondar.
+
+    Transformador NOMEADO e IMPORTÁVEL: entra no pipeline como `FunctionTransformer(adicionar_imc)`
+    e, por isso, é serializável com joblib. O arredondamento a 2 casas é de tela
+    (`regras.calcular_imc`), nunca do caminho do dado.
+    """
+    df = df.copy()
+    df["IMC"] = df["Peso"] / (df["Altura"] ** 2)
+    return df
+
+
 def engineer_features(df: pd.DataFrame, *, binning: bool = False) -> pd.DataFrame:
     """Feature engineering da célula 14(a): binning das 5 escalas, só quando `binning=True`."""
     df = df.copy()

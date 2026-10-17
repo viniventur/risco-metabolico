@@ -1,0 +1,57 @@
+{
+  "Abaixo do Peso": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 54.0
+  },
+  "Obesidade I": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 70.0
+  },
+  "Obesidade II": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 60.0
+  },
+  "Obesidade III": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 65.0
+  },
+  "Peso Normal": {
+    "precision": 0.9666666666666667,
+    "recall": 1.0,
+    "f1-score": 0.9830508474576272,
+    "support": 58.0
+  },
+  "Sobrepeso I": {
+    "precision": 0.9818181818181818,
+    "recall": 0.9310344827586207,
+    "f1-score": 0.9557522123893806,
+    "support": 58.0
+  },
+  "Sobrepeso II": {
+    "precision": 0.9661016949152542,
+    "recall": 0.9827586206896551,
+    "f1-score": 0.9743589743589743,
+    "support": 58.0
+  },
+  "accuracy": 0.9881796690307328,
+  "macro avg": {
+    "precision": 0.9877980776285861,
+    "recall": 0.9876847290640394,
+    "f1-score": 0.9875945763151402,
+    "support": 423.0
+  },
+  "weighted avg": {
+    "precision": 0.9882884622156168,
+    "recall": 0.9881796690307328,
+    "f1-score": 0.988093139441955,
+    "support": 423.0
+  }
+}

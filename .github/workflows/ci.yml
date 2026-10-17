@@ -1,0 +1,124 @@
+# CI na ordem de dependência do plano (§10.8): proveniência -> banco -> SQL -> backend -> frontend -> imagem.
+# A varredura de termos vem PRIMEIRO: vazamento tem prioridade sobre teste quebrado.
+# O CI nunca aponta para a instância publicada: o Postgres é um serviço descartável do job.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  proveniencia:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Nenhum termo proibido no conteúdo, nos nomes, na branch nem no caminho
+        shell: pwsh
+        run: |
+          ./scripts/verificar-proveniencia.ps1
+          $padrao = (Get-Content scripts/padrao-proveniencia.txt)[0]
+          if ("${{ github.ref_name }}" -match $padrao) { Write-Host "branch na lista negra"; exit 1 }
+          if ((git rev-parse --show-toplevel) -match $padrao) { Write-Host "caminho na lista negra"; exit 1 }
+
+  backend:
+    needs: proveniencia
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app_local
+        ports: ["55432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d app_local"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      BANCO_URL: postgresql://postgres:postgres@localhost:55432/app_local
+      PGPASSWORD: postgres
+      LIMITE_TAXA_ATIVO: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - name: Sem BOM nos fontes Python (§6.3)
+        run: python3 -c "import pathlib,sys; sys.exit(any(p.read_bytes().startswith(b'\xef\xbb\xbf') for p in pathlib.Path('backend').rglob('*.py')))"
+
+      - name: Banco — os MESMOS schema.sql, grants.sql e seed da instância publicada
+        run: |
+          psql "$BANCO_URL" -v ON_ERROR_STOP=1 -f sql/schema.sql
+          psql "$BANCO_URL" -v ON_ERROR_STOP=1 -f sql/grants.sql
+          cd backend
+          uv sync --extra treino --extra dev
+          uv run --extra treino python -m app.dados.seed --arquivo ../data/bruto/obesity.csv --tabela dados.registros_triagem
+          uv run --extra treino python -m app.dados.schema --conferir
+          uv run --extra treino python -m app.treino.distribuicao --carregar
+
+      - name: Lint de SQL antes de lint de Python
+        run: |
+          uv run --project backend --extra dev sqlfluff lint sql
+          test ! -f tools/verificar-cabecalhos-sql.py || uv run --project backend python tools/verificar-cabecalhos-sql.py
+
+      - name: Lint, tipos, snapshot congelado, testes e verificação do modelo
+        working-directory: backend
+        run: |
+          uv run ruff check app tests
+          uv run ruff format --check app tests
+          uv run mypy app
+          uv run --extra treino python -m app.treino congelar
+          python3 ../scripts/baixar_modelo.py --manifesto ../artifacts/manifest.json --destino ../models
+          uv run --extra treino pytest -q --cov=app --cov-fail-under=80
+          uv run --extra treino python -m app.treino verificar
+
+  frontend:
+    needs: proveniencia
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ hashFiles('frontend/package.json') != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Dependências
+        working-directory: frontend
+        run: npm ci
+      - name: Lint, tipos, testes e build
+        working-directory: frontend
+        run: |
+          npm run lint
+          npx tsc --noEmit
+          npm run test
+          npm run build
+      - name: JSON do módulo Estudos em dia com o notebook commitado
+        run: |
+          uv pip install --system "nbformat>=5.10" "pygments>=2.18"
+          cd frontend && npm run build:nb
+          git diff --exit-code -- frontend/public/study
+      - name: Nenhuma credencial dentro do bundle
+        shell: pwsh
+        run: ./scripts/verificar-bundle.ps1
+
+  imagem:
+    needs: [backend]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build da imagem (contexto na RAIZ)
+        run: docker build -f backend/Dockerfile -t risco-metabolico-api:ci .

@@ -1,0 +1,1322 @@
+{
+  "components": {
+    "schemas": {
+      "CampoFormulario": {
+        "additionalProperties": false,
+        "description": "Um campo do formulário de triagem; `nome` é a CHAVE do JSON de `EntradaTriagem`.",
+        "properties": {
+          "ajuda": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ajuda"
+          },
+          "maximo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximo"
+          },
+          "minimo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimo"
+          },
+          "nome": {
+            "title": "Nome",
+            "type": "string"
+          },
+          "opcoes": {
+            "items": {
+              "$ref": "#/components/schemas/OpcaoCampo"
+            },
+            "title": "Opcoes",
+            "type": "array"
+          },
+          "padrao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Padrao"
+          },
+          "passo": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Passo"
+          },
+          "rotulo": {
+            "title": "Rotulo",
+            "type": "string"
+          },
+          "tipo": {
+            "enum": [
+              "numero",
+              "selecao"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nome",
+          "rotulo",
+          "tipo"
+        ],
+        "title": "CampoFormulario",
+        "type": "object"
+      },
+      "EntradaRelatorio": {
+        "additionalProperties": false,
+        "description": "Corpo de `POST /predicoes/relatorio`: a entrada mais o nome opcional (só metadado).",
+        "properties": {
+          "entrada": {
+            "$ref": "#/components/schemas/EntradaTriagem"
+          },
+          "nome": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Nome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entrada"
+        ],
+        "title": "EntradaRelatorio",
+        "type": "object"
+      },
+      "EntradaTriagem": {
+        "additionalProperties": false,
+        "description": "Os 16 campos que o pipeline espera, com o domínio fechado de cada um.",
+        "example": {
+          "Altura": 1.7,
+          "Atividade_Fisica_Frequencia": 1,
+          "Consumo_Agua_Diario": 2,
+          "Consumo_Alcool": "Não",
+          "Consumo_Alimentos_Entre_Refeicoes": "Às vezes",
+          "Consumo_Calorico_Frequente": "Sim",
+          "Consumo_Vegetais": 2,
+          "Fumante": "Não",
+          "Genero": "Feminino",
+          "Historico_Familiar_Sobrepeso": "Sim",
+          "Idade": 25,
+          "Meio_Transporte": "Transporte Público",
+          "Monitoramento_Calorias": "Não",
+          "Numero_Refeicoes_Principais": 3,
+          "Peso": 70.0,
+          "Tempo_Dispositivos_Tecnologicos": 0
+        },
+        "properties": {
+          "Altura": {
+            "maximum": 2.0,
+            "minimum": 1.4,
+            "title": "Altura",
+            "type": "number"
+          },
+          "Atividade_Fisica_Frequencia": {
+            "description": "0 nenhuma, 1 1-2x, 2 3-4x, 3 5+x por semana",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Atividade Fisica Frequencia",
+            "type": "integer"
+          },
+          "Consumo_Agua_Diario": {
+            "description": "1 <1L, 2 1-2L, 3 >2L por dia",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Consumo Agua Diario",
+            "type": "integer"
+          },
+          "Consumo_Alcool": {
+            "$ref": "#/components/schemas/Frequencia"
+          },
+          "Consumo_Alimentos_Entre_Refeicoes": {
+            "$ref": "#/components/schemas/Frequencia"
+          },
+          "Consumo_Calorico_Frequente": {
+            "$ref": "#/components/schemas/SimNao"
+          },
+          "Consumo_Vegetais": {
+            "description": "1 raramente, 2 às vezes, 3 sempre",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Consumo Vegetais",
+            "type": "integer"
+          },
+          "Fumante": {
+            "$ref": "#/components/schemas/SimNao"
+          },
+          "Genero": {
+            "$ref": "#/components/schemas/Genero"
+          },
+          "Historico_Familiar_Sobrepeso": {
+            "$ref": "#/components/schemas/SimNao"
+          },
+          "Idade": {
+            "maximum": 61.0,
+            "minimum": 14.0,
+            "title": "Idade",
+            "type": "number"
+          },
+          "Meio_Transporte": {
+            "$ref": "#/components/schemas/MeioTransporte"
+          },
+          "Monitoramento_Calorias": {
+            "$ref": "#/components/schemas/SimNao"
+          },
+          "Numero_Refeicoes_Principais": {
+            "description": "Refeições principais por dia (4 = 4 ou mais)",
+            "maximum": 4.0,
+            "minimum": 1.0,
+            "title": "Numero Refeicoes Principais",
+            "type": "integer"
+          },
+          "Peso": {
+            "maximum": 175.0,
+            "minimum": 39.0,
+            "title": "Peso",
+            "type": "number"
+          },
+          "Tempo_Dispositivos_Tecnologicos": {
+            "description": "0 0-2h, 1 3-5h, 2 >5h por dia",
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "Tempo Dispositivos Tecnologicos",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "Genero",
+          "Idade",
+          "Altura",
+          "Peso",
+          "Historico_Familiar_Sobrepeso",
+          "Consumo_Calorico_Frequente",
+          "Consumo_Vegetais",
+          "Numero_Refeicoes_Principais",
+          "Consumo_Alimentos_Entre_Refeicoes",
+          "Fumante",
+          "Consumo_Agua_Diario",
+          "Monitoramento_Calorias",
+          "Atividade_Fisica_Frequencia",
+          "Tempo_Dispositivos_Tecnologicos",
+          "Consumo_Alcool",
+          "Meio_Transporte"
+        ],
+        "title": "EntradaTriagem",
+        "type": "object"
+      },
+      "FalhaLote": {
+        "description": "Um item recusado dentro de um lote, com o índice de origem preservado.",
+        "properties": {
+          "campo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Campo"
+          },
+          "indice": {
+            "title": "Indice",
+            "type": "integer"
+          },
+          "mensagem": {
+            "title": "Mensagem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "indice",
+          "mensagem"
+        ],
+        "title": "FalhaLote",
+        "type": "object"
+      },
+      "Frequencia": {
+        "description": "Lanches entre refeições e álcool: os quatro níveis do dicionário.",
+        "enum": [
+          "Não",
+          "Às vezes",
+          "Frequentemente",
+          "Sempre"
+        ],
+        "title": "Frequencia",
+        "type": "string"
+      },
+      "Genero": {
+        "description": "Sexo biológico, como no dicionário de dados.",
+        "enum": [
+          "Feminino",
+          "Masculino"
+        ],
+        "title": "Genero",
+        "type": "string"
+      },
+      "GrupoFormulario": {
+        "description": "Os três agrupamentos do legado: dados iniciais, dieta, hábitos.",
+        "properties": {
+          "campos": {
+            "items": {
+              "$ref": "#/components/schemas/CampoFormulario"
+            },
+            "title": "Campos",
+            "type": "array"
+          },
+          "id": {
+            "enum": [
+              "dados-iniciais",
+              "dieta",
+              "habitos"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "titulo": {
+            "title": "Titulo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "titulo",
+          "campos"
+        ],
+        "title": "GrupoFormulario",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ImportanciaFeatures": {
+        "description": "`GET /model/feature-importance`.",
+        "properties": {
+          "itens": {
+            "items": {
+              "$ref": "#/components/schemas/ItemImportancia"
+            },
+            "title": "Itens",
+            "type": "array"
+          },
+          "modelo": {
+            "title": "Modelo",
+            "type": "string"
+          },
+          "versao": {
+            "title": "Versao",
+            "type": "string"
+          }
+        },
+        "required": [
+          "modelo",
+          "versao",
+          "itens"
+        ],
+        "title": "ImportanciaFeatures",
+        "type": "object"
+      },
+      "InfoModelo": {
+        "description": "`GET /model/info`: o manifest normalizado. É a fonte das métricas publicadas.",
+        "properties": {
+          "algoritmo": {
+            "title": "Algoritmo",
+            "type": "string"
+          },
+          "ambiente": {
+            "additionalProperties": true,
+            "title": "Ambiente",
+            "type": "object"
+          },
+          "aviso": {
+            "title": "Aviso",
+            "type": "string"
+          },
+          "binning_ativo": {
+            "title": "Binning Ativo",
+            "type": "boolean"
+          },
+          "classes": {
+            "description": "Ordem alfabética do encoder (ordem de predict_proba)",
+            "items": {
+              "type": "string"
+            },
+            "title": "Classes",
+            "type": "array"
+          },
+          "hiperparametros": {
+            "additionalProperties": true,
+            "title": "Hiperparametros",
+            "type": "object"
+          },
+          "imc_como_feature": {
+            "title": "Imc Como Feature",
+            "type": "boolean"
+          },
+          "metricas_teste": {
+            "$ref": "#/components/schemas/MetricasModelo"
+          },
+          "n_features_entrada": {
+            "title": "N Features Entrada",
+            "type": "integer"
+          },
+          "n_features_modelo": {
+            "title": "N Features Modelo",
+            "type": "integer"
+          },
+          "nome": {
+            "title": "Nome",
+            "type": "string"
+          },
+          "notebook_origem": {
+            "title": "Notebook Origem",
+            "type": "string"
+          },
+          "ordem_clinica": {
+            "description": "Ordem em que a API devolve as probabilidades",
+            "items": {
+              "type": "string"
+            },
+            "title": "Ordem Clinica",
+            "type": "array"
+          },
+          "overfitting": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overfitting"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          },
+          "smote": {
+            "additionalProperties": true,
+            "title": "Smote",
+            "type": "object"
+          },
+          "split": {
+            "additionalProperties": true,
+            "title": "Split",
+            "type": "object"
+          },
+          "treinado_em": {
+            "title": "Treinado Em",
+            "type": "string"
+          },
+          "versao": {
+            "title": "Versao",
+            "type": "string"
+          },
+          "versao_dados": {
+            "title": "Versao Dados",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nome",
+          "versao",
+          "algoritmo",
+          "treinado_em",
+          "versao_dados",
+          "sha256",
+          "n_features_entrada",
+          "n_features_modelo",
+          "binning_ativo",
+          "imc_como_feature",
+          "classes",
+          "ordem_clinica",
+          "hiperparametros",
+          "smote",
+          "split",
+          "metricas_teste",
+          "ambiente",
+          "notebook_origem",
+          "aviso"
+        ],
+        "title": "InfoModelo",
+        "type": "object"
+      },
+      "ItemImportancia": {
+        "description": "Importância de uma feature de entrada (one-hot já somado).",
+        "properties": {
+          "feature": {
+            "title": "Feature",
+            "type": "string"
+          },
+          "importancia": {
+            "title": "Importancia",
+            "type": "number"
+          },
+          "importancia_pct": {
+            "title": "Importancia Pct",
+            "type": "number"
+          },
+          "rotulo": {
+            "title": "Rotulo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "feature",
+          "rotulo",
+          "importancia",
+          "importancia_pct"
+        ],
+        "title": "ItemImportancia",
+        "type": "object"
+      },
+      "LoteTriagem": {
+        "additionalProperties": false,
+        "description": "Corpo de `POST /predicoes/lote`.",
+        "properties": {
+          "itens": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "minItems": 1,
+            "title": "Itens",
+            "type": "array"
+          }
+        },
+        "required": [
+          "itens"
+        ],
+        "title": "LoteTriagem",
+        "type": "object"
+      },
+      "MeioTransporte": {
+        "description": "Domínio corrigido: o formulário legado enviava \"Automóvel\" e \"Motocicleta\", valores que não existem nas `categories_` do encoder (divergência 4).",
+        "enum": [
+          "Transporte Público",
+          "Carro",
+          "Moto",
+          "Bicicleta",
+          "Caminhada"
+        ],
+        "title": "MeioTransporte",
+        "type": "string"
+      },
+      "MetadadosFormulario": {
+        "description": "`GET /metadata`: a espinha do formulário — o React monta os campos a partir daqui.",
+        "properties": {
+          "aviso": {
+            "title": "Aviso",
+            "type": "string"
+          },
+          "grupos": {
+            "items": {
+              "$ref": "#/components/schemas/GrupoFormulario"
+            },
+            "title": "Grupos",
+            "type": "array"
+          },
+          "versao_modelo": {
+            "title": "Versao Modelo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grupos",
+          "versao_modelo",
+          "aviso"
+        ],
+        "title": "MetadadosFormulario",
+        "type": "object"
+      },
+      "MetricasModelo": {
+        "description": "As três métricas de teste do manifest — nunca escritas à mão.",
+        "properties": {
+          "acuracia": {
+            "title": "Acuracia",
+            "type": "number"
+          },
+          "f1_macro": {
+            "title": "F1 Macro",
+            "type": "number"
+          },
+          "recall_risco": {
+            "title": "Recall Risco",
+            "type": "number"
+          }
+        },
+        "required": [
+          "acuracia",
+          "f1_macro",
+          "recall_risco"
+        ],
+        "title": "MetricasModelo",
+        "type": "object"
+      },
+      "OpcaoCampo": {
+        "description": "Uma opção de campo de seleção: o rótulo da tela e o valor que vai no JSON.",
+        "properties": {
+          "rotulo": {
+            "title": "Rotulo",
+            "type": "string"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Valor"
+          }
+        },
+        "required": [
+          "rotulo",
+          "valor"
+        ],
+        "title": "OpcaoCampo",
+        "type": "object"
+      },
+      "ProbabilidadeClasse": {
+        "description": "Uma das 7 classes com a sua probabilidade e a marcação de risco.",
+        "properties": {
+          "classe": {
+            "title": "Classe",
+            "type": "string"
+          },
+          "de_risco": {
+            "title": "De Risco",
+            "type": "boolean"
+          },
+          "probabilidade": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Probabilidade",
+            "type": "number"
+          }
+        },
+        "required": [
+          "classe",
+          "probabilidade",
+          "de_risco"
+        ],
+        "title": "ProbabilidadeClasse",
+        "type": "object"
+      },
+      "Prontidao": {
+        "description": "Resposta de `GET /ready`: 200 só com artefato e agregados carregados.",
+        "properties": {
+          "agregados_carregados": {
+            "title": "Agregados Carregados",
+            "type": "boolean"
+          },
+          "artefato_carregado": {
+            "title": "Artefato Carregado",
+            "type": "boolean"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          },
+          "pronto": {
+            "title": "Pronto",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pronto",
+          "artefato_carregado",
+          "agregados_carregados"
+        ],
+        "title": "Prontidao",
+        "type": "object"
+      },
+      "RespostaLote": {
+        "description": "`POST /predicoes/lote`: um item inválido volta em `falhas`; os outros são processados.",
+        "properties": {
+          "falhas": {
+            "items": {
+              "$ref": "#/components/schemas/FalhaLote"
+            },
+            "title": "Falhas",
+            "type": "array"
+          },
+          "resultados": {
+            "items": {
+              "$ref": "#/components/schemas/RespostaTriagem"
+            },
+            "title": "Resultados",
+            "type": "array"
+          },
+          "sucesso": {
+            "title": "Sucesso",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "versao_modelo": {
+            "title": "Versao Modelo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "total",
+          "sucesso",
+          "resultados",
+          "falhas",
+          "versao_modelo"
+        ],
+        "title": "RespostaLote",
+        "type": "object"
+      },
+      "RespostaTriagem": {
+        "description": "Contrato de saída da triagem: classe, distribuição completa e risco acumulado.",
+        "properties": {
+          "classe_prevista": {
+            "title": "Classe Prevista",
+            "type": "string"
+          },
+          "faixa_imc": {
+            "title": "Faixa Imc",
+            "type": "string"
+          },
+          "fora_do_dominio_treino": {
+            "description": "Campos cujo valor está fora da faixa observada no treino",
+            "items": {
+              "type": "string"
+            },
+            "title": "Fora Do Dominio Treino",
+            "type": "array"
+          },
+          "imc": {
+            "title": "Imc",
+            "type": "number"
+          },
+          "latencia_ms": {
+            "title": "Latencia Ms",
+            "type": "number"
+          },
+          "probabilidades": {
+            "description": "Sempre as 7 classes, em ordem clínica crescente (não alfabética)",
+            "items": {
+              "$ref": "#/components/schemas/ProbabilidadeClasse"
+            },
+            "maxItems": 7,
+            "minItems": 7,
+            "title": "Probabilidades",
+            "type": "array"
+          },
+          "risco_acumulado": {
+            "description": "Soma das 5 classes de risco",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Risco Acumulado",
+            "type": "number"
+          },
+          "versao_modelo": {
+            "title": "Versao Modelo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "classe_prevista",
+          "risco_acumulado",
+          "probabilidades",
+          "imc",
+          "faixa_imc",
+          "versao_modelo",
+          "latencia_ms"
+        ],
+        "title": "RespostaTriagem",
+        "type": "object"
+      },
+      "Saude": {
+        "description": "Resposta de `GET /health` — sempre 200; o banco não é requisito de vivacidade.",
+        "properties": {
+          "artefato_carregado": {
+            "title": "Artefato Carregado",
+            "type": "boolean"
+          },
+          "banco": {
+            "enum": [
+              "desligado",
+              "frio",
+              "ok",
+              "indisponivel"
+            ],
+            "title": "Banco",
+            "type": "string"
+          },
+          "log_predicao": {
+            "enum": [
+              "desligado",
+              "ok",
+              "degradado"
+            ],
+            "title": "Log Predicao",
+            "type": "string"
+          },
+          "logs_descartados": {
+            "minimum": 0.0,
+            "title": "Logs Descartados",
+            "type": "integer"
+          },
+          "logs_gravados": {
+            "minimum": 0.0,
+            "title": "Logs Gravados",
+            "type": "integer"
+          },
+          "status": {
+            "const": "ok",
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          },
+          "uptime_s": {
+            "minimum": 0.0,
+            "title": "Uptime S",
+            "type": "number"
+          },
+          "versao_api": {
+            "title": "Versao Api",
+            "type": "string"
+          }
+        },
+        "required": [
+          "versao_api",
+          "artefato_carregado",
+          "uptime_s",
+          "banco",
+          "log_predicao",
+          "logs_gravados",
+          "logs_descartados"
+        ],
+        "title": "Saude",
+        "type": "object"
+      },
+      "SimNao": {
+        "description": "Binárias: histórico familiar, calórico frequente, fumante, monitoramento.",
+        "enum": [
+          "Sim",
+          "Não"
+        ],
+        "title": "SimNao",
+        "type": "string"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Os dados exibidos são fictícios e servem apenas para demonstração. Nenhum registro corresponde a uma pessoa real. Esta ferramenta é de triagem e não substitui avaliação clínica.",
+    "summary": "Triagem metabólica: 16 respostas, distribuição entre 7 faixas e risco acumulado.",
+    "title": "Triagem Metabólica",
+    "version": "2.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "description": "Estado do serviço. O banco e o log de predição aparecem, mas nunca derrubam a resposta.",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Saude"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Vivacidade: sempre 200, mesmo com banco ou log degradados.",
+        "tags": [
+          "infraestrutura"
+        ]
+      }
+    },
+    "/api/v1/metadata": {
+      "get": {
+        "description": "O React monta o formulário a partir daqui; nenhuma regra de formulário mora no JSX.",
+        "operationId": "metadata_api_v1_metadata_get",
+        "parameters": [
+          {
+            "description": "Versão do modelo; padrão: a do manifest",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo; padrão: a do manifest",
+              "title": "Versao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetadadosFormulario"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Especificação do formulário: grupos, campos, tipos, faixas, opções e defaults",
+        "tags": [
+          "formulario"
+        ]
+      }
+    },
+    "/api/v1/model/feature-importance": {
+      "get": {
+        "description": "As `top` features mais importantes; o IMC derivado entra como uma feature.",
+        "operationId": "feature_importance_api_v1_model_feature_importance_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "top",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 20,
+              "minimum": 1,
+              "title": "Top",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Versão do modelo; padrão: a do manifest",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo; padrão: a do manifest",
+              "title": "Versao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportanciaFeatures"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Importância das features de entrada (one-hot somado), em ordem decrescente",
+        "tags": [
+          "modelo"
+        ]
+      }
+    },
+    "/api/v1/model/info": {
+      "get": {
+        "description": "Versão, algoritmo, `treinado_em`, hiperparâmetros, métricas de teste e ambiente.",
+        "operationId": "model_info_api_v1_model_info_get",
+        "parameters": [
+          {
+            "description": "Versão do modelo; padrão: a do manifest",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo; padrão: a do manifest",
+              "title": "Versao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoModelo"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Manifest normalizado: versão, métricas, ambiente",
+        "tags": [
+          "modelo"
+        ]
+      }
+    },
+    "/api/v1/predicoes": {
+      "post": {
+        "description": "Uma pessoa, 16 respostas, 7 probabilidades em ordem clínica e o risco acumulado.",
+        "operationId": "prever_individuo_api_v1_predicoes_post",
+        "parameters": [
+          {
+            "description": "Versão do modelo; padrão: a do manifest",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo; padrão: a do manifest",
+              "title": "Versao"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaTriagem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaTriagem"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Estima a distribuição entre as 7 faixas e o risco metabólico acumulado",
+        "tags": [
+          "predicoes"
+        ]
+      }
+    },
+    "/api/v1/predicoes/lote": {
+      "post": {
+        "description": "Valida item a item dentro do laço: o inválido volta em `falhas` com o índice de origem.",
+        "operationId": "prever_lote_api_v1_predicoes_lote_post",
+        "parameters": [
+          {
+            "description": "Versão do modelo; padrão: a do manifest",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo; padrão: a do manifest",
+              "title": "Versao"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoteTriagem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaLote"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "413": {
+            "description": "Lote acima de LIMITE_LOTE"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Estima o risco para vários indivíduos de uma vez; um item inválido não derruba o lote",
+        "tags": [
+          "predicoes"
+        ]
+      }
+    },
+    "/api/v1/predicoes/relatorio": {
+      "post": {
+        "description": "HTML autocontido. O `nome` existe no HTML devolvido e em lugar nenhum além disso.",
+        "operationId": "gerar_relatorio_api_v1_predicoes_relatorio_post",
+        "parameters": [
+          {
+            "description": "Versão do modelo; padrão: a do manifest",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo; padrão: a do manifest",
+              "title": "Versao"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaRelatorio"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/html": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Gera o relatório HTML imprimível do indivíduo avaliado",
+        "tags": [
+          "predicoes"
+        ]
+      }
+    },
+    "/api/v1/ready": {
+      "get": {
+        "description": "Prontidão para receber tráfego. O banco não entra: o produto abre inteiro sem ele.",
+        "operationId": "ready_api_v1_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prontidao"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Prontidao"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Prontidão: 200 com artefato e agregados carregados, 503 caso contrário.",
+        "tags": [
+          "infraestrutura"
+        ]
+      }
+    }
+  }
+}

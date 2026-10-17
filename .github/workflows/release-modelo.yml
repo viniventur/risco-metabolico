@@ -1,0 +1,77 @@
+# Publica models/modelo-<versao>.pkl como asset do release v<versao> (ADR 0004).
+# Treina em CI, do zero e sem credencial: Postgres de serviço, seed, congelar, treinar, verificar.
+# O manifest e as métricas produzidos aqui sobem como artefato do run, para serem commitados —
+# um modelo treinado em outra máquina tem outro sha256 de arquivo, e o manifest commitado tem de
+# ser o do artefato publicado.
+name: release-modelo
+
+on:
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: "Versão do modelo (semver, ex.: 2.0.0). O release será v<versao>."
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  treinar-e-publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app_local
+        ports: ["55432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d app_local"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      BANCO_URL: postgresql://postgres:postgres@localhost:55432/app_local
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - name: Schema e grants (os MESMOS arquivos do compose local)
+        run: |
+          psql "$BANCO_URL" -v ON_ERROR_STOP=1 -f sql/schema.sql
+          psql "$BANCO_URL" -v ON_ERROR_STOP=1 -f sql/grants.sql
+
+      - name: Dependências
+        working-directory: backend
+        run: uv sync --extra treino --extra dev
+
+      - name: Seed, congelar, treinar, verificar
+        working-directory: backend
+        run: |
+          uv run --extra treino python -m app.dados.seed --arquivo ../data/bruto/obesity.csv --tabela dados.registros_triagem
+          uv run --extra treino python -m app.treino congelar
+          uv run --extra treino python -m app.treino treinar --versao "${{ inputs.versao }}"
+          uv run --extra treino python -m app.treino verificar
+
+      - name: Publicar o asset do release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ inputs.versao }}" "models/modelo-${{ inputs.versao }}.pkl" \
+            --title "modelo ${{ inputs.versao }}" \
+            --notes "Artefato treinado em CI sobre versao_dados=$(python3 -c 'import json;print(json.load(open("artifacts/manifest.json"))["dataset"]["versao_dados"])'). O manifest correspondente está nos artefatos deste run."
+
+      - name: Manifest e métricas deste treino (para commitar)
+        uses: actions/upload-artifact@v4
+        with:
+          name: manifest-${{ inputs.versao }}
+          path: |
+            artifacts/manifest.json
+            artifacts/metricas/
+            artifacts/distribuicao_treino.json
+            backend/tests/dados_ouro/saidas_esperadas.json

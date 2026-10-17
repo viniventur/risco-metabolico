@@ -1,0 +1,69 @@
+{
+  "versao": "2.0.0",
+  "criterio": "recall_risco, acuracia, menor gap",
+  "candidatos": [
+    {
+      "nome": "RandomForestClassifier",
+      "binning": false,
+      "imc": true,
+      "metricas": {
+        "acuracia": 0.9763593380614657,
+        "f1_macro": 0.9754382045382152,
+        "recall_risco": 0.9839228295819936
+      },
+      "overfitting": {
+        "acuracia_treino": 1.0,
+        "acuracia_teste": 0.9763593380614657,
+        "diff_acuracia": 0.023640661938534313,
+        "f1_treino": 1.0,
+        "f1_teste": 0.9754382045382152,
+        "diff_f1": 0.02456179546178483,
+        "alerta": false
+      },
+      "largura": 44,
+      "segundos": 0.55
+    },
+    {
+      "nome": "LGBMClassifier",
+      "binning": false,
+      "imc": true,
+      "metricas": {
+        "acuracia": 0.983451536643026,
+        "f1_macro": 0.9825869168659555,
+        "recall_risco": 0.9903536977491961
+      },
+      "overfitting": {
+        "acuracia_treino": 0.9958530805687204,
+        "acuracia_teste": 0.983451536643026,
+        "diff_acuracia": 0.01240154392569437,
+        "f1_treino": 0.9956749136781505,
+        "f1_teste": 0.9825869168659555,
+        "diff_f1": 0.01308799681219508,
+        "alerta": false
+      },
+      "largura": 44,
+      "segundos": 0.17
+    },
+    {
+      "nome": "XGBClassifier",
+      "binning": false,
+      "imc": true,
+      "metricas": {
+        "acuracia": 0.9881796690307328,
+        "f1_macro": 0.9875945763151402,
+        "recall_risco": 0.9935691318327974
+      },
+      "overfitting": {
+        "acuracia_treino": 1.0,
+        "acuracia_teste": 0.9881796690307328,
+        "diff_acuracia": 0.011820330969267157,
+        "f1_treino": 1.0,
+        "f1_teste": 0.9875945763151402,
+        "diff_f1": 0.012405423684859751,
+        "alerta": false
+      },
+      "largura": 44,
+      "segundos": 0.99
+    }
+  ]
+}

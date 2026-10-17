@@ -1,0 +1,290 @@
+[
+  {
+    "classe_prevista": "Peso Normal",
+    "probabilidades": {
+      "Abaixo do Peso": 8.4e-05,
+      "Obesidade I": 8.4e-05,
+      "Obesidade II": 0.000143,
+      "Obesidade III": 0.000125,
+      "Peso Normal": 0.998036,
+      "Sobrepeso I": 0.001179,
+      "Sobrepeso II": 0.000348
+    }
+  },
+  {
+    "classe_prevista": "Peso Normal",
+    "probabilidades": {
+      "Abaixo do Peso": 0.002262,
+      "Obesidade I": 0.000363,
+      "Obesidade II": 0.000259,
+      "Obesidade III": 0.000438,
+      "Peso Normal": 0.991491,
+      "Sobrepeso I": 0.003092,
+      "Sobrepeso II": 0.002095
+    }
+  },
+  {
+    "classe_prevista": "Obesidade II",
+    "probabilidades": {
+      "Abaixo do Peso": 0.000232,
+      "Obesidade I": 0.003934,
+      "Obesidade II": 0.764733,
+      "Obesidade III": 0.227977,
+      "Peso Normal": 0.000477,
+      "Sobrepeso I": 0.0011,
+      "Sobrepeso II": 0.001548
+    }
+  },
+  {
+    "classe_prevista": "Sobrepeso I",
+    "probabilidades": {
+      "Abaixo do Peso": 0.000141,
+      "Obesidade I": 0.000396,
+      "Obesidade II": 0.000225,
+      "Obesidade III": 0.00023,
+      "Peso Normal": 0.000264,
+      "Sobrepeso I": 0.986974,
+      "Sobrepeso II": 0.011771
+    }
+  },
+  {
+    "classe_prevista": "Peso Normal",
+    "probabilidades": {
+      "Abaixo do Peso": 2.1e-05,
+      "Obesidade I": 3e-05,
+      "Obesidade II": 1.5e-05,
+      "Obesidade III": 3.3e-05,
+      "Peso Normal": 0.999514,
+      "Sobrepeso I": 0.000326,
+      "Sobrepeso II": 5.9e-05
+    }
+  },
+  {
+    "classe_prevista": "Peso Normal",
+    "probabilidades": {
+      "Abaixo do Peso": 7.3e-05,
+      "Obesidade I": 6.3e-05,
+      "Obesidade II": 0.00011,
+      "Obesidade III": 8.2e-05,
+      "Peso Normal": 0.998555,
+      "Sobrepeso I": 0.000984,
+      "Sobrepeso II": 0.000132
+    }
+  },
+  {
+    "classe_prevista": "Peso Normal",
+    "probabilidades": {
+      "Abaixo do Peso": 0.000138,
+      "Obesidade I": 5.8e-05,
+      "Obesidade II": 8.4e-05,
+      "Obesidade III": 8e-05,
+      "Peso Normal": 0.999313,
+      "Sobrepeso I": 0.000193,
+      "Sobrepeso II": 0.000134
+    }
+  },
+  {
+    "classe_prevista": "Peso Normal",
+    "probabilidades": {
+      "Abaixo do Peso": 3.5e-05,
+      "Obesidade I": 5e-05,
+      "Obesidade II": 4.2e-05,
+      "Obesidade III": 6.2e-05,
+      "Peso Normal": 0.999117,
+      "Sobrepeso I": 0.00056,
+      "Sobrepeso II": 0.000134
+    }
+  },
+  {
+    "classe_prevista": "Sobrepeso II",
+    "probabilidades": {
+      "Abaixo do Peso": 0.000126,
+      "Obesidade I": 0.000766,
+      "Obesidade II": 0.000233,
+      "Obesidade III": 0.000253,
+      "Peso Normal": 0.000267,
+      "Sobrepeso I": 0.000549,
+      "Sobrepeso II": 0.997804
+    }
+  },
+  {
+    "classe_prevista": "Obesidade I",
+    "probabilidades": {
+      "Abaixo do Peso": 0.000168,
+      "Obesidade I": 0.997556,
+      "Obesidade II": 0.000371,
+      "Obesidade III": 0.000145,
+      "Peso Normal": 0.000231,
+      "Sobrepeso I": 0.000265,
+      "Sobrepeso II": 0.001263
+    }
+  },
+  {
+    "classe_prevista": "Abaixo do Peso",
+    "probabilidades": {
+      "Abaixo do Peso": 0.998845,
+      "Obesidade I": 5.3e-05,
+      "Obesidade II": 6.4e-05,
+      "Obesidade III": 4.6e-05,
+      "Peso Normal": 0.000819,
+      "Sobrepeso I": 7.4e-05,
+      "Sobrepeso II": 9.9e-05
+    }
+  },
+  {
+    "classe_prevista": "Peso Normal",
+    "probabilidades": {
+      "Abaixo do Peso": 2.4e-05,
+      "Obesidade I": 3.2e-05,
+      "Obesidade II": 1.6e-05,
+      "Obesidade III": 3.2e-05,
+      "Peso Normal": 0.999767,
+      "Sobrepeso I": 7.4e-05,
+      "Sobrepeso II": 5.4e-05
+    }
+  },
+  {
+    "classe_prevista": "Sobrepeso I",
+    "probabilidades": {
+      "Abaixo do Peso": 6.1e-05,
+      "Obesidade I": 8.8e-05,
+      "Obesidade II": 7.6e-05,
+      "Obesidade III": 0.000103,
+      "Peso Normal": 0.000312,
+      "Sobrepeso I": 0.998342,
+      "Sobrepeso II": 0.001018
+    }
+  },
+  {
+    "classe_prevista": "Sobrepeso II",
+    "probabilidades": {
+      "Abaixo do Peso": 3.9e-05,
+      "Obesidade I": 5.4e-05,
+      "Obesidade II": 6.9e-05,
+      "Obesidade III": 6.4e-05,
+      "Peso Normal": 7.4e-05,
+      "Sobrepeso I": 0.000331,
+      "Sobrepeso II": 0.99937
+    }
+  },
+  {
+    "classe_prevista": "Obesidade I",
+    "probabilidades": {
+      "Abaixo do Peso": 3.9e-05,
+      "Obesidade I": 0.999311,
+      "Obesidade II": 5.2e-05,
+      "Obesidade III": 8.3e-05,
+      "Peso Normal": 8.3e-05,
+      "Sobrepeso I": 0.000146,
+      "Sobrepeso II": 0.000286
+    }
+  },
+  {
+    "classe_prevista": "Obesidade II",
+    "probabilidades": {
+      "Abaixo do Peso": 5.3e-05,
+      "Obesidade I": 0.000218,
+      "Obesidade II": 0.998821,
+      "Obesidade III": 0.000317,
+      "Peso Normal": 0.000108,
+      "Sobrepeso I": 8e-05,
+      "Sobrepeso II": 0.000402
+    }
+  },
+  {
+    "classe_prevista": "Obesidade III",
+    "probabilidades": {
+      "Abaixo do Peso": 4.8e-05,
+      "Obesidade I": 0.00016,
+      "Obesidade II": 0.002254,
+      "Obesidade III": 0.997304,
+      "Peso Normal": 9e-05,
+      "Sobrepeso I": 8.1e-05,
+      "Sobrepeso II": 6.3e-05
+    }
+  },
+  {
+    "classe_prevista": "Peso Normal",
+    "probabilidades": {
+      "Abaixo do Peso": 0.000251,
+      "Obesidade I": 0.00054,
+      "Obesidade II": 0.000466,
+      "Obesidade III": 0.000334,
+      "Peso Normal": 0.990736,
+      "Sobrepeso I": 0.006015,
+      "Sobrepeso II": 0.001659
+    }
+  },
+  {
+    "classe_prevista": "Sobrepeso II",
+    "probabilidades": {
+      "Abaixo do Peso": 0.003135,
+      "Obesidade I": 0.001364,
+      "Obesidade II": 0.002704,
+      "Obesidade III": 0.001468,
+      "Peso Normal": 0.004374,
+      "Sobrepeso I": 0.015164,
+      "Sobrepeso II": 0.971791
+    }
+  },
+  {
+    "classe_prevista": "Abaixo do Peso",
+    "probabilidades": {
+      "Abaixo do Peso": 0.957829,
+      "Obesidade I": 0.000688,
+      "Obesidade II": 0.000671,
+      "Obesidade III": 0.000497,
+      "Peso Normal": 0.038661,
+      "Sobrepeso I": 0.000743,
+      "Sobrepeso II": 0.000911
+    }
+  },
+  {
+    "classe_prevista": "Obesidade I",
+    "probabilidades": {
+      "Abaixo do Peso": 0.000423,
+      "Obesidade I": 0.851361,
+      "Obesidade II": 0.141243,
+      "Obesidade III": 0.000741,
+      "Peso Normal": 0.000469,
+      "Sobrepeso I": 0.001081,
+      "Sobrepeso II": 0.004683
+    }
+  },
+  {
+    "classe_prevista": "Peso Normal",
+    "probabilidades": {
+      "Abaixo do Peso": 4.6e-05,
+      "Obesidade I": 8e-05,
+      "Obesidade II": 7.1e-05,
+      "Obesidade III": 7.6e-05,
+      "Peso Normal": 0.995606,
+      "Sobrepeso I": 0.000948,
+      "Sobrepeso II": 0.003174
+    }
+  },
+  {
+    "classe_prevista": "Abaixo do Peso",
+    "probabilidades": {
+      "Abaixo do Peso": 0.993492,
+      "Obesidade I": 0.000126,
+      "Obesidade II": 0.000104,
+      "Obesidade III": 0.000158,
+      "Peso Normal": 0.005662,
+      "Sobrepeso I": 0.000284,
+      "Sobrepeso II": 0.000173
+    }
+  },
+  {
+    "classe_prevista": "Obesidade I",
+    "probabilidades": {
+      "Abaixo do Peso": 0.000757,
+      "Obesidade I": 0.94717,
+      "Obesidade II": 0.040755,
+      "Obesidade III": 0.004241,
+      "Peso Normal": 0.001291,
+      "Sobrepeso I": 0.001329,
+      "Sobrepeso II": 0.004456
+    }
+  }
+]
