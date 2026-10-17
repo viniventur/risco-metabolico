@@ -1,6 +1,6 @@
 # `/study` — o notebook de estudo e o mapa para o backend
 
-Um único notebook: `01_comparacao_de_modelos.ipynb` (35 células), adaptado do notebook legado com o **mínimo** de mudanças fora dos cálculos: textos institucionais, caminhos, imports que faltavam, o A/B explícito de *binning*, a correção de contrato do encoder (`handle_unknown='error'` + `categories=`), a saída da persistência e a prosa sem número literal.
+Um único notebook: `01_comparacao_de_modelos.ipynb` (40 células), adaptado do notebook legado com o **mínimo** de mudanças fora dos cálculos: textos institucionais, caminhos, imports que faltavam, o A/B explícito de *binning*, a correção de contrato do encoder (`handle_unknown='error'` + `categories=`), a saída da persistência e a prosa sem número literal.
 
 > Os dados exibidos são fictícios e servem apenas para demonstração. Nenhum registro corresponde a uma pessoa real. Esta ferramenta é de triagem e não substitui avaliação clínica.
 

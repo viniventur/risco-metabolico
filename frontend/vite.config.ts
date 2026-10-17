@@ -39,6 +39,7 @@ export default defineConfig({
       "remark-math",
       "rehype-katex",
       "dompurify",
+      "plotly.js-cartesian-dist-min",
     ],
   },
   build: {

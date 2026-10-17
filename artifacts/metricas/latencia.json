@@ -1,0 +1,17 @@
+{
+  "endpoint": "POST /api/v1/predicoes",
+  "n_chamadas": 200,
+  "n_aquecimento": 20,
+  "p50_ms": 6.81,
+  "p95_ms": 8.68,
+  "p99_ms": 12.24,
+  "media_ms": 7.11,
+  "maximo_ms": 14.67,
+  "limite_p95_ms": 50.0,
+  "versao_modelo": "2.0.0",
+  "maquina": "Intel(R) Core(TM) i7-14700HX",
+  "sistema": "Windows 11",
+  "python": "3.12.15",
+  "modo": "TestClient em processo, sem rede; inclui validação, pipeline e serialização",
+  "medido_em": "2026-10-17T18:41:46+00:00"
+}
