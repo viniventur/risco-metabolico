@@ -72,7 +72,7 @@ def test_nenhuma_interpolacao_de_string() -> None:
 
 
 def _psycopg(sql: str, nomes: list[str]) -> str:
-    """$1..$n -> %(nome)s (psycopg): um parâmetro pode aparecer mais de uma vez (:n_minimo em 03)."""
+    """$1..$n -> %(nome)s (psycopg): um parâmetro pode aparecer mais de uma vez (03)."""
     for k in range(len(nomes), 0, -1):
         sql = sql.replace(f"${k}", f"%({nomes[k - 1]})s")
     return sql

@@ -1,0 +1,2 @@
+# A pasta existe no contexto de build mesmo sem .pkl (models/*.pkl esta no .gitignore): o
+# Dockerfile faz COPY models/ e scripts/baixar_modelo.py decide entre usar o local ou baixar.

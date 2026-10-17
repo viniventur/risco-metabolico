@@ -1,0 +1,38 @@
+# Keep-alive semanal do Postgres gerenciado + retenção do log de predição (plano, §4.3.8, §6.8.6).
+# `schedule` NÃO é garantia: o GitHub atrasa execuções sob carga e desativa o agendamento em
+# repositório sem atividade por 60 dias. Por isso existe o workflow_dispatch, e por isso a defesa
+# real é o desenho estático-primeiro: com o banco pausado o produto abre inteiro.
+# Nunca usar `set -x` nem `echo "$BANCO_URL"` aqui: a senha está na DSN e o log é público.
+name: manter-banco-vivo
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"   # segunda-feira, 06:17 UTC. Horário quebrado de propósito: o topo da
+                           # hora é a faixa mais congestionada do agendador.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Consulta trivial e retenção do log
+        env:
+          # Segredo do repositório. Usar o DSN do POOLER: a conexão direta pode ser IPv6-only e o
+          # runner do GitHub é IPv4.
+          BANCO_URL: ${{ secrets.BANCO_URL_POOLER }}
+          # Defaults no próprio workflow: `vars` não definida viraria string vazia e o comando
+          # sairia "manutencao_log(, )". Um padrão que funciona no dia um é pré-requisito.
+          DIAS: ${{ vars.RETENCAO_DIAS || '90' }}
+          TETO: ${{ vars.TETO_LINHAS_LOG || '500000' }}
+        run: |
+          test -n "$BANCO_URL" || { echo "segredo BANCO_URL_POOLER ausente"; exit 1; }
+          psql "$BANCO_URL" -v ON_ERROR_STOP=1 -qtAX \
+            -c "select 'vivo', now() at time zone 'UTC', count(*) from operacao.log_predicao;"
+          # Parâmetros por -v, nunca interpolados no SQL: `vars` no `run` é a forma mais banal
+          # de injeção num workflow.
+          psql "$BANCO_URL" -v ON_ERROR_STOP=1 -qtAX -v dias="$DIAS" -v teto="$TETO" \
+            -c "select * from operacao.manutencao_log(:dias, :teto);"
