@@ -3,10 +3,10 @@ import { fmtPct } from "@/shared/format/ptBR";
 import { NumeroQueConta } from "@/shared/movimento/NumeroQueConta";
 import { Revelar } from "@/shared/movimento/Revelar";
 import { useApareceuNaTela } from "@/shared/movimento/useApareceuNaTela";
-import { useContagem } from "@/shared/movimento/useContagem";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 import { seguirOPonteiro } from "./seguirOPonteiro";
+import { Velocimetro } from "./Velocimetro";
 
 const METRICAS = [
   { chave: "acuracia", rotulo: "Acurácia", detalhe: "no conjunto de teste" },
@@ -16,7 +16,7 @@ const METRICAS = [
 
 /**
  * As três métricas do modelo em teste, lidas de GET /model/info (nenhuma escrita no front). Quando a
- * faixa chega à tela, cada número conta de 0 até o valor e o anel ao lado enche junto.
+ * faixa chega à tela, cada número conta de 0 até o valor e o ponteiro do velocímetro ao lado sobe junto.
  */
 export function MetricasDoModelo() {
   const info = useModelInfo();
@@ -39,47 +39,27 @@ function CartaoDaMetrica({ rotulo, detalhe, valor, carregando }: { rotulo: strin
       ref={ref}
       onPointerMove={seguirOPonteiro}
       aria-busy={carregando || undefined}
-      className="cartao-holofote flex h-full items-center justify-between gap-4 rounded-xl border bg-card p-5 text-card-foreground shadow-sm transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none"
+      className="cartao-holofote @container h-full rounded-xl border bg-card p-5 text-card-foreground shadow-sm transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none"
     >
-      <div className="flex min-w-0 flex-col gap-2">
-        <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{rotulo}</span>
-        {carregando ? (
-          <>
-            <span className="sr-only">Carregando…</span>
-            <Skeleton className="h-9 w-28" />
-          </>
-        ) : (
-          <p className="text-3xl leading-none font-semibold tracking-tight">
-            <NumeroQueConta valor={valor} formatar={fmtPct} ativo={apareceu} />
-          </p>
-        )}
-        <span className="text-xs text-muted-foreground">{detalhe}</span>
+      {/* Lado a lado quando o cartão tem largura (16rem de conteúdo); nos três cartões espremidos entre
+          640 e 1279 px, o velocímetro desce para baixo do texto em vez de esmagar o número. */}
+      <div className="flex h-full flex-col gap-3 @3xs:flex-row @3xs:items-center @3xs:justify-between @3xs:gap-4">
+        <div className="flex min-w-0 flex-col gap-2">
+          <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{rotulo}</span>
+          {carregando ? (
+            <>
+              <span className="sr-only">Carregando…</span>
+              <Skeleton className="h-9 w-28" />
+            </>
+          ) : (
+            <p className="text-3xl leading-none font-semibold tracking-tight">
+              <NumeroQueConta valor={valor} formatar={fmtPct} ativo={apareceu} />
+            </p>
+          )}
+          <span className="text-xs text-muted-foreground">{detalhe}</span>
+        </div>
+        <Velocimetro fracao={valor} ativo={apareceu && !carregando} className="self-center" />
       </div>
-      <Anel fracao={valor} ativo={apareceu && !carregando} />
     </div>
-  );
-}
-
-/** O anel que enche até a fração, no mesmo ritmo do número (desenho: o valor já está no texto ao lado). */
-function Anel({ fracao, ativo }: { fracao: number | undefined; ativo: boolean }) {
-  const atual = useContagem(fracao, ativo);
-  return (
-    <svg viewBox="0 0 64 64" className="size-16 shrink-0 -rotate-90" aria-hidden="true">
-      <circle cx="32" cy="32" r="27" fill="none" strokeWidth="4" className="stroke-muted" />
-      <circle
-        cx="32"
-        cy="32"
-        r="27"
-        fill="none"
-        strokeWidth="4"
-        strokeLinecap="round"
-        pathLength={100}
-        strokeDasharray="100"
-        strokeDashoffset={100 - atual * 100}
-        // Sem isto, o traço de comprimento zero com ponta redonda vira um ponto antes de a contagem começar.
-        opacity={atual > 0 ? 1 : 0}
-        className="stroke-primary"
-      />
-    </svg>
   );
 }

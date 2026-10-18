@@ -1,7 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { desacelerar, useContagem } from "./useContagem";
+import { assentar, desacelerar, useContagem } from "./useContagem";
 
 /** Quadros na mão: o teste decide o carimbo de tempo de cada um. */
 function quadrosManuais(): FrameRequestCallback[] {
@@ -54,6 +54,14 @@ describe("useContagem", () => {
     const { result } = renderHook(() => useContagem(2111, true));
     expect(result.current).toBe(2111);
     expect(fila).toHaveLength(0);
+  });
+
+  it("assentar (o ponteiro do velocímetro) passa um pouco do ponto e termina exatamente no alvo", () => {
+    expect(assentar(0)).toBeCloseTo(0);
+    expect(assentar(1)).toBe(1);
+    const pico = Math.max(...Array.from({ length: 101 }, (_, i) => assentar(i / 100)));
+    expect(pico).toBeGreaterThan(1);
+    expect(pico).toBeLessThan(1.05);
   });
 
   it("com o alvo ainda desconhecido (a API não respondeu), não conta", () => {
