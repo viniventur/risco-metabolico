@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/v1/dimensoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Valores distintos das 6 dimensões filtráveis, com rótulo e contagem global
+         * @description Os slicers mostram TODAS as opções do domínio global, não só as sobreviventes ao filtro.
+         */
+        get: operations["dimensoes_api_v1_dimensoes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health": {
         parameters: {
             query?: never;
@@ -24,7 +44,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/ready": {
+    "/api/v1/metadata": {
         parameters: {
             query?: never;
             header?: never;
@@ -32,30 +52,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Prontidão: 200 com artefato e agregados carregados, 503 caso contrário.
-         * @description Prontidão para receber tráfego. O banco não entra: o produto abre inteiro sem ele.
+         * Especificação do formulário: grupos, campos, tipos, faixas, opções e defaults
+         * @description O React monta o formulário a partir daqui; nenhuma regra de formulário mora no JSX.
          */
-        get: operations["ready_api_v1_ready_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/model/info": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Manifest normalizado: versão, métricas, ambiente
-         * @description Versão, algoritmo, `treinado_em`, hiperparâmetros, métricas de teste e ambiente.
-         */
-        get: operations["model_info_api_v1_model_info_get"];
+        get: operations["metadata_api_v1_metadata_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -84,7 +84,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/metadata": {
+    "/api/v1/model/info": {
         parameters: {
             query?: never;
             header?: never;
@@ -92,10 +92,110 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Especificação do formulário: grupos, campos, tipos, faixas, opções e defaults
-         * @description O React monta o formulário a partir daqui; nenhuma regra de formulário mora no JSX.
+         * Manifest normalizado: versão, métricas, ambiente
+         * @description Versão, algoritmo, `treinado_em`, hiperparâmetros, métricas de teste e ambiente.
          */
-        get: operations["metadata_api_v1_metadata_get"];
+        get: operations["model_info_api_v1_model_info_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/monitoramento/deriva": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A entrada real se parece com a de treino? PSI por feature; 200 mesmo com o banco fora
+         * @description Uma requisição, três consultas, `Cache-Control: public, max-age=300`.
+         */
+        get: operations["deriva_api_v1_monitoramento_deriva_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/painel/genero": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Divisão por gênero
+         * @description JSON tipado por gênero — nunca HTML injetado, como no painel de referência.
+         */
+        get: operations["genero_api_v1_painel_genero_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/painel/pontos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Nuvem altura × peso do recorte
+         * @description Até `amostra` pontos, amostra determinística; o IMC vem calculado.
+         */
+        get: operations["pontos_api_v1_painel_pontos_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/painel/por-categoria": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tabela longa por categoria (e série opcional): contagem+pct ou IMC médio
+         * @description Domínio completo (grupo ausente vira n=0), dimensão sempre string, supressão explícita.
+         */
+        get: operations["por_categoria_api_v1_painel_por_categoria_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/painel/resumo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Os 6 KPIs do recorte
+         * @description count(*) do recorte, médias com n = count da coluna, e a MODA explícita (não Max + TopN).
+         */
+        get: operations["resumo_api_v1_painel_resumo_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -164,7 +264,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/dimensoes": {
+    "/api/v1/ready": {
         parameters: {
             query?: never;
             header?: never;
@@ -172,90 +272,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Valores distintos das 6 dimensões filtráveis, com rótulo e contagem global
-         * @description Os slicers mostram TODAS as opções do domínio global, não só as sobreviventes ao filtro.
+         * Prontidão: 200 com artefato e agregados carregados, 503 caso contrário.
+         * @description Prontidão para receber tráfego. O banco não entra: o produto abre inteiro sem ele.
          */
-        get: operations["dimensoes_api_v1_dimensoes_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/painel/resumo": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Os 6 KPIs do recorte
-         * @description count(*) do recorte, médias com n = count da coluna, e a MODA explícita (não Max + TopN).
-         */
-        get: operations["resumo_api_v1_painel_resumo_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/painel/por-categoria": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Tabela longa por categoria (e série opcional): contagem+pct ou IMC médio
-         * @description Domínio completo (grupo ausente vira n=0), dimensão sempre string, supressão explícita.
-         */
-        get: operations["por_categoria_api_v1_painel_por_categoria_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/painel/genero": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Divisão por gênero
-         * @description JSON tipado por gênero — nunca HTML injetado, como no painel de referência.
-         */
-        get: operations["genero_api_v1_painel_genero_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/painel/pontos": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Nuvem altura × peso do recorte
-         * @description Até `amostra` pontos, amostra determinística; o IMC vem calculado.
-         */
-        get: operations["pontos_api_v1_painel_pontos_get"];
+        get: operations["ready_api_v1_ready_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -304,26 +324,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/monitoramento/deriva": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * A entrada real se parece com a de treino? PSI por feature; 200 mesmo com o banco fora
-         * @description Uma requisição, três consultas, `Cache-Control: public, max-age=300`.
-         */
-        get: operations["deriva_api_v1_monitoramento_deriva_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -333,29 +333,12 @@ export interface components {
          * @description `GET /painel/por-categoria`: tabela longa, uma medida por linha, domínio completo.
          */
         Agregado: {
-            /** Campo */
-            campo: string;
-            /**
-             * Metrica
-             * @enum {string}
-             */
-            metrica: "contagem" | "imc_medio";
-            /** Serie */
-            serie?: string | null;
-            /** Dimensoes */
-            dimensoes: components["schemas"]["Dimensao"][];
-            /** Medidas */
-            medidas: components["schemas"]["Medida"][];
             /** Amostra Minima */
             amostra_minima?: number | null;
-            /** Total Filtrado */
-            total_filtrado: number;
-            /** Total Global */
-            total_global: number;
-            /** Recorte */
-            recorte: {
-                [key: string]: unknown[];
-            };
+            /** Campo */
+            campo: string;
+            /** Dimensoes */
+            dimensoes: components["schemas"]["Dimensao"][];
             /**
              * Linhas
              * @description {ordem, <dimensões como string>, medida, valor|valor_texto, n, suprimido}
@@ -363,14 +346,43 @@ export interface components {
             linhas: {
                 [key: string]: unknown;
             }[];
+            /** Medidas */
+            medidas: components["schemas"]["Medida"][];
+            /**
+             * Metrica
+             * @enum {string}
+             */
+            metrica: "contagem" | "imc_medio";
+            /** Recorte */
+            recorte: {
+                [key: string]: unknown[];
+            };
+            /** Serie */
+            serie?: string | null;
+            /** Total Filtrado */
+            total_filtrado: number;
+            /** Total Global */
+            total_global: number;
         };
         /**
          * CampoFormulario
          * @description Um campo do formulário de triagem; `nome` é a CHAVE do JSON de `EntradaTriagem`.
          */
         CampoFormulario: {
+            /** Ajuda */
+            ajuda?: string | null;
+            /** Maximo */
+            maximo?: number | null;
+            /** Minimo */
+            minimo?: number | null;
             /** Nome */
             nome: string;
+            /** Opcoes */
+            opcoes?: components["schemas"]["OpcaoCampo"][];
+            /** Padrao */
+            padrao?: string | number | null;
+            /** Passo */
+            passo?: number | null;
             /** Rotulo */
             rotulo: string;
             /**
@@ -378,18 +390,6 @@ export interface components {
              * @enum {string}
              */
             tipo: "numero" | "selecao";
-            /** Minimo */
-            minimo?: number | null;
-            /** Maximo */
-            maximo?: number | null;
-            /** Passo */
-            passo?: number | null;
-            /** Opcoes */
-            opcoes?: components["schemas"]["OpcaoCampo"][];
-            /** Padrao */
-            padrao?: string | number | null;
-            /** Ajuda */
-            ajuda?: string | null;
         };
         /**
          * Dimensao
@@ -439,124 +439,124 @@ export interface components {
          *     }
          */
         EntradaTriagem: {
-            Genero: components["schemas"]["Genero"];
-            /** Idade */
-            Idade: number;
             /** Altura */
             Altura: number;
-            /** Peso */
-            Peso: number;
-            Historico_Familiar_Sobrepeso: components["schemas"]["SimNao"];
-            Consumo_Calorico_Frequente: components["schemas"]["SimNao"];
-            /**
-             * Consumo Vegetais
-             * @description 1 raramente, 2 às vezes, 3 sempre
-             */
-            Consumo_Vegetais: number;
-            /**
-             * Numero Refeicoes Principais
-             * @description Refeições principais por dia (4 = 4 ou mais)
-             */
-            Numero_Refeicoes_Principais: number;
-            Consumo_Alimentos_Entre_Refeicoes: components["schemas"]["Frequencia"];
-            Fumante: components["schemas"]["SimNao"];
-            /**
-             * Consumo Agua Diario
-             * @description 1 <1L, 2 1-2L, 3 >2L por dia
-             */
-            Consumo_Agua_Diario: number;
-            Monitoramento_Calorias: components["schemas"]["SimNao"];
             /**
              * Atividade Fisica Frequencia
              * @description 0 nenhuma, 1 1-2x, 2 3-4x, 3 5+x por semana
              */
             Atividade_Fisica_Frequencia: number;
             /**
+             * Consumo Agua Diario
+             * @description 1 <1L, 2 1-2L, 3 >2L por dia
+             */
+            Consumo_Agua_Diario: number;
+            Consumo_Alcool: components["schemas"]["Frequencia"];
+            Consumo_Alimentos_Entre_Refeicoes: components["schemas"]["Frequencia"];
+            Consumo_Calorico_Frequente: components["schemas"]["SimNao"];
+            /**
+             * Consumo Vegetais
+             * @description 1 raramente, 2 às vezes, 3 sempre
+             */
+            Consumo_Vegetais: number;
+            Fumante: components["schemas"]["SimNao"];
+            Genero: components["schemas"]["Genero"];
+            Historico_Familiar_Sobrepeso: components["schemas"]["SimNao"];
+            /** Idade */
+            Idade: number;
+            Meio_Transporte: components["schemas"]["MeioTransporte"];
+            Monitoramento_Calorias: components["schemas"]["SimNao"];
+            /**
+             * Numero Refeicoes Principais
+             * @description Refeições principais por dia (4 = 4 ou mais)
+             */
+            Numero_Refeicoes_Principais: number;
+            /** Peso */
+            Peso: number;
+            /**
              * Tempo Dispositivos Tecnologicos
              * @description 0 0-2h, 1 3-5h, 2 >5h por dia
              */
             Tempo_Dispositivos_Tecnologicos: number;
-            Consumo_Alcool: components["schemas"]["Frequencia"];
-            Meio_Transporte: components["schemas"]["MeioTransporte"];
         };
         /**
          * EstatisticaNumerica
          * @description Média, desvio e faixa de uma feature numérica, log contra treino (consulta 01).
          */
         EstatisticaNumerica: {
-            /** Feature */
-            feature: string;
-            /** N Linhas */
-            n_linhas: number;
-            /** N Validos */
-            n_validos: number;
-            /** N Nulos */
-            n_nulos: number;
-            /** Media Log */
-            media_log: number | null;
-            /** Media Treino */
-            media_treino: number | null;
+            /** Deslocamento Desvios */
+            deslocamento_desvios: number | null;
             /** Desvio Log */
             desvio_log: number | null;
             /** Desvio Treino */
             desvio_treino: number | null;
+            /** Extrapolou Faixa De Treino */
+            extrapolou_faixa_de_treino: boolean | null;
+            /** Feature */
+            feature: string;
+            /** Maximo Log */
+            maximo_log: number | null;
+            /** Maximo Treino */
+            maximo_treino: number | null;
+            /** Media Log */
+            media_log: number | null;
+            /** Media Treino */
+            media_treino: number | null;
+            /** Minimo Log */
+            minimo_log: number | null;
+            /** Minimo Treino */
+            minimo_treino: number | null;
+            /** N Linhas */
+            n_linhas: number;
+            /** N Nulos */
+            n_nulos: number;
+            /** N Validos */
+            n_validos: number;
             /** P50 Log */
             p50_log: number | null;
             /** P50 Treino */
             p50_treino: number | null;
-            /** Minimo Log */
-            minimo_log: number | null;
-            /** Maximo Log */
-            maximo_log: number | null;
-            /** Minimo Treino */
-            minimo_treino: number | null;
-            /** Maximo Treino */
-            maximo_treino: number | null;
-            /** Deslocamento Desvios */
-            deslocamento_desvios: number | null;
-            /** Extrapolou Faixa De Treino */
-            extrapolou_faixa_de_treino: boolean | null;
         };
         /**
          * FaixaComparada
          * @description Uma faixa de uma feature: proporção no treino e no log (consulta 02).
          */
         FaixaComparada: {
-            /** Feature */
-            feature: string;
             /** Faixa Idx */
             faixa_idx: number;
-            /**
-             * Tipo
-             * @enum {string}
-             */
-            tipo: "numerica" | "categorica";
             /** Faixa Rotulo */
             faixa_rotulo: string | null;
+            /** Feature */
+            feature: string;
             /** Limite Inf */
             limite_inf: number | null;
             /** Limite Sup */
             limite_sup: number | null;
             /** N Log */
             n_log: number;
+            /** N Total Log */
+            n_total_log: number;
+            /** N Treino */
+            n_treino: number;
             /** Prop Log */
             prop_log: number | null;
             /** Proporcao Treino */
             proporcao_treino: number;
-            /** N Treino */
-            n_treino: number;
-            /** N Total Log */
-            n_total_log: number;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "numerica" | "categorica";
         };
         /**
          * FalhaLote
          * @description Um item recusado dentro de um lote, com o índice de origem preservado.
          */
         FalhaLote: {
-            /** Indice */
-            indice: number;
             /** Campo */
             campo?: string | null;
+            /** Indice */
+            indice: number;
             /** Mensagem */
             mensagem: string;
         };
@@ -579,24 +579,26 @@ export interface components {
         GeneroResumo: {
             /** Genero */
             genero: string;
-            /** N */
-            n: number;
-            /** Percentual */
-            percentual: number | null;
             /** Imc Medio */
             imc_medio: number | null;
+            /** N */
+            n: number;
             /** N Imc */
             n_imc: number;
-            /** Nivel Predominante */
-            nivel_predominante: string | null;
             /** N Predominante */
             n_predominante: number;
+            /** Nivel Predominante */
+            nivel_predominante: string | null;
+            /** Percentual */
+            percentual: number | null;
         };
         /**
          * GrupoFormulario
          * @description Os três agrupamentos do legado: dados iniciais, dieta, hábitos.
          */
         GrupoFormulario: {
+            /** Campos */
+            campos: components["schemas"]["CampoFormulario"][];
             /**
              * Id
              * @enum {string}
@@ -604,8 +606,6 @@ export interface components {
             id: "dados-iniciais" | "dieta" | "habitos";
             /** Titulo */
             titulo: string;
-            /** Campos */
-            campos: components["schemas"]["CampoFormulario"][];
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -617,74 +617,81 @@ export interface components {
          * @description `GET /model/feature-importance`.
          */
         ImportanciaFeatures: {
+            /** Itens */
+            itens: components["schemas"]["ItemImportancia"][];
             /** Modelo */
             modelo: string;
             /** Versao */
             versao: string;
-            /** Itens */
-            itens: components["schemas"]["ItemImportancia"][];
         };
         /**
          * IndicadorFeature
          * @description PSI de uma feature sobre as faixas do treino (consulta 03).
          */
         IndicadorFeature: {
-            /** Feature */
-            feature: string;
-            /**
-             * Tipo
-             * @enum {string}
-             */
-            tipo: "numerica" | "categorica";
-            /** N Amostra */
-            n_amostra: number;
-            /** Psi */
-            psi: number | null;
             /**
              * Classificacao
              * @enum {string}
              */
             classificacao: "estavel" | "atencao" | "deriva significativa" | "amostra insuficiente";
+            /** Feature */
+            feature: string;
+            /** N Amostra */
+            n_amostra: number;
+            /** Psi */
+            psi: number | null;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "numerica" | "categorica";
         };
         /**
          * InfoModelo
          * @description `GET /model/info`: o manifest normalizado. É a fonte das métricas publicadas.
          */
         InfoModelo: {
-            /** Nome */
-            nome: string;
-            /** Versao */
-            versao: string;
             /** Algoritmo */
             algoritmo: string;
-            /** Treinado Em */
-            treinado_em: string;
-            /** Versao Dados */
-            versao_dados: string;
-            /** Sha256 */
-            sha256: string;
-            /** N Features Entrada */
-            n_features_entrada: number;
-            /** N Features Modelo */
-            n_features_modelo: number;
+            /** Ambiente */
+            ambiente: {
+                [key: string]: unknown;
+            };
+            /** Aviso */
+            aviso: string;
             /** Binning Ativo */
             binning_ativo: boolean;
-            /** Imc Como Feature */
-            imc_como_feature: boolean;
             /**
              * Classes
              * @description Ordem alfabética do encoder (ordem de predict_proba)
              */
             classes: string[];
+            /** Hiperparametros */
+            hiperparametros: {
+                [key: string]: unknown;
+            };
+            /** Imc Como Feature */
+            imc_como_feature: boolean;
+            metricas_teste: components["schemas"]["MetricasModelo"];
+            /** N Features Entrada */
+            n_features_entrada: number;
+            /** N Features Modelo */
+            n_features_modelo: number;
+            /** Nome */
+            nome: string;
+            /** Notebook Origem */
+            notebook_origem: string;
             /**
              * Ordem Clinica
              * @description Ordem em que a API devolve as probabilidades
              */
             ordem_clinica: string[];
-            /** Hiperparametros */
-            hiperparametros: {
+            /** Overfitting */
+            overfitting?: {
                 [key: string]: unknown;
-            };
+            } | null;
+            /** Sha256 */
+            sha256: string;
             /** Smote */
             smote: {
                 [key: string]: unknown;
@@ -693,19 +700,12 @@ export interface components {
             split: {
                 [key: string]: unknown;
             };
-            metricas_teste: components["schemas"]["MetricasModelo"];
-            /** Overfitting */
-            overfitting?: {
-                [key: string]: unknown;
-            } | null;
-            /** Ambiente */
-            ambiente: {
-                [key: string]: unknown;
-            };
-            /** Notebook Origem */
-            notebook_origem: string;
-            /** Aviso */
-            aviso: string;
+            /** Treinado Em */
+            treinado_em: string;
+            /** Versao */
+            versao: string;
+            /** Versao Dados */
+            versao_dados: string;
         };
         /**
          * ItemImportancia
@@ -714,12 +714,12 @@ export interface components {
         ItemImportancia: {
             /** Feature */
             feature: string;
-            /** Rotulo */
-            rotulo: string;
             /** Importancia */
             importancia: number;
             /** Importancia Pct */
             importancia_pct: number;
+            /** Rotulo */
+            rotulo: string;
         };
         /**
          * LoteTriagem
@@ -736,13 +736,13 @@ export interface components {
          * @description Uma medida do agregado; a classe escolhe a tolerância do teste de paridade.
          */
         Medida: {
-            /** Nome */
-            nome: string;
             /**
              * Classe
              * @enum {string}
              */
             classe: "contagem" | "media_limitada" | "proporcao" | "texto";
+            /** Nome */
+            nome: string;
         };
         /**
          * MeioTransporte
@@ -755,12 +755,12 @@ export interface components {
          * @description `GET /metadata`: a espinha do formulário — o React monta os campos a partir daqui.
          */
         MetadadosFormulario: {
+            /** Aviso */
+            aviso: string;
             /** Grupos */
             grupos: components["schemas"]["GrupoFormulario"][];
             /** Versao Modelo */
             versao_modelo: string;
-            /** Aviso */
-            aviso: string;
         };
         /**
          * MetricasModelo
@@ -789,32 +789,32 @@ export interface components {
          * @description Um valor de dimensão filtrável, com rótulo de exibição e contagem global.
          */
         OpcaoDimensao: {
-            /** Valor */
-            valor: string | number;
-            /** Rotulo */
-            rotulo: string;
             /** N */
             n: number;
+            /** Rotulo */
+            rotulo: string;
+            /** Valor */
+            valor: string | number;
         };
         /**
          * PaginaRegistros
          * @description `GET /registros`: página ordenada do recorte, com as 18 colunas e o `id`.
          */
         PaginaRegistros: {
-            /** Total */
-            total: number;
-            /** Pagina */
-            pagina: number;
-            /** Tamanho */
-            tamanho: number;
             /** Linhas */
             linhas: {
                 [key: string]: unknown;
             }[];
+            /** Pagina */
+            pagina: number;
             /** Recorte */
             recorte: {
                 [key: string]: unknown[];
             };
+            /** Tamanho */
+            tamanho: number;
+            /** Total */
+            total: number;
         };
         /**
          * Ponto
@@ -823,12 +823,12 @@ export interface components {
         Ponto: {
             /** Altura */
             altura: number;
-            /** Peso */
-            peso: number;
             /** Imc */
             imc: number;
             /** Nivel */
             nivel: string;
+            /** Peso */
+            peso: number;
         };
         /**
          * ProbabilidadeClasse
@@ -837,71 +837,71 @@ export interface components {
         ProbabilidadeClasse: {
             /** Classe */
             classe: string;
-            /** Probabilidade */
-            probabilidade: number;
             /** De Risco */
             de_risco: boolean;
+            /** Probabilidade */
+            probabilidade: number;
         };
         /**
          * Prontidao
          * @description Resposta de `GET /ready`: 200 só com artefato e agregados carregados.
          */
         Prontidao: {
-            /** Pronto */
-            pronto: boolean;
-            /** Artefato Carregado */
-            artefato_carregado: boolean;
             /** Agregados Carregados */
             agregados_carregados: boolean;
+            /** Artefato Carregado */
+            artefato_carregado: boolean;
             /** Motivo */
             motivo?: string | null;
+            /** Pronto */
+            pronto: boolean;
         };
         /**
          * RespostaDeriva
          * @description Com o banco fora do ar: 200 com `disponivel: false` e `motivo` — nunca 5xx (§4.3.8).
          */
         RespostaDeriva: {
-            /** Janela Dias */
-            janela_dias: number;
-            /** N Minimo */
-            n_minimo: number;
-            /** N Amostra */
-            n_amostra: number;
-            /** Versao Modelo */
-            versao_modelo: string;
-            /** Versao Dados */
-            versao_dados: string;
             /** Atualizado Em */
             atualizado_em: string;
-            /** Disponivel */
-            disponivel: boolean;
-            /** Motivo */
-            motivo?: string | null;
-            /** Features */
-            features?: components["schemas"]["IndicadorFeature"][];
-            /** Estatisticas */
-            estatisticas?: components["schemas"]["EstatisticaNumerica"][];
-            /** Faixas */
-            faixas?: components["schemas"]["FaixaComparada"][];
             /**
              * Consultas
              * @description os arquivos de sql/deriva/ executados
              */
             consultas?: string[];
+            /** Disponivel */
+            disponivel: boolean;
+            /** Estatisticas */
+            estatisticas?: components["schemas"]["EstatisticaNumerica"][];
+            /** Faixas */
+            faixas?: components["schemas"]["FaixaComparada"][];
+            /** Features */
+            features?: components["schemas"]["IndicadorFeature"][];
+            /** Janela Dias */
+            janela_dias: number;
+            /** Motivo */
+            motivo?: string | null;
+            /** N Amostra */
+            n_amostra: number;
+            /** N Minimo */
+            n_minimo: number;
+            /** Versao Dados */
+            versao_dados: string;
+            /** Versao Modelo */
+            versao_modelo: string;
         };
         /**
          * RespostaLote
          * @description `POST /predicoes/lote`: um item inválido volta em `falhas`; os outros são processados.
          */
         RespostaLote: {
-            /** Total */
-            total: number;
-            /** Sucesso */
-            sucesso: number;
-            /** Resultados */
-            resultados: components["schemas"]["RespostaTriagem"][];
             /** Falhas */
             falhas: components["schemas"]["FalhaLote"][];
+            /** Resultados */
+            resultados: components["schemas"]["RespostaTriagem"][];
+            /** Sucesso */
+            sucesso: number;
+            /** Total */
+            total: number;
             /** Versao Modelo */
             versao_modelo: string;
         };
@@ -912,18 +912,6 @@ export interface components {
         RespostaTriagem: {
             /** Classe Prevista */
             classe_prevista: string;
-            /**
-             * Risco Acumulado
-             * @description Soma das 5 classes de risco
-             */
-            risco_acumulado: number;
-            /**
-             * Probabilidades
-             * @description Sempre as 7 classes, em ordem clínica crescente (não alfabética)
-             */
-            probabilidades: components["schemas"]["ProbabilidadeClasse"][];
-            /** Imc */
-            imc: number;
             /** Faixa Imc */
             faixa_imc: string;
             /**
@@ -931,52 +919,54 @@ export interface components {
              * @description Campos cujo valor está fora da faixa observada no treino
              */
             fora_do_dominio_treino?: string[];
-            /** Versao Modelo */
-            versao_modelo: string;
+            /** Imc */
+            imc: number;
             /** Latencia Ms */
             latencia_ms: number;
+            /**
+             * Probabilidades
+             * @description Sempre as 7 classes, em ordem clínica crescente (não alfabética)
+             */
+            probabilidades: components["schemas"]["ProbabilidadeClasse"][];
+            /**
+             * Risco Acumulado
+             * @description Soma das 5 classes de risco
+             */
+            risco_acumulado: number;
+            /** Versao Modelo */
+            versao_modelo: string;
         };
         /**
          * Resumo
          * @description `GET /painel/resumo`: os 6 KPIs da faixa superior.
          */
         Resumo: {
-            /** Total Registros */
-            total_registros: number;
-            /** Idade Media */
-            idade_media: number | null;
             /** Altura Media */
             altura_media: number | null;
-            /** Peso Medio */
-            peso_medio: number | null;
-            /** Nivel Predominante */
-            nivel_predominante: string | null;
+            /** Idade Media */
+            idade_media: number | null;
             /** N Predominante */
             n_predominante: number;
-            /** Total Global */
-            total_global: number;
+            /** Nivel Predominante */
+            nivel_predominante: string | null;
+            /** Peso Medio */
+            peso_medio: number | null;
             /** Recorte */
             recorte: {
                 [key: string]: unknown[];
             };
+            /** Total Global */
+            total_global: number;
+            /** Total Registros */
+            total_registros: number;
         };
         /**
          * Saude
          * @description Resposta de `GET /health` — sempre 200; o banco não é requisito de vivacidade.
          */
         Saude: {
-            /**
-             * Status
-             * @default ok
-             * @constant
-             */
-            status: "ok";
-            /** Versao Api */
-            versao_api: string;
             /** Artefato Carregado */
             artefato_carregado: boolean;
-            /** Uptime S */
-            uptime_s: number;
             /**
              * Banco
              * @enum {string}
@@ -987,10 +977,20 @@ export interface components {
              * @enum {string}
              */
             log_predicao: "desligado" | "ok" | "degradado";
-            /** Logs Gravados */
-            logs_gravados: number;
             /** Logs Descartados */
             logs_descartados: number;
+            /** Logs Gravados */
+            logs_gravados: number;
+            /**
+             * Status
+             * @default ok
+             * @constant
+             */
+            status: "ok";
+            /** Uptime S */
+            uptime_s: number;
+            /** Versao Api */
+            versao_api: string;
         };
         /**
          * SimNao
@@ -1000,16 +1000,16 @@ export interface components {
         SimNao: "Sim" | "Não";
         /** ValidationError */
         ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
             /** Location */
             loc: (string | number)[];
             /** Message */
             msg: string;
             /** Error Type */
             type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
         };
     };
     responses: never;
@@ -1020,6 +1020,28 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    dimensoes_api_v1_dimensoes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: components["schemas"]["OpcaoDimensao"][];
+                    };
+                };
+            };
+        };
+    };
     health_api_v1_health_get: {
         parameters: {
             query?: never;
@@ -1040,36 +1062,7 @@ export interface operations {
             };
         };
     };
-    ready_api_v1_ready_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Prontidao"];
-                };
-            };
-            /** @description Service Unavailable */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Prontidao"];
-                };
-            };
-        };
-    };
-    model_info_api_v1_model_info_get: {
+    metadata_api_v1_metadata_get: {
         parameters: {
             query?: {
                 /** @description Versão do modelo; padrão: a do manifest */
@@ -1087,7 +1080,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["InfoModelo"];
+                    "application/json": components["schemas"]["MetadadosFormulario"];
                 };
             };
             /** @description Validation Error */
@@ -1134,7 +1127,7 @@ export interface operations {
             };
         };
     };
-    metadata_api_v1_metadata_get: {
+    model_info_api_v1_model_info_get: {
         parameters: {
             query?: {
                 /** @description Versão do modelo; padrão: a do manifest */
@@ -1152,7 +1145,193 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MetadadosFormulario"];
+                    "application/json": components["schemas"]["InfoModelo"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deriva_api_v1_monitoramento_deriva_get: {
+        parameters: {
+            query?: {
+                janela_dias?: number;
+                /** @description restringe `faixas` a uma feature */
+                feature?: string | null;
+                /** @description Versão do modelo; padrão: a do manifest */
+                versao?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespostaDeriva"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    genero_api_v1_painel_genero_get: {
+        parameters: {
+            query?: {
+                nivel?: string[];
+                genero?: string[];
+                agua?: string[];
+                alcool?: string[];
+                caloricos?: string[];
+                historico_familiar?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeneroResumo"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    pontos_api_v1_painel_pontos_get: {
+        parameters: {
+            query?: {
+                amostra?: number;
+                nivel?: string[];
+                genero?: string[];
+                agua?: string[];
+                alcool?: string[];
+                caloricos?: string[];
+                historico_familiar?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ponto"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    por_categoria_api_v1_painel_por_categoria_get: {
+        parameters: {
+            query: {
+                /** @description nivel | genero | caloricos | alcool | atividade | agua | historico_familiar | transporte */
+                campo: string;
+                /** @description contagem | imc_medio */
+                metrica?: string;
+                /** @description segunda dimensão, ex.: genero */
+                serie?: string | null;
+                nivel?: string[];
+                genero?: string[];
+                agua?: string[];
+                alcool?: string[];
+                caloricos?: string[];
+                historico_familiar?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Agregado"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resumo_api_v1_painel_resumo_get: {
+        parameters: {
+            query?: {
+                nivel?: string[];
+                genero?: string[];
+                agua?: string[];
+                alcool?: string[];
+                caloricos?: string[];
+                historico_familiar?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Resumo"];
                 };
             };
             /** @description Validation Error */
@@ -1281,7 +1460,7 @@ export interface operations {
             };
         };
     };
-    dimensoes_api_v1_dimensoes_get: {
+    ready_api_v1_ready_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1296,160 +1475,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: components["schemas"]["OpcaoDimensao"][];
-                    };
+                    "application/json": components["schemas"]["Prontidao"];
                 };
             };
-        };
-    };
-    resumo_api_v1_painel_resumo_get: {
-        parameters: {
-            query?: {
-                nivel?: string[];
-                genero?: string[];
-                agua?: string[];
-                alcool?: string[];
-                caloricos?: string[];
-                historico_familiar?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
+            /** @description Service Unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Resumo"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    por_categoria_api_v1_painel_por_categoria_get: {
-        parameters: {
-            query: {
-                /** @description nivel | genero | caloricos | alcool | atividade | agua | historico_familiar | transporte */
-                campo: string;
-                /** @description contagem | imc_medio */
-                metrica?: string;
-                /** @description segunda dimensão, ex.: genero */
-                serie?: string | null;
-                nivel?: string[];
-                genero?: string[];
-                agua?: string[];
-                alcool?: string[];
-                caloricos?: string[];
-                historico_familiar?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Agregado"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    genero_api_v1_painel_genero_get: {
-        parameters: {
-            query?: {
-                nivel?: string[];
-                genero?: string[];
-                agua?: string[];
-                alcool?: string[];
-                caloricos?: string[];
-                historico_familiar?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GeneroResumo"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    pontos_api_v1_painel_pontos_get: {
-        parameters: {
-            query?: {
-                amostra?: number;
-                nivel?: string[];
-                genero?: string[];
-                agua?: string[];
-                alcool?: string[];
-                caloricos?: string[];
-                historico_familiar?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Ponto"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/json": components["schemas"]["Prontidao"];
                 };
             };
         };
@@ -1517,41 +1552,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    deriva_api_v1_monitoramento_deriva_get: {
-        parameters: {
-            query?: {
-                janela_dias?: number;
-                /** @description restringe `faixas` a uma feature */
-                feature?: string | null;
-                /** @description Versão do modelo; padrão: a do manifest */
-                versao?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RespostaDeriva"];
-                };
             };
             /** @description Validation Error */
             422: {
