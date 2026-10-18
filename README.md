@@ -34,9 +34,9 @@ Em volta do modelo: uma API FastAPI com contrato versionado; um front React com 
 
 | O quê | Onde |
 |---|---|
-| Front (painel, simulador, estudos, monitoramento) | _publicação em andamento — URL preenchida no deploy_ |
-| Documentação interativa da API (`/docs`) | _publicação em andamento — URL preenchida no deploy_ |
-| Vivacidade da API (`/api/v1/health`) | _publicação em andamento — URL preenchida no deploy_ |
+| Front (painel, simulador, estudos, monitoramento) | <https://triagem-metabolica.viniciusventura.com.br> |
+| Documentação interativa da API (`/docs`) | <https://triagem-metabolica.viniciusventura.com.br/docs> |
+| Vivacidade da API (`/api/v1/health`) | <https://triagem-metabolica.viniciusventura.com.br/api/v1/health> |
 
 Hospedado na VPS do autor, em contêineres, sem hibernação (seção 8 e [ADR 0009](docs/decisoes/0009-provedor-de-hospedagem.md)).
 

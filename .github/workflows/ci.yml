@@ -304,7 +304,7 @@ jobs:
             echo "API_DB_PASSWORD=$API_DB_PASSWORD"
             echo "SAL_TAXA=$SAL_TAXA"
             echo "SITE_URL=$SITE_URL"
-            echo "WEB_HOST_PORT=${WEB_HOST_PORT:-8083}"
+            echo "WEB_HOST_PORT=${WEB_HOST_PORT:-8085}"
             echo "RETENCAO_DIAS=${RETENCAO_DIAS:-90}"
             echo "TETO_LINHAS_LOG=${TETO_LINHAS_LOG:-500000}"
             echo "BANCO_IMAGE=$BANCO_IMAGE"

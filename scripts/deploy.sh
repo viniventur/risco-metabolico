@@ -135,7 +135,7 @@ ler_entrada() {
     falhar "Falta GHCR_USUARIO junto com o GHCR_TOKEN."
   fi
 
-  VALOR[WEB_HOST_PORT]=${VALOR[WEB_HOST_PORT]:-8083}
+  VALOR[WEB_HOST_PORT]=${VALOR[WEB_HOST_PORT]:-8085}
   VALOR[RETENCAO_DIAS]=${VALOR[RETENCAO_DIAS]:-90}
   VALOR[TETO_LINHAS_LOG]=${VALOR[TETO_LINHAS_LOG]:-500000}
 }
@@ -228,7 +228,7 @@ SQL
 }
 
 conferir_health() {
-  local base="http://127.0.0.1:${WEB_HOST_PORT:-8083}/api/v1"
+  local base="http://127.0.0.1:${WEB_HOST_PORT:-8085}/api/v1"
   for _ in 1 2 3 4 5 6 7 8 9 10; do
     if curl -fsS --max-time 5 "$base/health" 2>/dev/null | grep -q '"status":"ok"' &&
       curl -fsS --max-time 5 "$base/ready" 2>/dev/null | grep -q '"pronto":true'; then

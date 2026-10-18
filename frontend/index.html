@@ -9,11 +9,20 @@
     <!-- Barra do navegador no celular: o papel no claro e o fundo do escuro (tokens.css). -->
     <meta name="theme-color" content="#f3f2f2" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#1b1a19" media="(prefers-color-scheme: dark)" />
-    <!-- Prévia do link (Open Graph). Sem og:image: ela exige endereço absoluto, que só existe no deploy. -->
+    <!-- Endereço de produção (o SITE_URL do deploy, docs/deploy-vps.md). A prévia do link (Open Graph)
+         precisa de endereço absoluto: a imagem é public/og-imagem.png, 1200 × 630. -->
+    <link rel="canonical" href="https://triagem-metabolica.viniciusventura.com.br/" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Triagem Metabólica" />
+    <meta property="og:url" content="https://triagem-metabolica.viniciusventura.com.br/" />
     <meta property="og:title" content="Triagem Metabólica" />
     <meta property="og:description" content="16 respostas viram a distribuição entre 7 faixas de composição corporal e um risco acumulado. Dados fictícios; triagem, não diagnóstico." />
+    <meta property="og:image" content="https://triagem-metabolica.viniciusventura.com.br/og-imagem.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="O símbolo Visor ao lado do nome Triagem Metabólica, sobre o visor de uma balança." />
+    <meta name="twitter:card" content="summary_large_image" />
     <title>Triagem Metabólica</title>
     <!-- Ícones da marca Visor (manual 1.0): o SVG com a versão reduzida, o ICO para quem não lê SVG, o
          ícone de toque com fundo (iOS) e o manifesto com os de 192 e 512 px. -->

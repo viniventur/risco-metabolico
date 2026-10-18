@@ -1,0 +1,5 @@
+# Triagem Metabólica — tudo pode ser indexado, menos a API (dados e predições, sem valor de busca).
+User-agent: *
+Disallow: /api/
+
+Sitemap: https://triagem-metabolica.viniciusventura.com.br/sitemap.xml

@@ -5,8 +5,10 @@ automático pelo GitHub Actions (ADR 0009). A VPS já está preparada: Ubuntu, u
 grupo `docker`, SSH só com chave, firewall com 22/80/443, Docker com Compose e Caddy com um arquivo
 por site em `/etc/caddy/sites/`.
 
-Convenções: `DOMINIO` é o domínio deste app; `SEU_IP` é o IP da VPS; comandos com `PS>` rodam no
-PowerShell do computador do autor, os demais na VPS, logado como `deploy` (`ssh vps`).
+Convenções: o domínio do app é **`triagem-metabolica.viniciusventura.com.br`**, e ele usa a porta
+**`127.0.0.1:8085`** da VPS (a mesma VPS do Vamos à praia? e do Voluntários, que usam 8080 e
+8083/8084); `SEU_IP` é o IP da VPS; comandos com `PS>` rodam no PowerShell do computador do autor, os
+demais na VPS, logado como `deploy` (`ssh vps`).
 
 ## Como o deploy funciona
 
@@ -42,11 +44,18 @@ imagens e o volume do banco. Não há código-fonte, histórico do Git nem chave
 
 ## Passo 1. Domínio
 
-Onde o DNS do domínio é administrado, crie um registro `A` para `DOMINIO` apontando para `SEU_IP`
-(TTL baixo enquanto configura). Confira a propagação antes do Passo 6:
+Onde o DNS de `viniciusventura.com.br` é administrado (a mesma zona dos outros subdomínios), crie:
+
+| Tipo | Nome | Valor |
+|---|---|---|
+| A | `triagem-metabolica` | `SEU_IP` |
+| AAAA | `triagem-metabolica` | o IPv6 da VPS (só se os outros subdomínios também tiverem) |
+
+TTL baixo enquanto configura. Confira a propagação antes do Passo 5 (o Caddy só tira o certificado
+com o nome já apontado):
 
 ```powershell
-PS> Resolve-DnsName DOMINIO
+PS> Resolve-DnsName triagem-metabolica.viniciusventura.com.br
 ```
 
 ## Passo 2. A pasta do app na VPS (uma vez só)
@@ -62,12 +71,16 @@ PS> scp D:\trabalhos\ds\risco-metabolico\scripts\deploy.sh vps:risco-metabolico/
 ```
 
 Não edite arquivos nessa pasta: cada deploy troca o compose, o `.env` e o próprio `deploy.sh` pelos
-que vieram do GitHub. Confira também qual porta `127.0.0.1:WEB_HOST_PORT` está livre para este app
-(a lista de portas dos outros sistemas fica no guia da VPS):
+que vieram do GitHub. Confira que a porta **8085** está livre e acrescente a linha deste sistema à
+tabela de portas do guia da VPS:
 
 ```bash
-ss -ltn | grep 127.0.0.1
+ss -ltn | grep 127.0.0.1          # 8085 NÃO pode aparecer (8080 é do Vamos à praia?, 8083/8084 do Voluntários)
 ```
+
+| Sistema | Porta no servidor | Arquivo do Caddy | Pasta | Repositório |
+|---|---|---|---|---|
+| Triagem Metabólica | `127.0.0.1:8085` | `/etc/caddy/sites/triagem-metabolica.caddy` | `~/risco-metabolico` | `viniventur/risco-metabolico` (guia em `docs/deploy-vps.md`) |
 
 ## Passo 3. Chave do GitHub Actions, presa ao deploy.sh
 
@@ -115,15 +128,47 @@ Variáveis do repositório (Settings → Secrets and variables → Actions → V
 | Variable | Valor |
 |---|---|
 | `VPS_USER` | `deploy` |
-| `WEB_HOST_PORT` | a porta livre do Passo 2 (padrão `8083`) |
+| `WEB_HOST_PORT` | `8085` (o padrão do deploy; a variável só precisa existir se a porta mudar) |
 | `RETENCAO_DIAS` | `90` |
 | `TETO_LINHAS_LOG` | `500000` até a medição do Passo 8 |
-| `VPS_HOST` | `SEU_IP` — **liga o deploy**; crie por último |
-| `SITE_URL` | `https://DOMINIO` — liga o aceite visto de fora (Passo 7) |
+| `VPS_HOST` | `SEU_IP` — **liga o deploy**; crie por último, depois do Passo 5 |
+| `SITE_URL` | `https://triagem-metabolica.viniciusventura.com.br` (sem barra no fim) — **obrigatória para o deploy**: vira o `ORIGENS_CORS` da API e liga o aceite visto de fora (Passo 7) |
 
 Pela linha de comando: `gh secret set NOME --env producao`, `gh variable set NOME --body VALOR`.
 
-## Passo 5. Primeiro deploy
+## Passo 5. HTTPS com o Caddy (antes do primeiro deploy)
+
+Faça antes do primeiro deploy: o deploy exige a `SITE_URL`, e com ela o aceite visto de fora roda logo
+depois e precisa do HTTPS no ar. Com o DNS do Passo 1 já propagado, o Caddy tira o certificado na hora;
+até o deploy subir o app, o endereço responde 502, o que é esperado.
+
+```bash
+sudo tee /etc/caddy/sites/triagem-metabolica.caddy > /dev/null <<'EOF'
+triagem-metabolica.viniciusventura.com.br {
+    encode zstd gzip
+    header {
+        -Server
+        -X-Powered-By
+    }
+    reverse_proxy 127.0.0.1:8085
+}
+EOF
+grep -q '^import sites/' /etc/caddy/Caddyfile || echo "ATENÇÃO: falta 'import sites/*.caddy' no /etc/caddy/Caddyfile"
+sudo caddy fmt --overwrite /etc/caddy/sites/triagem-metabolica.caddy
+sudo caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+sudo journalctl -u caddy -n 20 --no-pager          # "certificate obtained successfully"
+```
+
+Não acrescente `log` a este arquivo: o produto não guarda IP em lugar nenhum (o nginx do app roda com
+`access_log off`), e um log do Caddy seria o único registro de acesso — e a Política de Privacidade
+diz que ele não existe.
+
+O Caddy manda o IP de quem acessa no `X-Forwarded-For`; o nginx do app só confia nele vindo de rede
+privada (o Caddy) e repassa o IP verdadeiro à API no `X-Real-IP`, que é o que a limitação de taxa
+usa — sem isso, todos os visitantes dividiriam um limite só.
+
+## Passo 6. Primeiro deploy
 
 Com `VPS_HOST` criada: **Actions → ci → Run workflow** (branch `main`), ou um push na `main`. O
 job `ambiente` publica as imagens e o `deploy` as põe no ar. Na VPS:
@@ -132,39 +177,17 @@ job `ambiente` publica as imagens e o `deploy` as põe no ar. Na VPS:
 cd ~/risco-metabolico
 ls -A                                                   # deploy.sh, docker-compose*.yml, .env, .anterior/, .deploy.lock
 docker compose ps                                       # banco, api, web e retencao-log healthy; porta só no web
-curl -s http://127.0.0.1:WEB_HOST_PORT/api/v1/health    # {"status":"ok", ... "banco":"ok" ...}
-curl -s http://127.0.0.1:WEB_HOST_PORT/api/v1/ready     # {"pronto":true, ...}
+curl -s http://127.0.0.1:8085/api/v1/health    # {"status":"ok", ... "banco":"ok" ...}
+curl -s http://127.0.0.1:8085/api/v1/ready     # {"pronto":true, ...}
 ```
-
-## Passo 6. HTTPS com o Caddy
-
-```bash
-sudo tee /etc/caddy/sites/risco-metabolico.caddy > /dev/null <<'EOF'
-DOMINIO {
-    encode zstd gzip
-    header {
-        -Server
-        -X-Powered-By
-    }
-    reverse_proxy 127.0.0.1:WEB_HOST_PORT
-}
-EOF
-sudo caddy fmt --overwrite /etc/caddy/sites/risco-metabolico.caddy
-sudo caddy validate --config /etc/caddy/Caddyfile
-sudo systemctl reload caddy
-sudo journalctl -u caddy -n 20 --no-pager          # "certificate obtained successfully"
-```
-
-Não acrescente `log` a este arquivo: o produto não guarda IP em lugar nenhum (o nginx do app roda com
-`access_log off`), e um log do Caddy seria o único registro de acesso.
 
 ## Passo 7. Aceite de F17
 
-Crie a variável `SITE_URL` e rode **Actions → ci → Run workflow**: o job "Aceite visto de fora" roda
-`scripts/verificar-producao.sh` (também à mão: `bash scripts/verificar-producao.sh https://DOMINIO SEU_IP`).
+Com a `SITE_URL` do Passo 4, o job "Aceite visto de fora" roda sozinho depois de cada deploy:
+`scripts/verificar-producao.sh` (também à mão: `bash scripts/verificar-producao.sh https://triagem-metabolica.viniciusventura.com.br SEU_IP`).
 Ele cobre o aceite do plano: `/api/v1/health` com `banco` `ok` ou `frio` e nunca 5xx, o preflight
 `OPTIONS /api/v1/predicoes` com `Access-Control-Allow-Origin` igual à origem do site, nenhuma
-credencial no bundle servido, HTTPS e HSTS, portas 8000/8080/8083/5432/55432 fechadas.
+credencial no bundle servido, HTTPS e HSTS, portas 8000/8080/8085/5432/55432 fechadas.
 
 Por fim, os logs do deploy no Actions **não podem conter a DSN nem senha**: o `deploy.sh` nunca
 imprime valores, e o job não usa `set -x`.
@@ -201,3 +224,19 @@ vão para a tabela "Conferido na VPS" da ADR 0007 e para a variável `TETO_LINHA
 - **Comandos úteis:** `docker compose ps`, `docker compose logs -f --tail=100 api`,
   `docker compose logs retencao-log`, `docker compose restart api`, `df -h`, `docker system df`.
   Na VPS nunca rode `docker system prune` nem `docker volume prune`: há outros sistemas.
+
+## Checklist de lançamento
+
+- [ ] Verificação em duas etapas na conta do GitHub (quem entra na conta publica no servidor)
+- [ ] Ambiente `producao` só para a `main`, com `POSTGRES_PASSWORD`, `API_DB_PASSWORD`, `SAL_TAXA`,
+      `VPS_SSH_KEY` e `VPS_KNOWN_HOSTS`; as três senhas também no gerenciador de senhas
+- [ ] Registro `A` de `triagem-metabolica` apontando para a VPS (`Resolve-DnsName` responde `SEU_IP`)
+- [ ] Porta `127.0.0.1:8085` livre na VPS e a linha deste sistema na tabela de portas do guia da VPS
+- [ ] `deploy.sh` em `~/risco-metabolico` e a chave do Actions presa a ele no `authorized_keys`
+- [ ] Variáveis `VPS_USER` e `RETENCAO_DIAS` (já existem) e `SITE_URL`
+- [ ] `/etc/caddy/sites/triagem-metabolica.caddy` sem `log`, `caddy validate` limpo, certificado emitido
+- [ ] Por último, `VPS_HOST`: primeiro deploy verde, `docker compose ps` com tudo `healthy`,
+      `/api/v1/health` com `banco` `ok` e o "Aceite visto de fora" verde
+- [ ] No navegador: o Início, a Visão Geral, um cálculo no simulador e o relatório; a prévia do link
+      (LinkedIn Post Inspector ou opengraph.xyz) com a imagem `og-imagem.png`
+- [ ] Snapshot da VPS no hPanel com tudo funcionando

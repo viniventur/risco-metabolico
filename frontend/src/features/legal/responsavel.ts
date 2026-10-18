@@ -15,6 +15,8 @@ export type Responsavel = {
   /** Pequeno porte (Res. CD/ANPD nº 2/2022, art. 11) dispensa o Encarregado, com um canal de contato. */
   encarregado: string;
   hospedagem: string;
+  /** O endereço público do site, com https:// (o SITE_URL do deploy, docs/deploy-vps.md). */
+  site: string;
   /** RETENCAO_DIAS do compose e do deploy (docs/deploy-vps.md): a retenção do log de predição. */
   retencaoLog: string;
   /** O `logging` do docker-compose.yml: até 3 arquivos de 10 MB por serviço, sobrescritos em rodízio. */
@@ -31,6 +33,7 @@ export const RESPONSAVEL: Responsavel = {
   encarregado: "o próprio responsável (agente de pequeno porte, dispensado de indicar Encarregado pela Resolução CD/ANPD nº 2/2022, art. 11)",
   // A mesma VPS dos outros projetos do autor (ADR 0009). Mudou de empresa ou de país? Atualize aqui.
   hospedagem: "Hostinger (servidor VPS nos Estados Unidos, em Boston)",
+  site: "https://triagem-metabolica.viniciusventura.com.br",
   retencaoLog: "90 dias",
   rodizioLogsTecnicos: "até 30 MB por serviço",
   janelaDoLimite: "1 hora",
@@ -50,8 +53,8 @@ export function dataPorExtenso(data: string): string {
 /** O valor entra no Markdown: sem a barra, os asteriscos do CPF mascarado viravam negrito e itálico. */
 const escaparMarkdown = (texto: string): string => texto.replace(/[\\`*_[\]|~]/g, (c) => `\\${c}`);
 
-/** Troca os {{CAMPOS}} do texto. O endereço do site é o da própria página: vale local e publicado. */
-export function preencher(texto: string, dados: Responsavel = RESPONSAVEL, site: string = window.location.origin): string {
+/** Troca os {{CAMPOS}} do texto. */
+export function preencher(texto: string, dados: Responsavel = RESPONSAVEL, site: string = dados.site): string {
   const valores: Record<string, string> = {
     RESPONSAVEL_NOME: dados.nome,
     RESPONSAVEL_DOCUMENTO: dados.documento,

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import ipaddress
 from datetime import UTC, datetime
 
 from fastapi import FastAPI, Request
@@ -21,13 +22,37 @@ from app.config import CONFIG
 from app.nucleo.erros import envelope
 
 
+def _rede_interna(ip: str) -> bool:
+    try:
+        endereco = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+    return endereco.is_private or endereco.is_loopback
+
+
+def ip_de_quem_acessa(request: Request) -> str:
+    """O IP do visitante, e não o do proxy.
+
+    Em produção quem conecta na API é sempre o nginx do app, de dentro da rede do Docker: sem
+    isto, todo visitante teria o mesmo IP e o limite valeria para o site inteiro. O IP verdadeiro
+    vem no `X-Real-IP`, que o nginx sempre sobrescreve com o `$remote_addr` (já resolvido a partir
+    do `X-Forwarded-For` do Caddy, frontend/nginx.conf). O cabeçalho só vale quando o par da
+    conexão está em rede interna ou loopback: vindo de fora, seria o que o cliente quisesse.
+    """
+    par = get_remote_address(request) or ""
+    real = (request.headers.get("x-real-ip") or "").strip()
+    if real and _rede_interna(par):
+        return real
+    return par or "desconhecido"
+
+
 def chave_origem(request: Request) -> str:
     """Pseudônimo diário do IP: HMAC com sal secreto. O IP nunca é guardado, nem em memória.
 
     Dentro do dia dá para dizer "isto veio tudo do mesmo lugar"; passado o dia, as chaves de
     ontem e de hoje são inligáveis, e sem o sal ninguém reverte (§6.8.2).
     """
-    ip = get_remote_address(request) or "desconhecido"
+    ip = ip_de_quem_acessa(request)
     material = f"{datetime.now(UTC).date().isoformat()}|{ip}".encode()
     sal = (CONFIG.sal_taxa or "limitador-desligado").encode()
     return hmac.new(sal, material, hashlib.sha256).hexdigest()[:16]

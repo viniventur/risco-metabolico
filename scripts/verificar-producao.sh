@@ -85,11 +85,11 @@ if [[ -n $HOST ]]; then
   porta_aberta() { timeout 5 bash -c "exec 3<>/dev/tcp/$1/$2" 2>/dev/null; }
   conferir "443 (HTTPS) aberta" porta_aberta "$HOST" 443
   abertas=$(mktemp -d)
-  for porta in 8000 8080 8083 5432 55432; do
+  for porta in 8000 8080 8085 5432 55432; do
     { porta_aberta "$HOST" "$porta" && touch "$abertas/$porta"; } &
   done
   wait
-  for porta in 8000 8080 8083 5432 55432; do
+  for porta in 8000 8080 8085 5432 55432; do
     conferir "porta $porta fechada" test ! -e "$abertas/$porta"
   done
   rm -rf "$abertas"
