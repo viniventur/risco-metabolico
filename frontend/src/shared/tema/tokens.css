@@ -334,6 +334,34 @@
   background: hsl(var(--muted) / 0.45);
 }
 
+/* Revelação radial da troca de tema (View Transitions API, useTema): sem o crossfade padrão, a camada
+   NOVA fica por cima da antiga e o clip-path animado (as coordenadas vêm do clique, por isso ele é
+   injetado por documentElement.animate e não mora aqui) a revela como uma onda circular. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* O próprio botão fica fora das fotos da raiz (senão aparece como fantasma nas duas camadas). Dele, só
+   a camada nova, viva: a antiga é uma foto com o fundo do hover e o ícone anterior congelados. */
+.seletor-de-tema {
+  view-transition-name: seletor-de-tema;
+}
+::view-transition-new(seletor-de-tema) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(seletor-de-tema) {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

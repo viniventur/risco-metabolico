@@ -105,7 +105,7 @@ As regras de cor condicional que existem: `Genero = 'Feminino'` → `--feminino`
 | foco | `outline` de 2 px em `--ring`, deslocado 2 px, em todo `:focus-visible` |
 | refetch | o quadro anterior em `opacity: .55` (`.refetching`) — nunca *skeleton* |
 | primeira carga | `Skeleton` com a forma do conteúdo |
-| movimento | entrada da gaveta (200 ms), surgimento do fundo (160 ms), barra de progresso de rota; tudo desligado com `prefers-reduced-motion` |
+| movimento | troca de tema por revelação radial a partir do clique (View Transitions API, 550 ms, `useTema`); entrada da gaveta (200 ms), surgimento do fundo (160 ms), barra de progresso de rota; tudo desligado com `prefers-reduced-motion` (a troca de tema fica seca, sem a animação) |
 
 ## Grade da Visão Geral
 
