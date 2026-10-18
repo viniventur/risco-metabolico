@@ -83,7 +83,8 @@ jobs:
     needs: proveniencia
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ hashFiles('frontend/package.json') != '' }}
+    # Sem `if: hashFiles(...)` aqui: hashFiles não existe no `if` de job (só em step) e o workflow
+    # inteiro falhava na validação, antes de qualquer job rodar.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
