@@ -1,4 +1,6 @@
-# Publica models/modelo-<versao>.pkl como asset do release v<versao> (ADR 0004).
+# Publica models/modelo-<versao>.pkl e o snapshot congelado como assets do release v<versao>
+# (ADR 0004). O snapshot é o que a imagem publicada baixa para derivar base_painel.parquet sem
+# banco (python -m app.treino.painel); o sha256 dos dois está no manifest.
 # Treina em CI, do zero e sem credencial: Postgres de serviço, seed, congelar, treinar, verificar.
 # O manifest e as métricas produzidos aqui sobem como artefato do run, para serem commitados —
 # um modelo treinado em outra máquina tem outro sha256 de arquivo, e o manifest commitado tem de
@@ -63,6 +65,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "v${{ inputs.versao }}" "models/modelo-${{ inputs.versao }}.pkl" \
+            data/processado/snapshot-*.parquet \
             --title "modelo ${{ inputs.versao }}" \
             --notes "Artefato treinado em CI sobre versao_dados=$(python3 -c 'import json;print(json.load(open("artifacts/manifest.json"))["dataset"]["versao_dados"])'). O manifest correspondente está nos artefatos deste run."
 

@@ -13,6 +13,7 @@ Três famílias de arquivo, com destinos diferentes:
 | Família | Onde | Por quê |
 |---|---|---|
 | `models/modelo-X.Y.Z.pkl` — binário opaco e pesado | **fora do git** (`.gitignore`), publicado como **GitHub Release asset** (`vX.Y.Z`) | muda a cada retreino, não faz diff |
+| `data/processado/snapshot-<versao_dados>.parquet` — o `SELECT` congelado | **fora do git**, publicado como asset do **mesmo release** | regenerável por `congelar` e descrito por `sha256_snapshot`; a imagem publicada o baixa para derivar `base_painel.parquet` sem banco (`python -m app.treino.painel`), porque o provedor constrói a imagem a partir do git e não há volume |
 | `artifacts/` — manifest, métricas, agregados, perfil de distribuição | **git** | metadados leves e textuais; fazem diff; respondem "o que mudou" sem baixar o binário |
 | `sql/` — schema, agregados, deriva | **git** | texto que descreve dado, versionado como código |
 
@@ -25,9 +26,9 @@ O backend lê `models/` e `artifacts/` por variável de ambiente (`MODELOS_DIR`,
 
 ## Como o artefato é publicado
 
-1. Local: `gh release create v2.0.0 models/modelo-2.0.0.pkl --title "modelo 2.0.0" --notes-file artifacts/manifest.json` (o README traz o comando).
+1. Local: `gh release create v2.0.0 models/modelo-2.0.0.pkl data/processado/snapshot-<versao_dados>.parquet --title "modelo 2.0.0"` (o README traz o comando). O snapshot vai junto: é o segundo asset que a imagem publicada baixa.
 2. Reprodutível em CI: `.github/workflows/release-modelo.yml` (`workflow_dispatch` com a versão) sobe um Postgres, semeia, congela, treina, verifica e publica o asset — e anexa o manifest produzido como artefato do run, para ser commitado. Um modelo treinado em outra máquina tem outro `sha256` de arquivo; o manifest commitado tem de ser o do artefato publicado.
-3. A imagem Docker baixa o asset no build (`baixar_modelo.py` lê `artifacts/manifest.json`, baixa `arquivo` do release `v<versao>` e confere o `sha256`). Localmente, com o `.pkl` presente em `models/`, o script só confere o hash e não baixa nada.
+3. A imagem Docker baixa os assets no build (`baixar_modelo.py` lê `artifacts/manifest.json`, baixa `arquivo` e, com `--snapshot-destino`, o snapshot do release `v<versao>`, e confere os dois `sha256`); em seguida `python -m app.treino.painel` deriva `base_painel.parquet` do snapshot, sem banco. Localmente, com o `.pkl` em `models/` e o snapshot em `data/processado/`, o script só confere os hashes e não baixa nada.
 
 ## Consequências
 

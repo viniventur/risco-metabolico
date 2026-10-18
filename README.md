@@ -190,7 +190,7 @@ uv run --extra treino python -m app.treino verificar                # 3. retrein
 uv run --extra treino python -m app.treino.distribuicao --carregar  # 4. referência de deriva do novo snapshot
 uv run --extra dev pytest -m latencia -q                            # 5. regrava artifacts/metricas/latencia.json
 Pop-Location
-gh release create v2.1.0 models\modelo-2.1.0.pkl --title "modelo 2.1.0"   # 6. o .pkl vira asset do release
+gh release create v2.1.0 models\modelo-2.1.0.pkl (Get-Item data\processado\snapshot-*.parquet) --title "modelo 2.1.0"   # 6. .pkl e snapshot viram assets do release
 ```
 
 `congelar` executa um `SELECT ... ORDER BY linha_origem` sobre `dados.registros_triagem` e grava um parquet com todos os parâmetros do writer fixos. **O `sha256` desse arquivo é o `versao_dados`** do manifest: é ele que responde "com quais dados este modelo foi treinado", e é por isso que o treino lê o snapshot, nunca o CSV. `verificar` não compara o `sha256` do `.pkl` (nunca é byte-idêntico): compara o `sha256` das probabilidades sobre `backend/tests/dados_ouro/entradas.json` e as métricas com tolerância `1e-6`.
@@ -252,7 +252,7 @@ As duas afirmações convivem de propósito: a interface diz que nenhum registro
 | Ausente | Por quê | Onde está |
 |---|---|---|
 | `models/*.pkl` | binário opaco que muda a cada retreino; incharia o histórico ([ADR 0004](docs/decisoes/0004-artefato-fora-do-git.md)) | asset do GitHub Release `v<versao>`; `scripts/baixar_modelo.py` baixa e confere o `sha256` do manifest |
-| `data/processado/` (snapshot e `base_painel.parquet`) | derivados determinísticos, regeneráveis por `python -m app.treino congelar` | descritos pelo `versao_dados` do manifest |
+| `data/processado/` (snapshot e `base_painel.parquet`) | derivados determinísticos, regeneráveis por `python -m app.treino congelar` | descritos pelo `versao_dados` do manifest; o snapshot também é asset do release, e a imagem publicada deriva `base_painel.parquet` dele no build, sem banco |
 | `.env` e qualquer DSN, senha ou chave | segredo; só `.env.example` é versionado, sem um único valor real | variáveis de ambiente do serviço e segredos do repositório |
 | **Nenhum dump do banco** — nem de dados nem de schema | um dump de schema é uma segunda cópia que diverge de `sql/schema.sql` em uma semana; os dados são o CSV público mais o seed | `sql/schema.sql` é a fonte única; `python -m app.dados.schema --conferir` compara o banco com ela |
 | Fotos do painel de referência | material visual do projeto herdado; nunca entram no git nem em PR | fora do repositório (`docs/design-tokens.md` registra a paleta como provisória) |
@@ -276,7 +276,7 @@ As duas afirmações convivem de propósito: a interface diz que nenhum registro
 
 ## 15. Deploy e variáveis de ambiente
 
-Provedores e passos do autor em [ADR 0009](docs/decisoes/0009-provedor-de-hospedagem.md): backend como contêiner (`backend/Dockerfile`, contexto de build na **raiz**, `HEALTHCHECK` em `/api/v1/health`, `--workers 1`), front estático a partir de `frontend/` (`vercel.json` com rewrites de SPA, CSP e cache de `/study/`), Postgres gerenciado com pooler IPv4 na porta 6543. Nada no código depende do provedor: o backend lê só variáveis de ambiente, o front só `VITE_*`, e o SQL é aplicado por `psql` a partir dos mesmos arquivos do compose:
+Provedores e passos do autor em [ADR 0009](docs/decisoes/0009-provedor-de-hospedagem.md): backend como contêiner (`backend/Dockerfile`, contexto de build na **raiz**, `HEALTHCHECK` em `/api/v1/health`, `--workers 1`), front estático a partir de `frontend/` (`vercel.json` com rewrites de SPA, CSP e cache de `/study/`), Postgres gerenciado com pooler IPv4 na porta 6543. A imagem é autocontida: o build baixa do release o `.pkl` e o snapshot congelado, confere os dois `sha256` do manifest e deriva `base_painel.parquet` sem banco (`python -m app.treino.painel`). Nada no código depende do provedor: o backend lê só variáveis de ambiente, o front só `VITE_*`, e o SQL é aplicado por `psql` a partir dos mesmos arquivos do compose:
 
 ```powershell
 # banco — uma vez, na instância publicada; $env:BANCO_URL usa o host do POOLER

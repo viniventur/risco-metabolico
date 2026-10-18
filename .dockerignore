@@ -11,7 +11,11 @@ backend/.mypy_cache/
 **/__pycache__/
 **/*.pyc
 data/bruto/
-data/processado/
+# data/processado/: só o snapshot congelado entra (o estágio `modelo` o usa se presente, senão
+# baixa do release); base_painel.parquet é derivado dentro da imagem e _estudo_* fica de fora.
+data/processado/*
+!data/processado/.gitkeep
+!data/processado/snapshot-*.parquet
 study/
 frontend/
 docs/

@@ -31,5 +31,10 @@ registra a decisão proposta para o autor confirmar — não a substitui.
   a origem do front, `verificar-bundle.ps1`, `gh run watch` do keep-alive) **não pode ser dado**.
 - Nada no código depende do provedor: o backend lê só variáveis de ambiente, o front só
   `VITE_*`, e o SQL é aplicado por `psql` a partir dos mesmos arquivos do `docker compose`.
+- **A imagem publicada é autocontida.** O provedor constrói a imagem a partir do git, onde não há
+  `data/processado/` nem volume para montar; por isso o build baixa do release, além do `.pkl`, o
+  **snapshot congelado** (segundo asset, `sha256_snapshot` do manifest) e deriva
+  `base_painel.parquet` dele sem banco (`python -m app.treino.painel`, mesma função de
+  `congelar`). O `docker compose` local continua montando `./data/processado` por cima.
 - Se o provedor do backend hibernar, a primeira chamada pode levar até 60 s; o front mostra
   "Acordando o modelo…" e o README avisa. Se não puder hibernar, a troca é de provedor, não de código.

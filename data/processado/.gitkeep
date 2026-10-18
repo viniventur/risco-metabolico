@@ -1,0 +1,4 @@
+# A pasta existe no contexto de build mesmo sem snapshot (data/processado/* esta no .gitignore):
+# o Dockerfile faz COPY data/processado/ e scripts/baixar_modelo.py --snapshot-destino decide
+# entre usar o snapshot local ou baixar o asset do release. O conteudo da pasta e regeravel por
+# `python -m app.treino congelar` e nunca entra no git.

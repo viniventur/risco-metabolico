@@ -28,7 +28,8 @@ test-results/
 
 # ---- Binarios pesados e derivados regeraveis ----
 models/*.pkl
-data/processado/
+data/processado/*
+!data/processado/.gitkeep
 *.parquet
 _estudo_*.parquet
 artifacts/_teste_execucao.ipynb
