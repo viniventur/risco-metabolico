@@ -121,6 +121,9 @@ jobs:
         run: |
           npx openapi-typescript ../backend/tests/contrato/openapi.json -o src/shared/api/schema.d.ts
           git diff --exit-code -- src/shared/api/schema.d.ts
+      - name: Nenhuma cor fora dos tokens (seção ANCORA, ADR 0010)
+        shell: pwsh
+        run: ./scripts/verificar-cores.ps1
       - name: Lint, tipos, testes e build
         working-directory: frontend
         run: |
