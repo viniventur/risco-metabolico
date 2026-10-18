@@ -21,3 +21,14 @@ test("início mostra as métricas vivas do modelo e a frase de dados fictícios,
   await page.getByRole("button", { name: tema === "dark" ? "Mudar para tema claro" : "Mudar para tema escuro" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", tema === "dark" ? "light" : "dark");
 });
+
+test("o link do rodapé abre a Política de Privacidade no topo, não na altura da tela anterior", async ({ page }) => {
+  await page.goto("/painel");
+  await expect(page.getByText(/^Recorte: 2\.111 de 2\.111 registros$/)).toBeVisible({ timeout: 60_000 });
+  await page.getByRole("link", { name: "Política de Privacidade" }).scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(500);
+  await page.getByRole("link", { name: "Política de Privacidade" }).click();
+  await expect(page).toHaveURL(/\/privacidade$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
+  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+});

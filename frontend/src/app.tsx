@@ -1,6 +1,6 @@
 import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
 import { useState } from "react";
-import { Link, Outlet, useLocation, useNavigation } from "react-router-dom";
+import { Link, Outlet, ScrollRestoration, useLocation, useNavigation } from "react-router-dom";
 
 import { ROTA_DA_PRIVACIDADE } from "@/features/legal/rota";
 import { URL_REPO } from "@/shared/api/http";
@@ -96,6 +96,10 @@ function Casca() {
         <Sidebar aoNavegar={() => setGavetaAberta(false)} />
       </SheetContent>
       <Toaster />
+      {/* Tela nova abre no topo (antes, o link do rodapé abria a Política de Privacidade na altura em que
+          a tela anterior estava rolada); voltar e avançar devolvem a posição. Filtro não rola: o nuqs
+          navega com preventScrollReset, e a página continua onde o clique aconteceu. */}
+      <ScrollRestoration />
     </Sheet>
   );
 }
