@@ -19,14 +19,23 @@ export const FRASE_DADOS_FICTICIOS =
 
 export const AVISO_REGISTRO_ANONIMO = "As entradas são registradas de forma anônima para monitoramento do modelo.";
 
-/** Faixas de IMC do cartão do simulador (vocabulário de TELA, distinto das 7 classes). */
-export function classificarImc(imc: number): { faixa: string; tom: "info" | "sucesso" | "alerta" | "perigo" } {
-  if (imc < 18.5) return { faixa: "Abaixo do Peso", tom: "info" };
-  if (imc < 25) return { faixa: "Peso Ideal", tom: "sucesso" };
-  if (imc < 30) return { faixa: "Sobrepeso", tom: "alerta" };
-  if (imc < 35) return { faixa: "Obesidade Grau I", tom: "perigo" };
-  if (imc < 40) return { faixa: "Obesidade Grau II", tom: "perigo" };
-  return { faixa: "Obesidade Grau III", tom: "perigo" };
+/**
+ * Limites de IMC das faixas de tela (OMS): regra de domínio, não dado. Desenhados como linhas na
+ * dispersão altura × peso e usados no cartão de IMC do simulador.
+ */
+export const LIMITES_IMC = [18.5, 25, 30, 35, 40] as const;
+
+export type MacroFaixa = "abaixo" | "normal" | "sobrepeso" | "obesidade";
+
+/** Faixas de IMC do cartão do simulador (vocabulário de TELA, distinto das 7 classes) e a macro-faixa da cor. */
+export function classificarImc(imc: number): { faixa: string; macro: MacroFaixa } {
+  const [magreza, normal, sobrepeso, obesidade1, obesidade2] = LIMITES_IMC;
+  if (imc < magreza) return { faixa: "Abaixo do Peso", macro: "abaixo" };
+  if (imc < normal) return { faixa: "Peso Ideal", macro: "normal" };
+  if (imc < sobrepeso) return { faixa: "Sobrepeso", macro: "sobrepeso" };
+  if (imc < obesidade1) return { faixa: "Obesidade Grau I", macro: "obesidade" };
+  if (imc < obesidade2) return { faixa: "Obesidade Grau II", macro: "obesidade" };
+  return { faixa: "Obesidade Grau III", macro: "obesidade" };
 }
 
 export function calcularImc(peso: number, altura: number): number {
@@ -39,24 +48,4 @@ export const ROTULO_CURTO_ATIVIDADE: Record<string, string> = {
   "1": "1–2×/sem",
   "2": "3–4×/sem",
   "3": "5+×/sem",
-};
-
-type Forma = "circle" | "square" | "diamond" | "triangle";
-
-/** Forma da marca na dispersão: segundo canal além da cor por macro-faixa (7.3). */
-export const FORMA_DO_NIVEL: Record<Nivel, Forma> = {
-  "Abaixo do Peso": "circle",
-  "Peso Normal": "square",
-  "Sobrepeso I": "diamond",
-  "Sobrepeso II": "triangle",
-  "Obesidade I": "circle",
-  "Obesidade II": "square",
-  "Obesidade III": "diamond",
-};
-
-export const FORMA_LEGENDA: Record<Forma, "circulo" | "quadrado" | "losango" | "triangulo"> = {
-  circle: "circulo",
-  square: "quadrado",
-  diamond: "losango",
-  triangle: "triangulo",
 };

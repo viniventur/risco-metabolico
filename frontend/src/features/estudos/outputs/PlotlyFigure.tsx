@@ -69,11 +69,11 @@ export function PlotlyFigure({ data, layout }: Props) {
   return (
     <div
       ref={ref}
-      className="min-h-[420px] w-full rounded-card border border-borda bg-superficie"
+      className="min-h-[420px] w-full rounded-md border bg-card"
       role="img"
       aria-label={String((layout.title as { text?: string } | undefined)?.text ?? layout.title ?? "Figura interativa")}
     >
-      {!visivel ? <p className="p-4 text-xs text-texto-fraco">Figura interativa — carrega ao rolar até aqui.</p> : null}
+      {!visivel ? <p className="p-4 text-xs text-muted-foreground">Figura interativa — carrega ao rolar até aqui.</p> : null}
     </div>
   );
 }

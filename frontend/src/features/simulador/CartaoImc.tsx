@@ -1,23 +1,28 @@
 import { classificarImc } from "@/shared/dominio";
 import { fmtImc } from "@/shared/format/ptBR";
+import { cn } from "@/shared/lib/utils";
 
-const TOM: Record<string, string> = {
-  info: "border-azul-claro text-azul-claro",
-  sucesso: "border-sucesso text-sucesso",
-  alerta: "border-alerta text-alerta",
-  perigo: "border-perigo text-perigo",
+/** Classe literal do ponto de cada macro-faixa (a mesma rampa da dispersão e da tabela: a cor segue a entidade). */
+const PONTO: Record<string, string> = {
+  abaixo: "bg-faixa-abaixo",
+  normal: "bg-faixa-normal",
+  sobrepeso: "bg-faixa-sobrepeso",
+  obesidade: "bg-faixa-obesidade",
 };
 
-/** IMC calculado no cliente (peso / altura², 2 casas) com a faixa e a cor semântica; a resposta confirma. */
+/** IMC calculado no cliente (peso / altura², 2 casas) com a faixa e a cor da macro-faixa; a resposta confirma. */
 export function CartaoImc({ imc }: { imc: number | null }) {
   if (imc === null) return null;
-  const { faixa, tom } = classificarImc(imc);
+  const { faixa, macro } = classificarImc(imc);
   return (
-    <div className={`flex items-center justify-between rounded-card border-2 bg-superficie px-4 py-2 ${TOM[tom]}`} aria-live="polite">
-      <span className="text-sm text-texto">
-        Seu IMC atual: <strong className="tabular-nums">{fmtImc(imc)}</strong>
+    <div className="flex items-center justify-between gap-3 rounded-md border bg-muted/50 px-4 py-3" aria-live="polite">
+      <span className="text-sm text-muted-foreground">
+        IMC calculado: <strong className="text-base font-semibold text-foreground tabular-nums">{fmtImc(imc)}</strong>
       </span>
-      <span className="text-sm font-semibold">{faixa}</span>
+      <span className="inline-flex items-center gap-2 text-sm font-medium">
+        <span aria-hidden="true" className={cn("size-2.5 rounded-full", PONTO[macro])} />
+        {faixa}
+      </span>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import { App } from "./app";
+import { CascaCarregando } from "./shared/layout/CascaCarregando";
 
 // As 7 rotas de §7.1, com `lazy()` por rota: o Plotly (1,4 MB) só entra em /estudos/:slug.
 export const router = createBrowserRouter([
@@ -8,7 +9,7 @@ export const router = createBrowserRouter([
     path: "/",
     element: <App />,
     // Rotas lazy no primeiro render: sem isto o react-router avisa sobre a falta de HydrateFallback.
-    hydrateFallbackElement: <p className="p-4 text-sm">Carregando…</p>,
+    hydrateFallbackElement: <CascaCarregando />,
     children: [
       { index: true, lazy: () => import("./features/inicio/InicioPage").then((m) => ({ Component: m.InicioPage })) },
       { path: "painel", lazy: () => import("./features/painel/PainelPage").then((m) => ({ Component: m.PainelPage })) },

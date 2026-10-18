@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { buscarEstatico } from "@/shared/api/http";
 import { chaves } from "@/shared/api/queryKeys";
+import { QueryState } from "@/shared/estados/QueryState";
 import { fmtDataHora, fmtInt } from "@/shared/format/ptBR";
-import { IconeEstudos } from "@/shared/ui/icones";
-import { QueryState } from "@/shared/ui/QueryState";
+import { PageHeader } from "@/shared/layout/PageHeader";
+import { Badge } from "@/shared/ui/badge";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 import type { EntradaManifesto } from "./tipos";
 
@@ -17,29 +20,45 @@ export function ListaEstudosPage() {
     staleTime: Infinity,
   });
   return (
-    <div className="flex flex-col gap-4">
-      <header>
-        <h1 className="text-2xl font-bold">Estudos</h1>
-        <p className="text-sm text-texto-fraco">
-          Os notebooks que sustentam as decisões de modelagem, renderizados com as saídas salvas — os gráficos Plotly continuam vivos.
-        </p>
-      </header>
-      <QueryState carregando={q.isPending} erro={q.error} vazio={q.data?.length === 0} mensagemVazio="Nenhum notebook publicado.">
-        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <>
+      <PageHeader
+        titulo="Estudos"
+        descricao="Os notebooks que sustentam as decisões de modelagem, renderizados com as saídas salvas — os gráficos Plotly continuam vivos."
+      />
+      <QueryState
+        carregando={q.isPending}
+        erro={q.error}
+        vazio={q.data?.length === 0}
+        tituloVazio="Nenhum notebook publicado"
+        aoTentarNovamente={() => void q.refetch()}
+        esqueleto={<Skeleton className="h-36 w-full max-w-xl" />}
+      >
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {(q.data ?? []).map((e) => (
             <li key={e.slug}>
-              <Link to={`/estudos/${e.slug}`} className="cartao flex min-h-24 flex-col gap-1 p-4 text-texto hover:bg-superficie-alta">
-                <span className="flex items-center gap-2 text-base font-semibold">
-                  <IconeEstudos /> {e.titulo}
+              <Link
+                to={`/estudos/${e.slug}`}
+                className="group flex h-full flex-col gap-4 rounded-lg border bg-card p-5 shadow-sm transition-colors hover:border-primary/40 hover:bg-accent/40"
+              >
+                <span className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <BookOpen aria-hidden="true" className="size-5" />
                 </span>
-                <span className="text-sm text-texto-fraco">
-                  {fmtInt(e.n_celulas)} células · {fmtInt(e.n_figuras)} figuras · executado em {fmtDataHora(e.atualizado_em)}
+                <span className="flex items-start justify-between gap-2 text-[15px] leading-snug font-semibold">
+                  {e.titulo}
+                  <ArrowRight aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                </span>
+                <span className="mt-auto flex flex-wrap gap-1.5">
+                  <Badge variant="secondary">{fmtInt(e.n_celulas)} células</Badge>
+                  <Badge variant="secondary">{fmtInt(e.n_figuras)} figuras</Badge>
+                  <Badge variant="outline" className="font-normal text-muted-foreground">
+                    executado em {fmtDataHora(e.atualizado_em)}
+                  </Badge>
                 </span>
               </Link>
             </li>
           ))}
         </ul>
       </QueryState>
-    </div>
+    </>
   );
 }

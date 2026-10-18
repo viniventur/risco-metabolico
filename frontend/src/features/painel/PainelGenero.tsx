@@ -2,60 +2,131 @@ import { useId } from "react";
 
 import { useGenero } from "@/shared/api/endpoints/painel";
 import type { GeneroResumo } from "@/shared/api/endpoints/tipos";
+import { QueryState } from "@/shared/estados/QueryState";
 import { useFiltros } from "@/shared/filtros/useFiltros";
 import { fmtInt, fmtNum, fmtPontosPct } from "@/shared/format/ptBR";
-import { QueryState } from "@/shared/ui/QueryState";
+import { cn } from "@/shared/lib/utils";
+import { Card } from "@/shared/ui/card";
+import { Skeleton } from "@/shared/ui/skeleton";
 
-type Tom = "rosa" | "azul-claro";
+const ORDEM = ["Feminino", "Masculino"];
+/** Regra de cor legítima herdada (§7.3): feminino e masculino, pela entidade. */
+const COR: Record<string, { fundo: string; texto: string }> = {
+  Feminino: { fundo: "bg-feminino", texto: "text-feminino" },
+  Masculino: { fundo: "bg-masculino", texto: "text-masculino" },
+};
 
-const TOM: Record<string, Tom> = { Feminino: "rosa", Masculino: "azul-claro" };
-
-function PercentBadge({ valor, tom }: { valor: number | null; tom: Tom }) {
-  const classe = tom === "rosa" ? "bg-rosa/15 text-rosa" : "bg-azul-claro/15 text-azul-claro";
-  return <span className={`inline-block rounded-full px-3 py-1 text-xl font-bold tabular-nums ${classe}`}>{fmtPontosPct(valor)}</span>;
-}
-
-/** Substitui os dois visuais de HTML injetado do painel de referência: JSON tipado, formatado aqui. */
-function AnaliseGenero({ dado }: { dado: GeneroResumo }) {
-  const tom = TOM[dado.genero] ?? "azul-claro";
-  const borda = tom === "rosa" ? "border-rosa" : "border-azul-claro";
+function PercentBadge({ dado }: { dado: GeneroResumo }) {
+  const cor = COR[dado.genero] ?? COR.Masculino!;
   return (
-    <article className={`flex flex-col gap-2 rounded-card border-t-4 bg-superficie-alta/40 p-3 ${borda}`} aria-label={dado.genero}>
-      <header className="flex items-center justify-between gap-2">
-        <h3 className="text-base font-semibold">{dado.genero}</h3>
-        <PercentBadge valor={dado.percentual} tom={tom} />
-      </header>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-        <dt className="text-texto-fraco">Registros</dt>
-        <dd className="tabular-nums">{fmtInt(dado.n)}</dd>
-        <dt className="text-texto-fraco">IMC médio</dt>
-        <dd className="tabular-nums">{fmtNum(dado.imc_medio, 1)}</dd>
-        <dt className="text-texto-fraco">Nível predominante</dt>
-        <dd>
-          {dado.nivel_predominante ?? "—"}
-          {dado.nivel_predominante ? <span className="text-texto-fraco"> (n = {fmtInt(dado.n_predominante)})</span> : null}
-        </dd>
-      </dl>
-    </article>
+    <div className="flex min-w-0 flex-col">
+      <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+        <span aria-hidden="true" className={cn("size-2 rounded-full", cor.fundo)} />
+        {dado.genero}
+      </span>
+      <span className={cn("text-2xl leading-tight font-semibold tabular-nums", cor.texto)}>{fmtPontosPct(dado.percentual)}</span>
+    </div>
   );
 }
 
+/**
+ * Divisão por Gênero, sem Recharts (§7.3). Substitui os dois visuais de HTML injetado do painel de
+ * referência por JSON tipado formatado aqui. Antes eram duas colunas de 135 px que se sobrepunham
+ * (redesenho, 1.1): agora uma barra 100% com os percentuais em cima e uma TABELA embaixo, que
+ * distribui a largura pelo conteúdo e deixa o nível quebrar dentro da própria célula.
+ */
 export function PainelGenero() {
   const { filtros } = useFiltros();
   const q = useGenero(filtros);
   const idTitulo = useId();
+  const dados = ORDEM.map((g) => q.data?.find((d) => d.genero === g)).filter((d): d is GeneroResumo => d !== undefined);
   return (
-    <section className="cartao flex h-full flex-col gap-3 p-4" aria-labelledby={idTitulo}>
-      <h2 id={idTitulo} className="text-base font-semibold text-texto">
-        Divisão por Gênero
-      </h2>
-      <QueryState carregando={q.isPending} erro={q.error} atualizando={q.isFetching && !q.isPending} vazio={q.data?.length === 0}>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {(q.data ?? []).map((g) => (
-            <AnaliseGenero key={g.genero} dado={g} />
-          ))}
+    <Card className="flex h-full flex-col">
+      <section className="flex h-full flex-col" aria-labelledby={idTitulo}>
+        <header className="p-5 pb-3">
+          <h2 id={idTitulo} className="text-[15px] leading-tight font-semibold tracking-tight">
+            Divisão por Gênero
+          </h2>
+          <p className="mt-1 line-clamp-2 min-h-[2lh] text-[13px] leading-snug text-muted-foreground">Participação de cada gênero no recorte, com o IMC médio e o nível mais frequente.</p>
+        </header>
+        <div className="flex flex-1 flex-col px-5 pb-5">
+          <QueryState
+            carregando={q.isPending}
+            erro={q.error}
+            atualizando={q.isFetching && !q.isPending}
+            vazio={dados.length === 0}
+            aoTentarNovamente={() => void q.refetch()}
+            esqueleto={
+              <div className="flex flex-col gap-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-3 w-full rounded-full" />
+                <Skeleton className="h-28 w-full" />
+              </div>
+            }
+          >
+            <div className="flex h-full flex-col gap-4">
+              <div className="flex items-end justify-between gap-4">
+                {dados.map((d) => (
+                  <PercentBadge key={d.genero} dado={d} />
+                ))}
+              </div>
+              <div className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full" aria-hidden="true">
+                {dados.map((d) => (
+                  <div key={d.genero} className={cn("h-full first:rounded-l-full last:rounded-r-full", COR[d.genero]?.fundo)} style={{ width: `${d.percentual ?? 0}%` }} />
+                ))}
+              </div>
+              <table className="w-full text-[13px]">
+                <caption className="sr-only">Indicadores por gênero no recorte</caption>
+                <thead>
+                  <tr className="border-b">
+                    <th scope="col" className="py-2 pr-2 text-left text-xs font-medium text-muted-foreground">
+                      <span className="sr-only">Indicador</span>
+                    </th>
+                    {dados.map((d) => (
+                      <th key={d.genero} scope="col" className="py-2 pl-2 text-right text-xs font-medium text-muted-foreground">
+                        {d.genero}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b">
+                    <th scope="row" className="py-2 pr-2 text-left font-normal text-muted-foreground">
+                      Registros
+                    </th>
+                    {dados.map((d) => (
+                      <td key={d.genero} className="py-2 pl-2 text-right font-medium tabular-nums">
+                        {fmtInt(d.n)}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr className="border-b">
+                    <th scope="row" className="py-2 pr-2 text-left font-normal text-muted-foreground">
+                      IMC médio
+                    </th>
+                    {dados.map((d) => (
+                      <td key={d.genero} className="py-2 pl-2 text-right font-medium tabular-nums">
+                        {fmtNum(d.imc_medio, 1)}
+                      </td>
+                    ))}
+                  </tr>
+                  <tr>
+                    <th scope="row" className="py-2 pr-2 text-left align-top font-normal text-muted-foreground">
+                      Nível predominante
+                    </th>
+                    {dados.map((d) => (
+                      <td key={d.genero} className="py-2 pl-2 text-right align-top font-medium">
+                        {d.nivel_predominante ?? "—"}
+                        {d.nivel_predominante ? <span className="block text-xs font-normal text-muted-foreground tabular-nums">n = {fmtInt(d.n_predominante)}</span> : null}
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </QueryState>
         </div>
-      </QueryState>
-    </section>
+      </section>
+    </Card>
   );
 }

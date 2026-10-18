@@ -1,4 +1,11 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { Check, ChevronsUpDown, Search } from "lucide-react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
+
+import { fmtInt } from "@/shared/format/ptBR";
+import { cn } from "@/shared/lib/utils";
+
+import { CLASSE_DO_CONTROLE } from "./controle";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 type Opcao = { valor: string; rotulo: string; n?: number };
 
@@ -11,131 +18,149 @@ type Props = {
 };
 
 /**
- * Combobox multi-seleção acessível (role="listbox", aria-multiselectable), com busca e chip "Todos".
- * Mostra TODAS as opções do domínio global, não só as sobreviventes ao filtro; exibe o rótulo e
- * envia o valor (ex.: "<1L" -> 1).
+ * Combobox multi-seleção (§7.4): `role="listbox"` com `aria-multiselectable`, busca e "Todos".
+ * Mostra TODAS as opções do domínio global, não só as sobreviventes ao filtro; exibe o rótulo
+ * ("<1L") e envia o valor ("1"). As setas movem a opção ativa, anunciada por `aria-activedescendant`
+ * (antes era só cor de fundo, invisível ao leitor de tela — redesenho, 1.16). A lista é um Popover
+ * do Radix: o Esc fecha a lista e marca o evento, e o atalho global de limpar filtros o ignora.
  */
 export function MultiSelect({ rotulo, opcoes, selecionados, aoAlternar, aoLimpar }: Props) {
   const [aberto, setAberto] = useState(false);
   const [busca, setBusca] = useState("");
-  const [foco, setFoco] = useState(0);
-  const idLista = useId();
-  const raiz = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!aberto) return;
-    function aoClicarFora(e: MouseEvent) {
-      if (raiz.current && !raiz.current.contains(e.target as Node)) setAberto(false);
-    }
-    // Esc com a lista aberta só fecha a lista: captura antes do atalho global que limpa os filtros.
-    function aoEscapar(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.stopPropagation();
-        setAberto(false);
-      }
-    }
-    document.addEventListener("mousedown", aoClicarFora);
-    document.addEventListener("keydown", aoEscapar, true);
-    return () => {
-      document.removeEventListener("mousedown", aoClicarFora);
-      document.removeEventListener("keydown", aoEscapar, true);
-    };
-  }, [aberto]);
+  const [ativo, setAtivo] = useState(0);
+  const base = useId();
+  const idRotulo = `${base}-rotulo`;
+  const idValor = `${base}-valor`;
+  const idLista = `${base}-lista`;
+  const lista = useRef<HTMLUListElement>(null);
 
   const visiveis = opcoes.filter((o) => o.rotulo.toLowerCase().includes(busca.toLowerCase()));
-  const resumo = selecionados.length === 0 ? "Todos" : `${selecionados.length} selecionado(s)`;
+  const nomes = opcoes.filter((o) => selecionados.includes(o.valor)).map((o) => o.rotulo);
+  const resumo = nomes.length === 0 ? "Todos" : nomes.length === 1 ? nomes[0] : `${nomes[0]} +${nomes.length - 1}`;
 
-  function aoTeclar(e: React.KeyboardEvent) {
-    if (e.key === "Escape") {
-      setAberto(false);
-      return;
+  useEffect(() => {
+    lista.current?.querySelector(`[data-indice="${ativo}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [ativo]);
+
+  function mudarAberto(proximo: boolean) {
+    setAberto(proximo);
+    if (proximo) {
+      setBusca("");
+      setAtivo(0);
     }
+  }
+
+  function aoTeclar(e: KeyboardEvent) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setAberto(true);
-      setFoco((f) => Math.min(f + 1, visiveis.length - 1));
+      setAtivo((i) => Math.min(i + 1, visiveis.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setFoco((f) => Math.max(f - 1, 0));
-    } else if (e.key === "Enter" || e.key === " ") {
-      const alvo = visiveis[foco];
-      if (aberto && alvo) {
+      setAtivo((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setAtivo(0);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setAtivo(Math.max(visiveis.length - 1, 0));
+    } else if (e.key === "Enter") {
+      const alvo = visiveis[ativo];
+      if (alvo) {
         e.preventDefault();
         aoAlternar(alvo.valor);
-      } else if (!aberto) {
-        e.preventDefault();
-        setAberto(true);
       }
     }
   }
 
   return (
-    <div ref={raiz} className="relative flex flex-col gap-1">
-      <span className="text-xs font-semibold uppercase tracking-wide text-texto-fraco">{rotulo}</span>
-      <div className="flex gap-1">
-        <button
-          type="button"
-          aria-haspopup="listbox"
-          aria-expanded={aberto}
-          aria-controls={idLista}
-          onClick={() => setAberto((v) => !v)}
-          onKeyDown={aoTeclar}
-          className="flex min-h-11 flex-1 items-center justify-between rounded-card border border-borda bg-superficie px-3 text-left text-sm text-texto hover:bg-superficie-alta"
-        >
-          <span>{resumo}</span>
-          <span aria-hidden="true">▾</span>
-        </button>
-        {selecionados.length > 0 ? (
+    <div className="flex min-w-0 flex-col gap-1.5">
+      <span id={idRotulo} className="text-xs font-medium text-muted-foreground">
+        {rotulo}
+      </span>
+      <Popover open={aberto} onOpenChange={mudarAberto}>
+        <PopoverTrigger asChild>
           <button
             type="button"
-            onClick={aoLimpar}
-            aria-label={`Limpar ${rotulo}`}
-            className="min-h-11 rounded-card border border-borda bg-superficie px-2 text-xs text-texto hover:bg-superficie-alta"
-          >
-            Todos
-          </button>
-        ) : null}
-      </div>
-      {aberto ? (
-        <div className="absolute top-full z-20 mt-1 w-full rounded-card border border-borda bg-superficie p-2 shadow-card">
-          <input
-            type="search"
-            value={busca}
-            onChange={(e) => {
-              setBusca(e.target.value);
-              setFoco(0);
+            role="combobox"
+            aria-haspopup="listbox"
+            aria-expanded={aberto}
+            aria-controls={idLista}
+            aria-labelledby={`${idRotulo} ${idValor}`}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowDown" && !aberto) {
+                e.preventDefault();
+                mudarAberto(true);
+              }
             }}
-            onKeyDown={aoTeclar}
-            placeholder="Buscar…"
-            aria-label={`Buscar em ${rotulo}`}
-            className="mb-2 w-full rounded border border-borda bg-fundo px-2 py-1 text-sm text-texto"
-          />
-          <ul id={idLista} role="listbox" aria-multiselectable="true" aria-label={rotulo} className="max-h-60 overflow-auto">
+            className={cn(CLASSE_DO_CONTROLE, "items-center justify-between gap-2 text-left hover:bg-accent/60")}
+          >
+            <span id={idValor} className={cn("truncate", nomes.length === 0 && "text-muted-foreground")}>
+              {resumo}
+            </span>
+            <ChevronsUpDown aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-(--radix-popover-trigger-width) min-w-60 p-0">
+          <div className="relative border-b">
+            <Search aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="search"
+              value={busca}
+              onChange={(e) => {
+                setBusca(e.target.value);
+                setAtivo(0);
+              }}
+              onKeyDown={aoTeclar}
+              placeholder="Buscar…"
+              aria-label={`Buscar em ${rotulo}`}
+              aria-controls={idLista}
+              aria-activedescendant={visiveis[ativo] ? `${idLista}-${ativo}` : undefined}
+              className="h-11 w-full bg-transparent pr-3 pl-9 text-sm outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+          <ul ref={lista} id={idLista} role="listbox" aria-multiselectable="true" aria-label={rotulo} className="max-h-64 overflow-auto p-1">
             {visiveis.map((o, i) => {
-              const ativo = selecionados.includes(o.valor);
+              const marcado = selecionados.includes(o.valor);
               return (
                 <li
                   key={o.valor}
+                  id={`${idLista}-${i}`}
+                  data-indice={i}
                   role="option"
-                  aria-selected={ativo}
+                  aria-selected={marcado}
                   onClick={() => aoAlternar(o.valor)}
-                  onMouseEnter={() => setFoco(i)}
-                  className={`flex min-h-10 cursor-pointer items-center justify-between rounded px-2 text-sm ${i === foco ? "bg-superficie-alta" : ""} ${ativo ? "font-semibold text-primaria" : "text-texto"}`}
+                  onMouseMove={() => setAtivo(i)}
+                  className={cn("flex min-h-11 items-center gap-2.5 rounded-md px-2 text-sm select-none", i === ativo && "bg-accent text-accent-foreground")}
                 >
-                  <span>
-                    <span aria-hidden="true" className="mr-2">
-                      {ativo ? "☑" : "☐"}
-                    </span>
-                    {o.rotulo}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "flex size-4 shrink-0 items-center justify-center rounded-[4px] border",
+                      marcado ? "border-primary bg-primary text-primary-foreground" : "border-input bg-control",
+                    )}
+                  >
+                    {marcado ? <Check className="size-3" strokeWidth={3} /> : null}
                   </span>
-                  {o.n !== undefined ? <span className="text-xs text-texto-fraco">{o.n}</span> : null}
+                  <span className="flex-1 truncate">{o.rotulo}</span>
+                  {o.n !== undefined ? <span className="text-xs text-muted-foreground tabular-nums">{fmtInt(o.n)}</span> : null}
                 </li>
               );
             })}
-            {visiveis.length === 0 ? <li className="px-2 py-1 text-sm text-texto-fraco">Nada encontrado.</li> : null}
+            {visiveis.length === 0 ? <li className="px-2 py-3 text-sm text-muted-foreground">Nada encontrado.</li> : null}
           </ul>
-        </div>
-      ) : null}
+          <div className="flex items-center justify-between border-t px-3 py-1.5 text-xs text-muted-foreground">
+            <span>{selecionados.length === 0 ? "Nenhum filtro" : `${fmtInt(selecionados.length)} selecionado(s)`}</span>
+            <button
+              type="button"
+              onClick={aoLimpar}
+              disabled={selecionados.length === 0}
+              className="alvo-toque rounded px-2 py-1 font-medium text-primary hover:bg-accent disabled:text-muted-foreground disabled:opacity-60"
+            >
+              Todos
+            </button>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

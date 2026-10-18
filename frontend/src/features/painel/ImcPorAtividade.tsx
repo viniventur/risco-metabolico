@@ -1,21 +1,22 @@
-import { Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { FILTRO_VAZIO } from "@/shared/filtros/filtroSchema";
 import { useAgregado } from "@/shared/filtros/useAgregado";
 import { useCrossFilter } from "@/shared/filtros/useCrossFilter";
 import { useFiltros } from "@/shared/filtros/useFiltros";
+import { useRotulos } from "@/shared/filtros/useRotulos";
 import { fmtInt, fmtNum } from "@/shared/format/ptBR";
+import { ChartFrame } from "@/shared/graficos/ChartFrame";
+import { FONTE_DO_EIXO, propsDoEixo } from "@/shared/graficos/eixos";
+import { LegendaHtml } from "@/shared/graficos/LegendaHtml";
+import { TabelaEquivalente } from "@/shared/graficos/TabelaEquivalente";
+import { QueryState } from "@/shared/estados/QueryState";
 import { useChartTheme } from "@/shared/tema/useChartTheme";
-import { ChartFrame } from "@/shared/ui/ChartFrame";
-import { LegendaHtml } from "@/shared/ui/LegendaHtml";
-import { QueryState } from "@/shared/ui/QueryState";
-import { TabelaEquivalente } from "@/shared/ui/TabelaEquivalente";
 
+import { EsqueletoBarras } from "./Esqueletos";
 import { categoriasDe, maximoDe, pivotar, tetoDoEixo } from "./agregadoUtil";
 import { TooltipSeries, type LinhaSeries } from "./Tooltips";
-import { useRotulos } from "./useRotulos";
 
-const ALTURA = 340;
 const SERIES = ["Feminino", "Masculino"] as const;
 
 /** Colunas agrupadas (Feminino, Masculino) de IMC MÉDIO por frequência de atividade física. */
@@ -40,13 +41,14 @@ export function ImcPorAtividade() {
     return linha;
   });
   const teto = tetoDoEixo(maximoDe(pivotar(global.data), "imc_medio"));
-  const cor = (s: string) => (s === "Feminino" ? tema.rosa : tema.azulClaro);
+  const cor = (s: string) => (s === "Feminino" ? tema.feminino : tema.masculino);
+  const eixo = propsDoEixo(tema);
 
   return (
     <ChartFrame
       titulo="IMC Médio por Frequência de Atividade Física"
       descricao="Média do IMC por gênero em cada faixa de atividade semanal. Clique numa coluna para filtrar o gênero."
-      altura={ALTURA}
+      altura={300}
       tabela={
         <TabelaEquivalente
           legenda="IMC médio por frequência de atividade física e gênero"
@@ -62,46 +64,57 @@ export function ImcPorAtividade() {
           }))}
         />
       }
+      legenda={
+        <LegendaHtml
+          titulo="Gênero"
+          itens={SERIES.map((s) => ({ rotulo: s, cor: cor(s), ativo: cf.opacidade(s) === 1, aoClicar: () => cf.aoClicar(s) }))}
+        />
+      }
     >
-      <QueryState carregando={q.isPending} erro={q.error} atualizando={q.isFetching && !q.isPending}>
-        <div className="flex h-full flex-col gap-2">
-          <div className="min-h-0 flex-1">
-            <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 600, height: ALTURA - 40 }}>
-              <BarChart data={dados} margin={{ top: 8, right: 8, bottom: 4, left: 0 }} barGap={2}>
-                <XAxis dataKey="rotulo" interval={0} stroke={tema.eixo} />
-                <YAxis
-                  domain={[0, teto]}
-                  tickFormatter={(v: number) => fmtInt(v)}
-                  stroke={tema.eixo}
-                  width={40}
-                  label={{ value: "IMC médio", angle: -90, position: "insideLeft", fill: tema.textoFraco, fontSize: 11 }}
-                />
-                <Tooltip content={<TooltipSeries />} cursor={{ fill: tema.grade }} />
-                {SERIES.map((s) => (
-                  <Bar
-                    key={s}
-                    dataKey={s}
-                    fill={cor(s)}
-                    radius={[4, 4, 0, 0]}
-                    isAnimationActive={false}
-                    className="cursor-pointer"
-                    onClick={() => cf.aoClicar(s)}
-                    onMouseEnter={() => cf.aoEntrar(s)}
-                    onMouseLeave={cf.aoSair}
-                  >
-                    {dados.map((d) => (
-                      <Cell key={`${s}-${d.categoria}`} fillOpacity={cf.opacidade(s)} />
-                    ))}
-                  </Bar>
+      <QueryState
+        carregando={q.isPending}
+        erro={q.error}
+        atualizando={q.isFetching && !q.isPending}
+        aoTentarNovamente={() => void q.refetch()}
+        esqueleto={<EsqueletoBarras barras={8} />}
+      >
+        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 460, height: 300 }}>
+          <BarChart data={dados} margin={{ top: 8, right: 4, bottom: 18, left: 0 }} barGap={3} barCategoryGap="22%">
+            <CartesianGrid vertical={false} stroke={tema.grade} strokeDasharray="2 4" strokeOpacity={0.7} />
+            <XAxis
+              dataKey="rotulo"
+              interval={0}
+              {...eixo}
+              label={{ value: "Atividade física semanal", position: "insideBottom", offset: -12, fill: tema.textoFraco, fontSize: FONTE_DO_EIXO }}
+            />
+            <YAxis
+              domain={[0, teto]}
+              tickFormatter={(v: number) => fmtInt(v)}
+              width={48}
+              {...eixo}
+              axisLine={false}
+              label={{ value: "IMC médio", angle: -90, position: "insideLeft", offset: 14, fill: tema.textoFraco, fontSize: FONTE_DO_EIXO }}
+            />
+            <Tooltip content={<TooltipSeries />} cursor={{ fill: tema.grade, fillOpacity: 0.5 }} />
+            {SERIES.map((s) => (
+              <Bar
+                key={s}
+                dataKey={s}
+                fill={cor(s)}
+                radius={[4, 4, 0, 0]}
+                isAnimationActive={false}
+                className="cursor-pointer"
+                onClick={() => cf.aoClicar(s)}
+                onMouseEnter={() => cf.aoEntrar(s)}
+                onMouseLeave={cf.aoSair}
+              >
+                {dados.map((d) => (
+                  <Cell key={`${s}-${d.categoria}`} fillOpacity={cf.opacidade(s)} />
                 ))}
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          <LegendaHtml
-            titulo="Gênero"
-            itens={SERIES.map((s) => ({ rotulo: s, cor: cor(s), ativo: cf.opacidade(s) === 1, aoClicar: () => cf.aoClicar(s) }))}
-          />
-        </div>
+              </Bar>
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
       </QueryState>
     </ChartFrame>
   );

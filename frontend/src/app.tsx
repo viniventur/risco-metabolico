@@ -1,107 +1,97 @@
 import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
-import { useEffect } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Outlet, useLocation, useNavigation } from "react-router-dom";
 
-import { useSaude } from "@/shared/api/endpoints/saude";
-import { useFiltros } from "@/shared/filtros/useFiltros";
-import { BotaoTema } from "@/shared/tema/BotaoTema";
-import { IconeConsulta, IconeEstudos, IconeInicio, IconeLimpar, IconeMonitoramento, IconePainel, IconeSimulador } from "@/shared/ui/icones";
+import { useAtalhoEsc } from "@/shared/filtros/useAtalhoEsc";
+import { useMenuLateral } from "@/shared/layout/menuLateral";
+import { Sidebar } from "@/shared/layout/Sidebar";
+import { Topbar } from "@/shared/layout/Topbar";
+import { cn } from "@/shared/lib/utils";
 import { RodapeAviso } from "@/shared/ui/RodapeAviso";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/shared/ui/sheet";
+import { Toaster } from "@/shared/ui/sonner";
+import { TooltipProvider } from "@/shared/ui/tooltip";
 
-const ROTAS = [
-  { para: "/", rotulo: "Início", Icone: IconeInicio, fim: true },
-  { para: "/painel", rotulo: "Visão Geral", Icone: IconePainel },
-  { para: "/consulta", rotulo: "Consulta", Icone: IconeConsulta },
-  { para: "/simulador", rotulo: "Simulador", Icone: IconeSimulador },
-  { para: "/monitoramento", rotulo: "Monitoramento", Icone: IconeMonitoramento },
-  { para: "/estudos", rotulo: "Estudos", Icone: IconeEstudos },
-];
+const ID_DO_MENU = "menu-lateral";
+const TELAS_COM_FILTRO = ["/painel", "/consulta"];
 
-function BotaoLimparFiltros() {
-  const { vazio, limpar } = useFiltros();
-  const local = useLocation();
-  const mostrar = local.pathname === "/painel" || local.pathname === "/consulta";
-  // Atalho Esc: limpa os 6 filtros (7.4).
-  useEffect(() => {
-    if (!mostrar) return;
-    function aoTeclar(e: KeyboardEvent) {
-      if (e.key === "Escape" && !vazio) limpar();
-    }
-    window.addEventListener("keydown", aoTeclar);
-    return () => window.removeEventListener("keydown", aoTeclar);
-  }, [mostrar, vazio, limpar]);
-  if (!mostrar) return null;
+/** Barra fina no topo do conteúdo enquanto uma rota lazy carrega: a troca de tela não fica muda. */
+function ProgressoDeRota() {
+  const carregando = useNavigation().state === "loading";
+  if (!carregando) return null;
   return (
-    <button
-      type="button"
-      onClick={limpar}
-      disabled={vazio}
-      className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-card border border-borda bg-superficie px-2 text-xs text-texto hover:bg-superficie-alta disabled:cursor-not-allowed disabled:opacity-50"
-      aria-label="Limpar filtros (Esc)"
-      title="Limpar filtros (Esc)"
-    >
-      <IconeLimpar />
-      <span className="hidden lg:inline">Limpar filtros</span>
-    </button>
+    <div className="nao-imprimir pointer-events-none absolute inset-x-0 top-0 z-40 h-0.5 overflow-hidden" role="progressbar" aria-label="Carregando a tela">
+      <div className="h-full w-1/3 bg-primary motion-safe:animate-progresso" />
+    </div>
   );
 }
 
-function AvisoAcordando() {
-  // Aquecimento no mount: GET /health. Enquanto não responde, o estado "acordando o modelo" é
-  // visível — honestidade sobre o cold start do plano gratuito (§12/#9).
-  const saude = useSaude();
-  if (saude.isSuccess && saude.data.artefato_carregado) return null;
-  if (saude.isError) {
-    return (
-      <div className="bg-alerta/15 px-4 py-2 text-sm text-texto" role="status">
-        A API não respondeu ainda. Se o serviço estiver hibernando, a primeira chamada pode levar até 60 s.
-      </div>
-    );
+function Casca() {
+  const { pathname } = useLocation();
+  const { recolhido, alternar } = useMenuLateral();
+  const [gavetaAberta, setGavetaAberta] = useState(false);
+  // Fechar a gaveta na troca de rota é ajuste de estado DURANTE o render, não efeito: com efeito, a
+  // tela nova chegaria a ser pintada uma vez com o menu ainda aberto por cima.
+  const [caminhoAtual, setCaminhoAtual] = useState(pathname);
+  if (caminhoAtual !== pathname) {
+    setCaminhoAtual(pathname);
+    if (gavetaAberta) setGavetaAberta(false);
   }
+  useAtalhoEsc(TELAS_COM_FILTRO.includes(pathname));
+
   return (
-    <div className="bg-primaria/10 px-4 py-2 text-sm text-texto" role="status" aria-live="polite">
-      Acordando o modelo… a primeira chamada pode levar até 60 s.
-    </div>
+    <Sheet open={gavetaAberta} onOpenChange={setGavetaAberta}>
+      <div className="min-h-screen bg-background">
+        <a
+          href="#conteudo"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+        >
+          Pular para o conteúdo
+        </a>
+        <div
+          className={cn(
+            "lg:grid lg:motion-safe:transition-[grid-template-columns] lg:motion-safe:duration-200",
+            recolhido ? "lg:grid-cols-[3.5rem_minmax(0,1fr)]" : "lg:grid-cols-[15rem_minmax(0,1fr)]",
+          )}
+        >
+          {/* Desktop: coluna fixa que recolhe. O conteúdo do menu tem largura fixa dentro de uma coluna
+              com overflow-hidden: o texto nunca é espremido durante a animação. */}
+          <aside className="nao-imprimir sticky top-0 hidden h-screen overflow-hidden border-r border-sidebar-border lg:block">
+            <div className={recolhido ? "h-full w-14" : "h-full w-60"}>
+              <Sidebar recolhido={recolhido} aoAlternarRecolhido={alternar} idDoMenu={ID_DO_MENU} />
+            </div>
+          </aside>
+
+          <div className="relative flex min-h-screen min-w-0 flex-col">
+            <Topbar />
+            <ProgressoDeRota />
+            <main id="conteudo" tabIndex={-1} className="min-w-0 flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8 lg:py-8">
+              <Outlet />
+            </main>
+            <footer className="nao-imprimir border-t px-4 py-4 sm:px-6 lg:px-8">
+              <RodapeAviso className="max-w-4xl" />
+            </footer>
+          </div>
+        </div>
+      </div>
+
+      {/* Celular: a mesma navegação numa gaveta modal (Radix Dialog). */}
+      <SheetContent className="lg:hidden">
+        <SheetTitle className="sr-only">Menu de navegação</SheetTitle>
+        <SheetDescription className="sr-only">As telas do painel, do modelo e dos estudos.</SheetDescription>
+        <Sidebar aoNavegar={() => setGavetaAberta(false)} />
+      </SheetContent>
+      <Toaster />
+    </Sheet>
   );
 }
 
 export function App() {
   return (
     <NuqsAdapter>
-      <div className="flex min-h-screen flex-col sm:flex-row">
-        <nav
-          className="trilho flex shrink-0 flex-row items-center gap-1 border-b border-borda bg-superficie px-2 py-2 sm:w-24 sm:flex-col sm:border-b-0 sm:border-r sm:py-4"
-          aria-label="Navegação principal"
-        >
-          {ROTAS.map(({ para, rotulo, Icone, fim }) => (
-            <NavLink
-              key={para}
-              to={para}
-              end={fim}
-              className={({ isActive }) =>
-                `flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 rounded-card px-2 py-1 text-[11px] ${isActive ? "bg-primaria text-primaria-contraste" : "text-texto hover:bg-superficie-alta"}`
-              }
-              aria-label={rotulo}
-            >
-              <Icone />
-              <span className="hidden sm:inline">{rotulo}</span>
-            </NavLink>
-          ))}
-          <div className="ml-auto flex items-center gap-1 sm:ml-0 sm:mt-auto sm:flex-col">
-            <BotaoLimparFiltros />
-            <BotaoTema />
-          </div>
-        </nav>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <AvisoAcordando />
-          <main className="flex-1 px-4 py-4 sm:px-6">
-            <Outlet />
-          </main>
-          <footer className="nao-imprimir border-t border-borda px-4 py-3 sm:px-6">
-            <RodapeAviso />
-          </footer>
-        </div>
-      </div>
+      <TooltipProvider delayDuration={200}>
+        <Casca />
+      </TooltipProvider>
     </NuqsAdapter>
   );
 }

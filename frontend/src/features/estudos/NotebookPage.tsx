@@ -1,18 +1,34 @@
 import { useQuery } from "@tanstack/react-query";
+import { ChevronRight, Download, ExternalLink } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { URL_REPO, buscarEstatico } from "@/shared/api/http";
 import { chaves } from "@/shared/api/queryKeys";
-import { fmtDataHora } from "@/shared/format/ptBR";
-import { IconeBaixar } from "@/shared/ui/icones";
-import { QueryState } from "@/shared/ui/QueryState";
+import { QueryState } from "@/shared/estados/QueryState";
+import { fmtDataHora, fmtInt } from "@/shared/format/ptBR";
+import { PageHeader } from "@/shared/layout/PageHeader";
+import { Button } from "@/shared/ui/button";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 import { NotebookRenderer } from "./NotebookRenderer";
 import { Sidebar } from "./Sidebar";
 import type { DocEstudo } from "./tipos";
 
 const ID_CSS = "pygments-css";
+
+function EsqueletoNotebook() {
+  return (
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+      <Skeleton className="hidden h-80 lg:block" />
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-8 w-2/3" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-48 w-full" />
+      </div>
+    </div>
+  );
+}
 
 /** Rota /estudos/:slug — o JSON é recurso estático cacheável de public/study, não entra no bundle. */
 export function NotebookPage() {
@@ -36,45 +52,41 @@ export function NotebookPage() {
 
   const doc = q.data;
   return (
-    <div className="flex flex-col gap-4">
-      <nav aria-label="Trilha" className="text-sm text-texto-fraco">
-        <Link to="/estudos" className="underline">
+    <>
+      <nav aria-label="Trilha" className="mb-3 flex items-center gap-1.5 text-sm text-muted-foreground">
+        <Link to="/estudos" className="rounded underline-offset-4 hover:text-foreground hover:underline">
           Estudos
-        </Link>{" "}
-        / {doc?.titulo ?? slug}
+        </Link>
+        <ChevronRight aria-hidden="true" className="size-3.5" />
+        <span className="truncate text-foreground">{doc?.titulo ?? slug}</span>
       </nav>
-      <QueryState carregando={q.isPending} erro={q.error}>
+      <QueryState carregando={q.isPending} erro={q.error} aoTentarNovamente={() => void q.refetch()} esqueleto={<EsqueletoNotebook />}>
         {doc ? (
           <>
-            <header className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h1 className="text-2xl font-bold">{doc.titulo}</h1>
-                <p className="text-xs text-texto-fraco">
-                  {doc.cells.length} células · executado em {fmtDataHora(doc.gerado_em)} · saídas salvas do notebook, renderizadas sem kernel
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <a
-                  href={doc.download}
-                  download
-                  className="flex min-h-11 items-center gap-2 rounded-card border border-borda bg-superficie px-3 text-sm text-texto hover:bg-superficie-alta"
-                >
-                  <IconeBaixar /> Baixar notebook
-                </a>
-                {URL_REPO ? (
-                  <a
-                    href={`${URL_REPO}/blob/main/${doc.arquivo_origem}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex min-h-11 items-center rounded-card border border-borda bg-superficie px-3 text-sm text-texto hover:bg-superficie-alta"
-                  >
-                    Ver no repositório
-                  </a>
-                ) : null}
-              </div>
-            </header>
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-              <aside className="lg:sticky lg:top-4 lg:self-start">
+            <PageHeader
+              titulo={doc.titulo}
+              descricao={`${fmtInt(doc.cells.length)} células · executado em ${fmtDataHora(doc.gerado_em)} · saídas salvas do notebook, renderizadas sem kernel`}
+              acoes={
+                <>
+                  <Button asChild variant="outline">
+                    <a href={doc.download} download>
+                      <Download aria-hidden="true" />
+                      Baixar notebook
+                    </a>
+                  </Button>
+                  {URL_REPO ? (
+                    <Button asChild variant="ghost">
+                      <a href={`${URL_REPO}/blob/main/${doc.arquivo_origem}`} target="_blank" rel="noreferrer">
+                        Ver no repositório
+                        <ExternalLink aria-hidden="true" />
+                      </a>
+                    </Button>
+                  ) : null}
+                </>
+              }
+            />
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+              <aside className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto lg:pr-1">
                 <Sidebar toc={doc.toc} />
               </aside>
               <article className="min-w-0">
@@ -84,6 +96,6 @@ export function NotebookPage() {
           </>
         ) : null}
       </QueryState>
-    </div>
+    </>
   );
 }

@@ -1,9 +1,10 @@
-// Conteúdos de <Tooltip> declarados FORA do render dos gráficos (7.3).
+// Conteúdos de <Tooltip> declarados FORA do render dos gráficos (§7.3), todos sobre o TooltipGrafico.
+import { TooltipGrafico } from "@/shared/graficos/TooltipGrafico";
 import { fmtImc, fmtInt, fmtNum, fmtPontosPct } from "@/shared/format/ptBR";
 
 type Carga<T> = {
   active?: boolean;
-  payload?: Array<{ payload: T; dataKey?: string | number; name?: string | number }>;
+  payload?: Array<{ payload: T; dataKey?: string | number; name?: string | number; color?: string; fill?: string }>;
 };
 
 export type LinhaContagem = { categoria: string; rotulo: string; contagem: number; pct: number | null };
@@ -20,25 +21,30 @@ export function TooltipContagem({ active, payload }: Carga<LinhaContagem>) {
   if (!active || !payload?.[0]) return null;
   const l = payload[0].payload;
   return (
-    <div className="cartao px-3 py-2 text-xs">
-      <strong>{l.rotulo}</strong>
-      <div>
-        {fmtInt(l.contagem)} registros · {fmtPontosPct(l.pct)} do recorte
-      </div>
-    </div>
+    <TooltipGrafico
+      titulo={l.rotulo}
+      linhas={[
+        { rotulo: "Registros", valor: fmtInt(l.contagem), cor: payload[0].color ?? payload[0].fill },
+        { rotulo: "Do recorte", valor: fmtPontosPct(l.pct) },
+      ]}
+    />
   );
 }
 
 export function TooltipMedia({ active, payload }: Carga<LinhaMedia>) {
   if (!active || !payload?.[0]) return null;
   const l = payload[0].payload;
+  if (l.suprimido) {
+    return <TooltipGrafico titulo={l.rotulo} linhas={[{ rotulo: "Registros", valor: fmtInt(l.n) }]} nota="Amostra insuficiente (n < 15): a média não é exibida." />;
+  }
   return (
-    <div className="cartao px-3 py-2 text-xs">
-      <strong>{l.rotulo}</strong>
-      <div>
-        {l.suprimido ? `amostra insuficiente (n = ${fmtInt(l.n)})` : `IMC médio ${fmtNum(l.valor, 1)} · n = ${fmtInt(l.n)}`}
-      </div>
-    </div>
+    <TooltipGrafico
+      titulo={l.rotulo}
+      linhas={[
+        { rotulo: "IMC médio", valor: fmtNum(l.valor, 1), cor: payload[0].color ?? payload[0].fill },
+        { rotulo: "Registros", valor: fmtInt(l.n) },
+      ]}
+    />
   );
 }
 
@@ -48,21 +54,21 @@ export function TooltipSeries({ active, payload }: Carga<LinhaSeries>) {
   if (!active || !payload?.length) return null;
   const l = payload[0]!.payload;
   return (
-    <div className="cartao px-3 py-2 text-xs">
-      <strong>{l.rotulo}</strong>
-      {payload.map((p) => {
+    <TooltipGrafico
+      titulo={l.rotulo}
+      linhas={payload.map((p) => {
         const serie = String(p.dataKey ?? p.name ?? "");
         const n = l[`n_${serie}`] as number | undefined;
         const suprimido = l[`suprimido_${serie}`] as boolean | undefined;
         const valor = l[serie] as number | undefined;
-        return (
-          <div key={serie}>
-            {serie}:{" "}
-            {suprimido ? `amostra insuficiente (n = ${fmtInt(n)})` : `IMC médio ${fmtNum(valor, 1)} · n = ${fmtInt(n)}`}
-          </div>
-        );
+        return {
+          rotulo: serie,
+          cor: p.color ?? p.fill,
+          valor: suprimido ? `n < 15 (n = ${fmtInt(n)})` : `${fmtNum(valor, 1)} · n = ${fmtInt(n)}`,
+        };
       })}
-    </div>
+      nota="IMC médio por gênero"
+    />
   );
 }
 
@@ -72,11 +78,13 @@ export function TooltipPonto({ active, payload }: Carga<PontoPlot>) {
   if (!active || !payload?.[0]) return null;
   const p = payload[0].payload;
   return (
-    <div className="cartao px-3 py-2 text-xs">
-      <strong>{p.nivel}</strong>
-      <div>
-        {fmtNum(p.peso, 1)} kg · {fmtNum(p.altura, 2)} m · IMC {fmtImc(p.imc)}
-      </div>
-    </div>
+    <TooltipGrafico
+      titulo={p.nivel}
+      linhas={[
+        { rotulo: "Peso", valor: `${fmtNum(p.peso, 1)} kg`, cor: payload[0].color ?? payload[0].fill },
+        { rotulo: "Altura", valor: `${fmtNum(p.altura, 2)} m` },
+        { rotulo: "IMC", valor: fmtImc(p.imc) },
+      ]}
+    />
   );
 }

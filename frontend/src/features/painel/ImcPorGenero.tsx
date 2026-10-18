@@ -5,15 +5,15 @@ import { useAgregado } from "@/shared/filtros/useAgregado";
 import { useCrossFilter } from "@/shared/filtros/useCrossFilter";
 import { useFiltros } from "@/shared/filtros/useFiltros";
 import { fmtInt, fmtNum } from "@/shared/format/ptBR";
+import { ChartFrame } from "@/shared/graficos/ChartFrame";
+import { FONTE_DO_EIXO, propsDoEixo } from "@/shared/graficos/eixos";
+import { TabelaEquivalente } from "@/shared/graficos/TabelaEquivalente";
+import { QueryState } from "@/shared/estados/QueryState";
 import { useChartTheme } from "@/shared/tema/useChartTheme";
-import { ChartFrame } from "@/shared/ui/ChartFrame";
-import { QueryState } from "@/shared/ui/QueryState";
-import { TabelaEquivalente } from "@/shared/ui/TabelaEquivalente";
 
+import { EsqueletoBarras } from "./Esqueletos";
 import { maximoDe, pivotar, tetoDoEixo } from "./agregadoUtil";
 import { TooltipMedia, type LinhaMedia } from "./Tooltips";
-
-const ALTURA = 300;
 
 /** Colunas de IMC médio por gênero (título explícito: no original o visual não tinha título). */
 export function ImcPorGenero() {
@@ -31,13 +31,14 @@ export function ImcPorGenero() {
     rotuloValor: l.suprimido ? "n < 15" : fmtNum(l.valores.imc_medio, 1),
   }));
   const teto = tetoDoEixo(maximoDe(pivotar(global.data), "imc_medio"));
-  const cor = (genero: string) => (genero === "Feminino" ? tema.rosa : tema.azulClaro);
+  const cor = (genero: string) => (genero === "Feminino" ? tema.feminino : tema.masculino);
+  const eixo = propsDoEixo(tema);
 
   return (
     <ChartFrame
       titulo="IMC Médio por Gênero"
       descricao="Média do IMC no recorte; o eixo começa em zero."
-      altura={ALTURA}
+      altura={240}
       tabela={
         <TabelaEquivalente
           legenda="IMC médio por gênero"
@@ -50,15 +51,21 @@ export function ImcPorGenero() {
         />
       }
     >
-      <QueryState carregando={q.isPending} erro={q.error} atualizando={q.isFetching && !q.isPending}>
-        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 400, height: ALTURA }}>
-          <BarChart data={dados} margin={{ top: 20, right: 8, bottom: 4, left: 0 }}>
-            <XAxis dataKey="rotulo" interval={0} stroke={tema.eixo} />
-            <YAxis domain={[0, teto]} tickFormatter={(v: number) => fmtInt(v)} stroke={tema.eixo} width={36} />
-            <Tooltip content={<TooltipMedia />} cursor={{ fill: tema.grade }} />
+      <QueryState
+        carregando={q.isPending}
+        erro={q.error}
+        atualizando={q.isFetching && !q.isPending}
+        aoTentarNovamente={() => void q.refetch()}
+        esqueleto={<EsqueletoBarras barras={2} />}
+      >
+        <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 280, height: 240 }}>
+          <BarChart data={dados} margin={{ top: 20, right: 4, bottom: 0, left: -8 }} barCategoryGap="28%">
+            <XAxis dataKey="rotulo" interval={0} {...eixo} />
+            <YAxis domain={[0, teto]} tickFormatter={(v: number) => fmtInt(v)} width={36} {...eixo} axisLine={false} />
+            <Tooltip content={<TooltipMedia />} cursor={{ fill: tema.grade, fillOpacity: 0.5 }} />
             <Bar
               dataKey="valor"
-              radius={[6, 6, 0, 0]}
+              radius={[5, 5, 0, 0]}
               isAnimationActive={false}
               className="cursor-pointer"
               onClick={(_: unknown, i: number) => {
@@ -74,7 +81,7 @@ export function ImcPorGenero() {
               {dados.map((d) => (
                 <Cell key={d.categoria} fill={cor(d.categoria)} fillOpacity={cf.opacidade(d.categoria)} />
               ))}
-              <LabelList dataKey="rotuloValor" position="top" fill={tema.texto} fontSize={12} />
+              <LabelList dataKey="rotuloValor" position="top" fill={tema.texto} fontSize={FONTE_DO_EIXO} fontWeight={600} />
             </Bar>
           </BarChart>
         </ResponsiveContainer>

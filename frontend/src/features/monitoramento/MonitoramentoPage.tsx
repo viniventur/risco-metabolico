@@ -1,33 +1,47 @@
-import { useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
+import { useMetadata } from "@/shared/api/endpoints/metadata";
 import { useDeriva } from "@/shared/api/endpoints/monitoramento";
 import type { RespostaDeriva } from "@/shared/api/endpoints/tipos";
 import { URL_REPO } from "@/shared/api/http";
+import { QueryState } from "@/shared/estados/QueryState";
 import { fmtDataHora, fmtInt } from "@/shared/format/ptBR";
-import { QueryState } from "@/shared/ui/QueryState";
+import { PageHeader } from "@/shared/layout/PageHeader";
+import { SegmentedControl } from "@/shared/ui/segmented-control";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 import { BarrasTreinoLog } from "./BarrasTreinoLog";
 import { FaixaIndisponivel } from "./FaixaIndisponivel";
 import { TabelaDeriva } from "./TabelaDeriva";
 
-const JANELAS = [7, 30, 90] as const;
+const JANELAS = ["7", "30", "90"] as const;
+type Janela = (typeof JANELAS)[number];
 const ARQUIVOS_SQL = ["01_distribuicao_numerica.sql", "02_contagem_por_faixa.sql", "03_indicador_divergencia.sql"];
 
+function Fato({ rotulo, children, mono }: { rotulo: string; children: ReactNode; mono?: boolean }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1">
+      <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{rotulo}</dt>
+      <dd className={mono ? "truncate font-mono text-sm" : "text-sm font-medium tabular-nums"}>{children}</dd>
+    </div>
+  );
+}
+
+/** Qual par (modelo, dados) está sendo comparado, contra qual snapshot, e quantas predições entraram na janela. */
 function CabecalhoDeriva({ dado }: { dado: RespostaDeriva }) {
   return (
-    <dl className="cartao grid grid-cols-2 gap-x-4 gap-y-1 p-4 text-sm sm:grid-cols-3 lg:grid-cols-6">
-      <dt className="text-texto-fraco">Modelo</dt>
-      <dd className="font-mono text-xs">v{dado.versao_modelo}</dd>
-      <dt className="text-texto-fraco">Snapshot de treino</dt>
-      <dd className="font-mono text-xs">{dado.versao_dados}</dd>
-      <dt className="text-texto-fraco">Janela</dt>
-      <dd>{fmtInt(dado.janela_dias)} dias</dd>
-      <dt className="text-texto-fraco">Predições na janela</dt>
-      <dd className="tabular-nums">{fmtInt(dado.n_amostra)}</dd>
-      <dt className="text-texto-fraco">Mínimo para PSI</dt>
-      <dd className="tabular-nums">{fmtInt(dado.n_minimo)}</dd>
-      <dt className="text-texto-fraco">Atualizado em</dt>
-      <dd>{fmtDataHora(dado.atualizado_em)}</dd>
+    <dl className="grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border bg-card p-5 shadow-sm sm:grid-cols-3 lg:grid-cols-5">
+      <Fato rotulo="Modelo" mono>
+        v{dado.versao_modelo}
+      </Fato>
+      <Fato rotulo="Snapshot de treino" mono>
+        {dado.versao_dados}
+      </Fato>
+      <Fato rotulo="Janela">{fmtInt(dado.janela_dias)} dias</Fato>
+      <Fato rotulo="Predições na janela">
+        {fmtInt(dado.n_amostra)} <span className="font-normal text-muted-foreground">/ mínimo {fmtInt(dado.n_minimo)}</span>
+      </Fato>
+      <Fato rotulo="Atualizado em">{fmtDataHora(dado.atualizado_em)}</Fato>
     </dl>
   );
 }
@@ -35,17 +49,17 @@ function CabecalhoDeriva({ dado }: { dado: RespostaDeriva }) {
 function RodapeSql({ consultas }: { consultas?: string[] }) {
   const arquivos = consultas && consultas.length > 0 ? consultas : ARQUIVOS_SQL;
   return (
-    <p className="text-xs text-texto-fraco">
-      As três consultas desta página são os arquivos de <code>sql/deriva/</code>:{" "}
+    <p className="text-xs leading-relaxed text-muted-foreground">
+      As três consultas desta página são os arquivos de <code className="rounded bg-muted px-1 py-0.5 font-mono">sql/deriva/</code>:{" "}
       {arquivos.map((a, i) => (
         <span key={a}>
           {i > 0 ? ", " : ""}
           {URL_REPO ? (
-            <a href={`${URL_REPO}/blob/main/sql/deriva/${a}`} className="underline" target="_blank" rel="noreferrer">
+            <a href={`${URL_REPO}/blob/main/sql/deriva/${a}`} className="font-mono text-primary underline-offset-4 hover:underline" target="_blank" rel="noreferrer">
               {a}
             </a>
           ) : (
-            <code>{a}</code>
+            <code className="font-mono">{a}</code>
           )}
         </span>
       ))}
@@ -54,53 +68,69 @@ function RodapeSql({ consultas }: { consultas?: string[] }) {
   );
 }
 
-/** Uma página, um endpoint (§7.6): 200 com `disponivel: false` vira faixa de aviso, nunca erro. */
-export function MonitoramentoPage() {
-  const [janela, setJanela] = useState<number>(30);
-  const [feature, setFeature] = useState("");
-  const q = useDeriva(janela, feature || undefined);
-  const d = q.data;
+function EsqueletoMonitoramento() {
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-bold">Monitoramento de deriva</h1>
-          <p className="text-sm text-texto-fraco">
-            Compara a distribuição das 16 entradas registradas pelo simulador e pela API com o snapshot que treinou o modelo.
-          </p>
-        </div>
-        <fieldset className="flex items-center gap-1">
-          <legend className="sr-only">Janela em dias</legend>
-          <div className="flex overflow-hidden rounded-card border border-borda" role="group" aria-label="Janela em dias">
-            {JANELAS.map((j) => (
-              <button
-                key={j}
-                type="button"
-                aria-pressed={janela === j}
-                onClick={() => setJanela(j)}
-                className={`min-h-11 px-3 text-sm ${janela === j ? "bg-primaria text-primaria-contraste" : "bg-superficie text-texto hover:bg-superficie-alta"}`}
-              >
-                {j} dias
-              </button>
-            ))}
-          </div>
-        </fieldset>
-      </header>
-      <QueryState carregando={q.isPending} erro={q.error} atualizando={q.isFetching && !q.isPending}>
+      <Skeleton className="h-24 w-full" />
+      <Skeleton className="h-16 w-full" />
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
+        <Skeleton className="h-96 xl:col-span-7" />
+        <Skeleton className="h-60 xl:col-span-5" />
+      </div>
+    </div>
+  );
+}
+
+/** Uma página, um endpoint (§7.6): 200 com `disponivel: false` vira faixa de aviso, nunca erro. */
+export function MonitoramentoPage() {
+  const [janela, setJanela] = useState<Janela>("30");
+  const [feature, setFeature] = useState("");
+  const q = useDeriva(Number(janela), feature || undefined);
+  const metadata = useMetadata();
+  const rotulos = useMemo(
+    () => Object.fromEntries((metadata.data?.grupos.flatMap((g) => g.campos) ?? []).map((c) => [c.nome, c.rotulo])),
+    [metadata.data],
+  );
+  const d = q.data;
+  return (
+    <>
+      <PageHeader
+        titulo="Monitoramento de deriva"
+        descricao="Compara a distribuição das 16 entradas registradas pelo simulador e pela API com o snapshot que treinou o modelo, feature a feature, pelo PSI."
+        acoes={
+          <SegmentedControl
+            rotulo="Janela em dias"
+            valor={janela}
+            aoMudar={setJanela}
+            opcoes={JANELAS.map((j) => ({ valor: j, rotulo: `${j} dias` }))}
+          />
+        }
+      />
+      <QueryState
+        carregando={q.isPending}
+        erro={q.error}
+        atualizando={q.isFetching && !q.isPending}
+        aoTentarNovamente={() => void q.refetch()}
+        esqueleto={<EsqueletoMonitoramento />}
+      >
         {d ? (
           <div className="flex flex-col gap-4">
             <CabecalhoDeriva dado={d} />
             <FaixaIndisponivel disponivel={d.disponivel} motivo={d.motivo} nAmostra={d.n_amostra} nMinimo={d.n_minimo} />
             {d.disponivel ? (
-              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-                <TabelaDeriva dado={d} featureSelecionada={feature} aoSelecionar={setFeature} />
-                <BarrasTreinoLog dado={d} feature={feature} />
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-12 xl:items-start">
+                <div className="min-w-0 xl:col-span-7">
+                  <TabelaDeriva dado={d} featureSelecionada={feature} aoSelecionar={setFeature} rotulos={rotulos} />
+                </div>
+                <div className="min-w-0 xl:sticky xl:top-20 xl:col-span-5">
+                  <BarrasTreinoLog dado={d} feature={feature} rotulo={rotulos[feature]} />
+                </div>
               </div>
             ) : null}
             <RodapeSql consultas={d.consultas} />
           </div>
         ) : null}
       </QueryState>
-    </div>
+    </>
   );
 }

@@ -5,13 +5,15 @@ test("monitoramento: mostra o par (modelo, dados), o n da janela e degrada com f
   await expect(page.getByRole("heading", { level: 1, name: "Monitoramento de deriva" })).toBeVisible();
   await expect(page.getByText("Snapshot de treino")).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText(/^v[0-9]+\.[0-9]+\.[0-9]+$/)).toBeVisible();
+  // a janela é um grupo de rádio (uma escolha sempre marcada)
+  await expect(page.getByRole("radio", { name: "30 dias" })).toBeChecked();
   // nunca tela de erro: ou a tabela de features, ou a faixa de aviso (banco fora / amostra insuficiente)
-  const faixa = page.getByRole("status");
+  const faixa = page.getByRole("main").getByRole("status");
   const tabela = page.getByRole("columnheader", { name: "Feature" });
   await expect(faixa.or(tabela).first()).toBeVisible();
   await expect(page.getByRole("alert")).toHaveCount(0);
-  // aceite de F14b com `docker compose stop banco`: a faixa de aviso do banco hibernando, nunca erro
-  if (process.env.ESPERAR_BANCO_FORA) await expect(faixa.first()).toContainText("hiberna por inatividade");
+  // aceite de F14b com `docker compose stop banco`: a faixa de aviso do banco fora, nunca erro
+  if (process.env.ESPERAR_BANCO_FORA) await expect(faixa.first()).toContainText("não respondeu");
   await expect(page.getByText("sql/deriva/")).toBeVisible();
   // com amostra insuficiente, a coluna de PSI some e a faixa muda de texto
   if (await faixa.count()) {

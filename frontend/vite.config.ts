@@ -17,6 +17,11 @@ const GRUPOS = [
   { name: "plotly", prefixos: ["plotly.js"] },
   { name: "katex", prefixos: ["katex", "rehype-katex", "remark-math"] },
   { name: "recharts", prefixos: ["recharts", "victory-vendor", "d3-"] },
+  // Os primitivos de interface (ADR 0010): mudam pouco entre versões do app e ficam em cache.
+  {
+    name: "ui",
+    prefixos: ["@radix-ui", "@floating-ui", "sonner", "lucide-react", "tailwind-merge", "class-variance-authority", "clsx", "react-remove-scroll", "aria-hidden"],
+  },
 ];
 
 // Sem proxy para /api de propósito: o proxy do Vite eliminaria o CORS em desenvolvimento e o
