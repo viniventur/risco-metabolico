@@ -42,11 +42,13 @@ Hospedado na VPS do autor, em contêineres, sem hibernação (seção 8 e [ADR 0
 
 ## 2. Capturas de tela
 
-**Visão Geral** — 6 KPIs e 7 gráficos sobre o recorte; clicar numa barra filtra o painel inteiro pela URL, `Esc` limpa, voltar desfaz.
+**Visão Geral** — o recorte em destaque, quatro indicadores e 7 gráficos; clicar numa barra, fatia ou coluna filtra o painel inteiro pela URL (o filtro aparece como chip no cabeçalho), `Esc` limpa, voltar desfaz, e todo gráfico tem a tabela equivalente. Na dispersão, as linhas tracejadas são os limites de IMC.
 
 ![Visão Geral do painel](docs/capturas/painel.png)
 
-**Simulador de triagem** — o formulário nasce de `GET /metadata`; a resposta traz as 7 probabilidades em ordem clínica, o risco acumulado, o IMC e o relatório para baixar ou imprimir.
+**Simulador de triagem** — o formulário nasce de `GET /metadata`, em três seções, com o aviso de registro anônimo no topo e o botão sempre visível; o resultado fica fixo ao lado e traz a classe estimada, o risco acumulado, o IMC, as 7 probabilidades em ordem clínica e o relatório para baixar ou imprimir.
+
+Tema claro e escuro, barra lateral recolhível e gaveta no celular. O desenho (shadcn/ui sobre Radix, Tailwind v4, tokens HSL) e o diagnóstico que o motivou estão em [`docs/redesenho-front.md`](docs/redesenho-front.md) e na [ADR 0010](docs/decisoes/0010-redesenho-do-front.md).
 
 ![Simulador de triagem](docs/capturas/simulador.png)
 
@@ -209,7 +211,7 @@ A auditoria do artefato legado (um `.pkl` de XGBoost, 43 features) encontrou qua
 
 ## 8. Disponibilidade e o banco fora do ar
 
-**Serviço:** backend, front e banco rodam em contêineres na VPS do autor, sempre ligados; não há plano gratuito hibernando. O plano previa uma nota de *cold start* "se o provedor hibernar" — não se aplica. O front ainda faz `GET /health` ao montar e mostra "Acordando o modelo…" enquanto a API não responde, o que cobre um deploy ou um reinício; o pipeline é carregado no `lifespan`, não na primeira requisição, então `/health` é honesto.
+**Serviço:** backend, front e banco rodam em contêineres na VPS do autor, sempre ligados; não há plano gratuito hibernando. O plano previa uma nota de *cold start* "se o provedor hibernar" — não se aplica. O front ainda faz `GET /health` ao montar e, se a API demora, mostra "Acordando o modelo…" num selo da barra do topo, o que cobre um deploy ou um reinício; o pipeline é carregado no `lifespan`, não na primeira requisição, então `/health` é honesto.
 
 **Banco:** o produto foi desenhado para um Postgres que pausava por inatividade, e o desenho ficou: **o painel inteiro abre sem o banco, e só a tela de monitoramento degrada, com aviso.** Hoje isso cobre um deploy, um reinício ou uma falha do contêiner. Comportamento endpoint a endpoint com o banco fora do ar:
 
@@ -327,7 +329,8 @@ Os testes de maior valor: paridade treino ↔ serviço (a mesma entrada pelo pip
 
 ```
 backend/      FastAPI (app/api, esquemas, dominio, nucleo, dados, treino) + tests/ + Dockerfile (imagem api)
-frontend/     React 19 + Vite 8 + TypeScript; e2e/ com os smokes do Playwright; public/study/ gerado;
+frontend/     React 19 + Vite 8 + TypeScript + Tailwind v4 + shadcn/ui (Radix); e2e/ com os smokes do
+              Playwright; public/study/ gerado; public/tema-inicial.js (tema antes da hidratação);
               Dockerfile + nginx.conf + seguranca.conf (imagem web)
 database/     Dockerfile da imagem do banco (postgres + sql/)
 sql/          schema.sql, grants.sql, usuario-api.sh, agregados/, pontos/, deriva/
@@ -349,8 +352,9 @@ docs/         contrato da API, modelagem, dicionário, agregados, auditoria do l
 | [`docs/dicionario-de-dados.md`](docs/dicionario-de-dados.md) | as 17 colunas nas três convenções de nome |
 | [`docs/agregados.md`](docs/agregados.md) | contrato dos agregados em SQL e a tabela de divergências |
 | [`docs/auditoria-do-legado.md`](docs/auditoria-do-legado.md) | as quatro divergências do artefato herdado, com evidência |
-| [`docs/design-tokens.md`](docs/design-tokens.md) · [`docs/estilo-de-codigo.md`](docs/estilo-de-codigo.md) | paleta (provisória) e convenções herdadas do legado |
+| [`docs/design-tokens.md`](docs/design-tokens.md) · [`docs/estilo-de-codigo.md`](docs/estilo-de-codigo.md) | tokens claro/escuro, rampas dos gráficos, tipografia e grade; convenções herdadas do legado |
+| [`docs/redesenho-front.md`](docs/redesenho-front.md) | a auditoria medida do front anterior (defeito a defeito, com número) e a especificação do redesenho |
 | [`study/README.md`](study/README.md) | como reexecutar o notebook e o mapa célula → função do backend |
 | [`docs/deploy-vps.md`](docs/deploy-vps.md) | como a VPS é publicada: chave presa ao `deploy.sh`, segredos, Caddy, aceite |
 
-Decisões registradas (`docs/decisoes/`): [0001 nome](docs/decisoes/0001-nome-do-projeto.md) · [0002 binning desligado](docs/decisoes/0002-binning-ligado-ou-desligado.md) · [0003 IMC como feature](docs/decisoes/0003-imc-como-feature.md) · [0004 artefato fora do git](docs/decisoes/0004-artefato-fora-do-git.md) · [0005 filtros no servidor](docs/decisoes/0005-filtros-no-servidor.md) · [0006 agregados em SQL](docs/decisoes/0006-agregados-em-sql.md) · [0007 Postgres sem autenticação](docs/decisoes/0007-postgres-sem-autenticacao.md) · [0008 limiares de PSI](docs/decisoes/0008-limiares-de-psi.md) · [0009 provedor de hospedagem](docs/decisoes/0009-provedor-de-hospedagem.md).
+Decisões registradas (`docs/decisoes/`): [0001 nome](docs/decisoes/0001-nome-do-projeto.md) · [0002 binning desligado](docs/decisoes/0002-binning-ligado-ou-desligado.md) · [0003 IMC como feature](docs/decisoes/0003-imc-como-feature.md) · [0004 artefato fora do git](docs/decisoes/0004-artefato-fora-do-git.md) · [0005 filtros no servidor](docs/decisoes/0005-filtros-no-servidor.md) · [0006 agregados em SQL](docs/decisoes/0006-agregados-em-sql.md) · [0007 Postgres sem autenticação](docs/decisoes/0007-postgres-sem-autenticacao.md) · [0008 limiares de PSI](docs/decisoes/0008-limiares-de-psi.md) · [0009 provedor de hospedagem](docs/decisoes/0009-provedor-de-hospedagem.md) · [0010 redesenho do front](docs/decisoes/0010-redesenho-do-front.md).

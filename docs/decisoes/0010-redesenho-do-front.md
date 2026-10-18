@@ -35,6 +35,7 @@ seguindo a especificação de `docs/redesenho-front.md`:
 | Ícones | `lucide-react`, importados um a um. A marca continua SVG próprio. Revoga o "nenhuma biblioteca de ícones no bundle" de `design-tokens.md`. |
 | Marca no painel | a `<Marca>` de §7.3 sai da faixa de KPIs (onde ocupava a vaga de um indicador) e passa a ser a marca da barra lateral, visível em todas as telas. |
 | Barras do simulador | voltam à **cor única** de §7.5 (a implementação usava duas cores sem legenda). |
+| Dispersão altura × peso | a cor por macro-faixa de §7.3 fica; a **forma da marca** como segundo canal sai (quatro formas a 9 px viravam textura) e entram as **linhas de IMC** 18,5 · 25 · 30 · 35 · 40, que separam as classes e explicam as faixas diagonais. É aparência — os dados, a amostra e o cross-filter recebido não mudam. |
 | Faixa de deriva | o texto deixa de citar "o banco do plano gratuito hiberna por inatividade" (ADR 0009: não há hibernação) e passa a falar de reinício, deploy ou falha do banco. |
 | Estado da API | a faixa "Acordando o modelo…" que empurrava a página vira um selo na barra do topo, com o mesmo texto. |
 

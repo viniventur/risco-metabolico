@@ -63,7 +63,9 @@ Consequências medidas em 1440 e iguais em 390:
 **`DispersaoAlturaPeso.tsx:33-41`** usa como domínio o mínimo e o máximo de `/metadata` (39 e
 175 kg; 1,45 e 1,98 m arredondados para o padrão 1,4–2,0). O Recharts divide em partes iguais e os
 ticks saem **39 / 74 / 109 / 144 / 175 kg**: nenhum múltiplo de 10, impossível de ler de cabeça. A
-marca mede **9 px** e são 2.000 pontos opacos: a faixa de obesidade é uma mancha sólida.
+marca mede **9 px**, são 2.000 pontos opacos em quatro formas diferentes (círculo, quadrado,
+losango, triângulo): a faixa de obesidade é uma mancha sólida, e a forma — o "segundo canal" — vira
+textura. Nada no gráfico diz por que as classes aparecem em faixas diagonais.
 
 ### 1.5 A categoria suprimida some do gráfico de álcool — CONFIRMADO
 
@@ -217,11 +219,15 @@ página explica uma indisponibilidade com uma causa que não existe mais.
 baixo e começa na **1ª coluna** (x = 137), embaixo de "Features". A página não tem nenhuma chamada
 para ação além de três cartões e um link sublinhado de 16 px de altura.
 
-### 1.20 Estudos: código ilegível no tema escuro — CONFIRMADO, com número
+### 1.20 Estudos: código ilegível no tema escuro — CONFIRMADO, consequência de 1.9
 
-`public/study/pygments.css:7` (gerado no build) define `.hl { background: #f8f8f8 }`, e o Pygments
-não pinta identificadores simples (`.n`): eles herdam `--texto`, que no escuro é `#eef2fb`.
-**Contraste de ~1,04:1** — `Path`, `SMOTE`, `pd`, os nomes de variável somem dentro do bloco claro.
+`public/study/pygments.css` (gerado no build) traz **os dois** temas: o claro em `.hl` (fundo
+`#f8f8f8`, identificadores simples `.n` sem cor própria) e o escuro (monokai) em
+`[data-theme="dark"] .hl`. Com o script de tema bloqueado pela CSP (1.9), `data-theme` nunca é
+escrito: a página fica escura pela `@media`, mas o bloco de código cai no tema **claro**, e os
+identificadores herdam `--texto`, que no escuro é `#eef2fb`. **Contraste de ~1,04:1** — `Path`,
+`SMOTE`, `pd`, os nomes de variável somem dentro do bloco claro. Corrigido 1.9, o tema escuro do
+realce volta a valer; nada no CSS gerado precisa mudar.
 
 Mais:
 
@@ -313,20 +319,24 @@ Em 390: titular na largura toda e apoios em 2×2 — o primeiro gráfico sobe de
 
 **Linhas 2 a 4 — gráficos em 12 colunas** (`grid gap-4 md:grid-cols-2 xl:grid-cols-12`):
 
-| linha | cartão | `xl:col-span` | largura em 1440 (expandido) | altura do gráfico |
+| linha | cartão | `xl:col-span` | largura em 1440 (expandido) | altura mínima do gráfico |
 |---|---|---|---|---|
 | 2 | Divisão por Nível de Obesidade | 7 | 656 px | 300 |
-| 2 | Divisão por Gênero | 5 | 464 px | (sem gráfico) |
-| 3 | IMC Médio por Gênero | 3 | 272 px | 260 |
-| 3 | Consumo de Alimentos Calóricos | 4 | 368 px | 260 |
-| 3 | IMC Médio por Consumo de Álcool | 5 | 464 px | 260 |
-| 4 | Altura, Peso e o Nível de Obesidade | 7 | 656 px | 340 |
-| 4 | IMC Médio por Frequência de Atividade Física | 5 | 464 px | 340 |
+| 2 | Consumo de Alimentos Calóricos | 5 | 464 px | 240 + legenda |
+| 3 | Divisão por Gênero | 5 | 464 px | (sem gráfico) |
+| 3 | IMC Médio por Gênero | 3 | 272 px | 240 |
+| 3 | IMC Médio por Consumo de Álcool | 4 | 368 px | 240 |
+| 4 | Altura, Peso e o Nível de Obesidade | 7 | 656 px | 340 + legenda |
+| 4 | IMC Médio por Frequência de Atividade Física | 5 | 464 px | 300 + legenda |
 
-Entre 768 e 1279 px, duas colunas (`md:col-span-2` para nível e dispersão); abaixo de 768, uma.
-Todo cartão é `h-full flex flex-col`, o cabeçalho tem título em **uma linha** (`truncate` com
-`title`) e descrição em **até duas** (`line-clamp-2`, `min-h` de duas linhas): os gráficos de uma
-mesma linha começam e terminam na mesma altura (1.7).
+Entre 768 e 1279 px, duas colunas (`md:col-span-2` para nível, dispersão e atividade); abaixo de
+768, uma. Todo cartão é `h-full flex flex-col` e a área do gráfico é `flex-1` com altura mínima: os
+cartões de uma linha têm a mesma altura e os gráficos crescem até o fundo, sem degrau embaixo (1.7).
+Título e descrição vão em até duas linhas (`line-clamp-2`), e o "Ver dados" vira um botão só de
+ícone, com o nome no `aria-label` e numa dica, para o título caber no cartão de 272 px (1.2).
+
+**Divisão por Gênero** fica na linha 3, ao lado de "IMC por gênero": o conteúdo dela (≈ 250 px) tem a
+altura dos gráficos dessa linha, e não sobra o vazio que sobraria ao lado das barras por nível.
 
 **Divisão por Gênero** deixa de ser duas colunas espremidas (1.1): uma barra 100% (Feminino |
 Masculino, nas cores da entidade) com os percentuais grandes em cima, e embaixo uma **tabela** de
@@ -357,7 +367,7 @@ tabela distribui a largura pelo conteúdo e o nível quebra dentro da própria c
 - Resultado: estado vazio com ícone e instrução; *skeleton* enquanto a predição está em voo; depois,
   classe estimada (titular), risco acumulado com cor condicional e barra de progresso, IMC com a
   faixa. Barras de probabilidade em **cor única** (`--primary`), com a classe prevista em opacidade
-  cheia e as demais a 55% — a mesma cor, só ênfase.
+  cheia e as demais a 50% — a mesma cor, só ênfase.
 
 ### 2.5 Monitoramento
 
@@ -377,8 +387,8 @@ em 2 ou 4 colunas: nenhuma coluna sobra para o `col-span` errar, 1.19) e os hipe
 ### 2.7 Estudos
 
 Lista em cartões; no notebook, sumário *sticky* com rolagem própria, item ativo com barra lateral
-`border-l-2 border-primary`, links de 44 px; código sobre **papel fixo** (3.5); DataFrames com o
-estilo de `ui/table`; o alternador de saída vira botão `ghost` com ícone.
+`border-l-2 border-primary`, links de 44 px; o realce do código volta ao tema certo (1.20, 3.5);
+DataFrames com o estilo de `ui/table`; o alternador de saída vira botão `ghost` com ícone.
 
 ---
 
@@ -459,12 +469,12 @@ sobrepeso; Obesidade I–III → obesidade). A cor segue a entidade, não o comp
 
 `--nivel-1…7` saem (código morto, 1.22).
 
-### 3.5 Papel do código (Estudos)
+### 3.5 Código e figuras dos Estudos
 
-O CSS do Pygments é gerado no build e pressupõe fundo claro. Em vez de inverter as cores do realce,
-o bloco de código ganha **papel fixo** nos dois temas — `--codigo-fundo: 220 20% 97%` e
-`--codigo-texto: 222 47% 16%` (14,9:1) — com `ring-1 ring-border`. No escuro ele se lê como folha
-sobre mesa, e os identificadores voltam a ter contraste (de ~1,04:1 para 14,9:1).
+O realce do código **não** ganha token: `pygments.css` já é gerado com o tema claro (`default`) e o
+escuro (`monokai`, preso a `[data-theme="dark"]`), e a correção de 1.9 basta para o escuro valer.
+As figuras PNG dos notebooks (fundo branco do matplotlib) ficam sobre uma folha clara nos dois temas
+— `--papel: 220 20% 97%` —, para não virarem um retângulo aceso solto no cartão escuro.
 
 ---
 
@@ -477,7 +487,7 @@ com `color-mix`). `--color-*: initial` continua apagando a paleta padrão.
 
 | pasta | componentes |
 |---|---|
-| `shared/ui/` (padrão shadcn) | `button`, `card`, `badge`, `alert`, `skeleton`, `separator`, `tooltip`, `dialog` (gaveta), `popover`, `segmented-control` (rádio do Radix), `table`, `input`, `label`, `native-select`, `sonner` |
+| `shared/ui/` (padrão shadcn) | `button`, `card`, `badge`, `alert`, `skeleton`, `separator`, `tooltip`, `sheet` (gaveta, Radix Dialog), `popover`, `segmented-control` (rádio do Radix), `table`, `input`, `label`, `native-select`, `sonner`; e os do produto: `KpiCard`, `MultiSelect`, `GrupoDeAlternancia`, `Marca`, `RodapeAviso` |
 | `shared/layout/` | `AppShell`, `Sidebar`, `Topbar`, `PageHeader`, `navegacao.ts`, `menuLateral.ts`, `SeletorDeTema` |
 | `shared/estados/` | `EstadoVazio`, `ErroInline` (com "Tentar novamente"), `QueryState` (skeleton na primeira carga, opacidade no *refetch*) |
 | `shared/graficos/` | `ChartFrame`, `TooltipGrafico`, `LegendaHtml`, `TabelaEquivalente`, `eixos.ts` (props de eixo com 12 px) |
@@ -505,7 +515,11 @@ Toasts: `sonner`, montado uma vez, com o tema do app.
    ticks e vai para o rótulo do eixo ("Peso (kg)", "Altura (m)").
 4. **Supressão visível**: categoria com `n < 15` desenha o texto "amostra < 15" no início da barra,
    em `--muted-foreground` (1.5).
-5. **Marcas da dispersão**: área 18 e `fillOpacity` 0,7.
+5. **Dispersão**: pontos de área 16, `fillOpacity` 0,5–0,62, sempre círculo. O segundo canal deixa
+   de ser a forma da marca (textura a 9 px, 1.4) e passa a ser as **linhas de IMC**
+   18,5 · 25 · 30 · 35 · 40 (`peso = IMC × altura²`, tracejadas, rotuladas na borda direita): elas
+   mostram de onde vêm as faixas diagonais — o nível é, quase todo, o IMC — e separam Obesidade
+   I, II e III, que dividem a mesma cor da macro-faixa. A legenda traz as 4 macro-faixas e a linha.
 6. **Tooltip HTML** comum (`TooltipGrafico`): título, uma linha por série com amostra da cor,
    `bg-popover` com borda e sombra — legível nos dois temas; continua declarado fora do render.
 7. **Legenda HTML** em *chips* com alvo de 44 px (pseudo-elemento), `aria-pressed` quando filtra.
@@ -552,7 +566,7 @@ Toasts: `sonner`, montado uma vez, com o tema do app.
 | arquivo | o que muda |
 |---|---|
 | `index.html` + `public/tema-inicial.js` | o script de tema sai de linha para um arquivo do próprio site (`script-src 'self'`): 1.9 |
-| `shared/tema/tokens.css` | tokens HSL claro/escuro (3.1), rampas (3.2–3.3), papel do código (3.5), `@theme inline` com `--color-*: hsl(var(--*))`, estilos de DataFrame, sem a regra morta de tick |
+| `shared/tema/tokens.css` | tokens HSL claro/escuro (3.1), rampas (3.2–3.3), papel das figuras (3.5), `@theme inline` com `--color-*: hsl(var(--*))`, estilos de DataFrame, sem a regra morta de tick |
 | `shared/tema/useTema.ts` (novo) | fonte única do tema (substitui `BotaoTema.tsx`), lida do `data-theme` que o script já escreveu |
 | `shared/tema/useChartTheme.ts` | lê os trios e devolve `hsl(...)`; sai `corDoNivel` |
 | `shared/ui/*` | componentes shadcn (seção 4); saem `KpiCard`, `ChartFrame`, `MultiSelect` e `SegmentedControl` antigos (reescritos) e `icones/` (lucide + `Marca`) |
@@ -563,7 +577,7 @@ Toasts: `sonner`, montado uma vez, com o tema do app.
 | `features/simulador/*` | 2.4; `aria-describedby` no aviso anônimo; barras em cor única |
 | `features/monitoramento/*` | 2.5; texto da faixa (1.18) |
 | `features/inicio/*` | 2.6 |
-| `features/estudos/*` | 2.7; papel do código, DataFrames |
+| `features/estudos/*` | 2.7; DataFrames, papel das figuras |
 | `e2e/*.spec.ts` | os 6 *smokes* acompanham os papéis e nomes novos |
 
 ### Ordem
