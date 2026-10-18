@@ -111,9 +111,11 @@ jobs:
           npm run test
           npm run build
       - name: JSON do módulo Estudos em dia com o notebook commitado
+        # nbformat e pygments vêm do uv.lock do backend (extra dev): as MESMAS versões que geraram o
+        # JSON commitado. O Python do runner é "externally managed" e recusa `uv pip install --system`.
         run: |
-          uv pip install --system "nbformat>=5.10" "pygments>=2.18"
-          cd frontend && npm run build:nb
+          uv sync --project backend --extra dev
+          uv run --project backend python tools/nb2json.py --root . --out frontend/public/study
           git diff --exit-code -- frontend/public/study
       - name: Nenhuma credencial dentro do bundle
         shell: pwsh
