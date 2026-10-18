@@ -8,8 +8,10 @@ $raiz = Split-Path -Parent $PSScriptRoot
 if (-not $Dist) { $Dist = Join-Path $raiz 'frontend\dist' }
 if (-not (Test-Path -LiteralPath $Dist)) { Write-Host "FALHA: $Dist nao existe (rode npm run build antes)."; exit 2 }
 
-# 'eyJ' e o prefixo base64 de todo JWT ({"...). Minusculas e maiusculas contam.
-$padrao = '(?i)(supabase|service_role|postgres://|postgresql://|eyJ[A-Za-z0-9_-]{10,})'
+# Um JWT sao dois blocos base64url que comecam por 'eyJ' ({"...) separados por ponto: header.payload.
+# So 'eyJ' solto nao serve de criterio — os dados binarios das figuras Plotly do modulo Estudos
+# (public/study/*.json, campo "bdata") sao base64 e contem a sequencia por acaso.
+$padrao = '(?i)(supabase|service_role|postgres://|postgresql://|eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,})'
 $arquivos = Get-ChildItem -LiteralPath $Dist -Recurse -File |
     Where-Object { $_.Extension -in '.js', '.mjs', '.css', '.html', '.json', '.map', '.txt' }
 $achados = @($arquivos | Select-String -Pattern $padrao |

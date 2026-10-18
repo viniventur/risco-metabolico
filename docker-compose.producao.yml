@@ -1,0 +1,30 @@
+# Ajuste de produção (VPS), por cima do docker-compose.yml.
+#
+# Na VPS não há código nem build: cada serviço usa a imagem que o CI montou, testou e publicou no
+# GitHub Container Registry, presa pelo digest. O scripts/deploy.sh grava os digests no .env e liga
+# este arquivo pelo COMPOSE_FILE, então qualquer `docker compose` rodado na pasta do app já usa os
+# dois. Só o web publica porta (127.0.0.1:WEB_HOST_PORT, para o Caddy); banco e API ficam na rede
+# interna do Docker, e a API não monta nada: a imagem é autocontida (modelo, agregados e parquet).
+#
+# Escrito serviço a serviço, sem âncora do YAML: versões mais antigas do Compose ignoram o !reset
+# que chega por âncora.
+services:
+  banco:
+    image: ${BANCO_IMAGE:?o deploy.sh grava BANCO_IMAGE no .env}
+    build: !reset null
+    pull_policy: never
+    ports: !reset []
+  api:
+    image: ${API_IMAGE:?o deploy.sh grava API_IMAGE no .env}
+    build: !reset null
+    pull_policy: never
+    ports: !reset []
+    volumes: !reset []
+  web:
+    image: ${WEB_IMAGE:?o deploy.sh grava WEB_IMAGE no .env}
+    build: !reset null
+    pull_policy: never
+  # A retenção roda a mesma imagem do banco (tem o psql), com outro comando.
+  retencao-log:
+    image: ${BANCO_IMAGE:?o deploy.sh grava BANCO_IMAGE no .env}
+    pull_policy: never

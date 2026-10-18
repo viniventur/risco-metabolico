@@ -27,6 +27,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# `operacao`: só o driver síncrono, para a imagem publicada rodar o seed, a conferência do schema e a
+# carga da referência de deriva na VPS (scripts/deploy.sh) sem carregar as dependências de treino.
+operacao = ["psycopg[binary]==3.3.6"]
 treino = ["psycopg[binary]==3.3.6", "lightgbm==4.7.0"]
 estudo = [
   "jupyter==1.1.1",

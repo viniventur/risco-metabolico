@@ -1,15 +1,27 @@
-# CI na ordem de dependência do plano (§10.8): proveniência -> banco -> SQL -> backend -> frontend -> imagem.
+# CI/CD na ordem de dependência do plano (§10.8): proveniência -> banco -> SQL -> backend -> frontend ->
+# ambiente completo em Docker -> publicação das imagens -> deploy na VPS -> aceite visto de fora.
 # A varredura de termos vem PRIMEIRO: vazamento tem prioridade sobre teste quebrado.
 # O CI nunca aponta para a instância publicada: o Postgres é um serviço descartável do job.
+#
+# Na main, se TUDO passar: as MESMAS imagens que passaram em scripts/verificar-stack.sh vão para o
+# GitHub Container Registry, e o deploy manda para a VPS os digests delas (scripts/deploy.sh baixa e
+# sobe; na VPS não há código nem build). O deploy só roda depois que a variável VPS_HOST existir no
+# repositório; até lá, publicação e deploy aparecem como "skipped" (docs/deploy-vps.md).
 name: ci
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # Em pull request, um push novo cancela a verificação antiga. Na main, nada é interrompido no meio.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   proveniencia:
@@ -24,6 +36,12 @@ jobs:
           $padrao = (Get-Content scripts/padrao-proveniencia.txt)[0]
           if ("${{ github.ref_name }}" -match $padrao) { Write-Host "branch na lista negra"; exit 1 }
           if ((git rev-parse --show-toplevel) -match $padrao) { Write-Host "caminho na lista negra"; exit 1 }
+      - name: Nenhum .env no repositório
+        run: |
+          if git ls-files | grep -E '(^|/)\.env(\.|$)' | grep -v '\.env\.example$'; then
+            echo "::error title=Segredo no repositório::Tire o .env do Git e troque as senhas que estavam nele."
+            exit 1
+          fi
 
   backend:
     needs: proveniencia
@@ -121,12 +139,195 @@ jobs:
         shell: pwsh
         run: ./scripts/verificar-bundle.ps1
 
-  imagem:
-    needs: [backend]
-    if: github.ref == 'refs/heads/main'
+  ambiente:
+    name: Ambiente completo em Docker, testes de segurança e publicação
+    # O passo mais caro (build das três imagens): só roda se backend e frontend passaram.
+    needs: [backend, frontend]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
+    # packages: write só para publicar, na main, as imagens que passaram nos testes deste job.
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      banco: ${{ steps.publicar.outputs.banco }}
+      api: ${{ steps.publicar.outputs.api }}
+      web: ${{ steps.publicar.outputs.web }}
+      pacote: ${{ steps.publicar.outputs.pacote }}
     steps:
       - uses: actions/checkout@v4
-      - name: Build da imagem (contexto na RAIZ)
-        run: docker build -f backend/Dockerfile -t risco-metabolico-api:ci .
+
+      # Na VPS: só o web ocupa uma porta (a do Caddy; o servidor tem outros sistemas), nada é montado
+      # lá (as imagens chegam prontas) e nenhum arquivo do repositório entra nos containers.
+      - name: Na produção, só imagens prontas e só o web com porta (docker-compose.producao.yml)
+        env:
+          BANCO_IMAGE: ghcr.io/teste/banco@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          API_IMAGE: ghcr.io/teste/api@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          WEB_IMAGE: ghcr.io/teste/web@sha256:0000000000000000000000000000000000000000000000000000000000000000
+        run: |
+          producao=$(docker compose --env-file .env.example -f docker-compose.yml -f docker-compose.producao.yml config --format json)
+          publicados=$(jq -c '[.services | to_entries[] | select((.value.ports // []) | length > 0) | .key]' <<<"$producao")
+          com_build=$(jq -c '[.services | to_entries[] | select(.value.build) | .key]' <<<"$producao")
+          montados=$(jq -c '[.services[].volumes[]? | select(.type == "bind") | .source]' <<<"$producao")
+          if [[ $publicados != '["web"]' ]]; then
+            echo "::error title=Portas na produção::Só o web pode publicar porta na VPS. Publicam: $publicados"
+            exit 1
+          fi
+          if [[ $com_build != '[]' || $montados != '[]' ]]; then
+            echo "::error title=Imagens prontas::Na VPS não há código: nada de build ($com_build) nem de arquivo montado ($montados)."
+            exit 1
+          fi
+
+      - name: .env de teste (senhas aleatórias, descartadas no fim; interruptores de produção ligados)
+        run: |
+          cp .env.example .env
+          for v in POSTGRES_PASSWORD API_DB_PASSWORD; do
+            sed -i "s/^$v=.*/$v=$(openssl rand -hex 24)/" .env
+          done
+          sed -i "s/^SAL_TAXA=.*/SAL_TAXA=$(openssl rand -hex 24)/" .env
+          sed -i "s/^LIMITE_TAXA_ATIVO=.*/LIMITE_TAXA_ATIVO=true/; s/^EXIGIR_INTEGRIDADE=.*/EXIGIR_INTEGRIDADE=true/" .env
+
+      # O estágio `modelo` do backend/Dockerfile baixa o .pkl e o snapshot do release v<versao> e
+      # confere os dois sha256 do manifest (ADR 0004); o front é só `vite build` sobre public/study.
+      - name: Montar as imagens (banco, api, web) e o pacote de deploy
+        run: |
+          docker compose build
+          docker build -q -f scripts/pacote.Dockerfile -t risco-metabolico-pacote .
+
+      - name: Subida
+        run: docker compose up -d --no-build --wait --wait-timeout 300
+
+      - name: Testes de segurança e de fumaça do ambiente completo
+        run: bash scripts/verificar-stack.sh
+
+      # As MESMAS imagens que acabaram de passar (nada é montado de novo) vão para o registro do
+      # GitHub, com o pacote de deploy. A VPS recebe só os digests.
+      - name: Publicar as imagens testadas no registro (só na main)
+        id: publicar
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.VPS_HOST != ''
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          registro="ghcr.io/${GITHUB_REPOSITORY,,}"
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          echo "### Imagens publicadas" >>"$GITHUB_STEP_SUMMARY"
+          for nome in banco api web pacote; do
+            docker tag "risco-metabolico-$nome" "$registro-$nome:$GITHUB_SHA"
+            docker push -q "$registro-$nome:$GITHUB_SHA"
+            digest=$(docker inspect --format '{{index .RepoDigests 0}}' "$registro-$nome:$GITHUB_SHA")
+            [[ $digest =~ ^$registro-$nome@sha256:[0-9a-f]{64}$ ]] || { echo "::error::digest inesperado para $nome: $digest"; exit 1; }
+            echo "$nome=$digest" >>"$GITHUB_OUTPUT"
+            echo "- $nome: \`$digest\`" >>"$GITHUB_STEP_SUMMARY"
+          done
+          docker logout ghcr.io
+      # O registro é grátis hoje, mas não precisa guardar tudo: ficam as 10 versões mais novas de cada
+      # imagem (a VPS guarda a que está no ar e a anterior). Se falhar, não atrapalha o deploy.
+      - name: Registro só com as 10 versões mais novas
+        if: steps.publicar.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for nome in banco api web pacote; do
+            caminho="/users/$GITHUB_REPOSITORY_OWNER/packages/container/risco-metabolico-$nome/versions"
+            gh api "$caminho?per_page=100" --jq 'sort_by(.created_at) | reverse | .[10:] | .[].id' |
+              while read -r id; do
+                gh api -X DELETE "$caminho/$id" >/dev/null && echo "$nome: versão $id apagada"
+              done
+          done
+      - name: Estado dos containers (só quando algo falha)
+        if: failure()
+        run: docker compose ps -a && docker compose logs --tail=80
+      - name: Derrubar
+        if: always()
+        run: docker compose down -v
+
+  deploy:
+    name: Deploy na VPS
+    needs: ambiente
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.VPS_HOST != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Os secrets ficam no ambiente "producao", que só aceita a branch main.
+    environment: producao
+    concurrency:
+      group: producao
+      cancel-in-progress: false
+    # Só leitura do registro: a VPS baixa as imagens com o token deste job, que vence quando ele termina.
+    permissions:
+      packages: read
+    steps:
+      - name: Publicar ${{ github.sha }}
+        shell: bash
+        env:
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          VPS_USER: ${{ vars.VPS_USER }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          WEB_HOST_PORT: ${{ vars.WEB_HOST_PORT }}
+          RETENCAO_DIAS: ${{ vars.RETENCAO_DIAS }}
+          TETO_LINHAS_LOG: ${{ vars.TETO_LINHAS_LOG }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          API_DB_PASSWORD: ${{ secrets.API_DB_PASSWORD }}
+          SAL_TAXA: ${{ secrets.SAL_TAXA }}
+          BANCO_IMAGE: ${{ needs.ambiente.outputs.banco }}
+          API_IMAGE: ${{ needs.ambiente.outputs.api }}
+          WEB_IMAGE: ${{ needs.ambiente.outputs.web }}
+          PACOTE_IMAGE: ${{ needs.ambiente.outputs.pacote }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Nada aqui imprime valores: sem "set -x" e sem echo de variáveis.
+          faltando=()
+          for nome in VPS_SSH_KEY VPS_KNOWN_HOSTS SITE_URL POSTGRES_PASSWORD API_DB_PASSWORD SAL_TAXA \
+            BANCO_IMAGE API_IMAGE WEB_IMAGE PACOTE_IMAGE; do
+            [[ -n ${!nome:-} ]] || faltando+=("$nome")
+          done
+          if ((${#faltando[@]})); then
+            echo "::error title=Deploy::Faltam secrets ou variáveis: ${faltando[*]} (veja docs/deploy-vps.md)"
+            exit 1
+          fi
+
+          install -d -m 700 ~/.ssh
+          trap 'rm -f ~/.ssh/deploy' EXIT
+          (umask 077 && printf '%s\n' "$VPS_SSH_KEY" | tr -d '\r' >~/.ssh/deploy)
+          printf '%s\n' "$VPS_KNOWN_HOSTS" | tr -d '\r' >~/.ssh/known_hosts
+
+          # O .env, os digests das imagens e o token de leitura do registro vão pelo stdin do SSH (não
+          # passam por arquivo nem por argumento de comando). Do lado da VPS, a chave só roda o
+          # deploy.sh, que confere cada variável antes de usar e não grava o token em lugar nenhum.
+          {
+            echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
+            echo "API_DB_PASSWORD=$API_DB_PASSWORD"
+            echo "SAL_TAXA=$SAL_TAXA"
+            echo "SITE_URL=$SITE_URL"
+            echo "WEB_HOST_PORT=${WEB_HOST_PORT:-8083}"
+            echo "RETENCAO_DIAS=${RETENCAO_DIAS:-90}"
+            echo "TETO_LINHAS_LOG=${TETO_LINHAS_LOG:-500000}"
+            echo "BANCO_IMAGE=$BANCO_IMAGE"
+            echo "API_IMAGE=$API_IMAGE"
+            echo "WEB_IMAGE=$WEB_IMAGE"
+            echo "PACOTE_IMAGE=$PACOTE_IMAGE"
+            echo "GHCR_USUARIO=$GITHUB_ACTOR"
+            echo "GHCR_TOKEN=$GHCR_TOKEN"
+          } | ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -o ConnectTimeout=20 -o ServerAliveInterval=30 \
+            "${VPS_USER:-deploy}@$VPS_HOST" "$GITHUB_SHA"
+
+  producao:
+    name: Aceite visto de fora
+    needs: deploy
+    if: vars.SITE_URL != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: producao
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aceite de F17 em ${{ vars.SITE_URL }}
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          VPS_HOST: ${{ vars.VPS_HOST }}
+        run: bash scripts/verificar-producao.sh "$SITE_URL" "$VPS_HOST"

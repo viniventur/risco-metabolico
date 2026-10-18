@@ -3177,6 +3177,9 @@ estudo = [
     { name = "pygments" },
     { name = "seaborn" },
 ]
+operacao = [
+    { name = "psycopg", extra = ["binary"] },
+]
 treino = [
     { name = "lightgbm" },
     { name = "psycopg", extra = ["binary"] },
@@ -3200,6 +3203,7 @@ requires-dist = [
     { name = "numpy", specifier = "==2.5.4" },
     { name = "pandas", specifier = ">=2.3,<3" },
     { name = "plotly", marker = "extra == 'estudo'", specifier = "==7.1.0" },
+    { name = "psycopg", extras = ["binary"], marker = "extra == 'operacao'", specifier = "==3.3.6" },
     { name = "psycopg", extras = ["binary"], marker = "extra == 'treino'", specifier = "==3.3.6" },
     { name = "pyarrow", specifier = "==26.0.0" },
     { name = "pydantic", specifier = "==2.14.1" },
@@ -3217,7 +3221,7 @@ requires-dist = [
     { name = "uvicorn", extras = ["standard"], specifier = "==0.54.0" },
     { name = "xgboost", specifier = "==3.4.1" },
 ]
-provides-extras = ["treino", "estudo", "dev"]
+provides-extras = ["operacao", "treino", "estudo", "dev"]
 
 [[package]]
 name = "rpds-py"

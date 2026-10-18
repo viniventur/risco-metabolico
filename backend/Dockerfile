@@ -11,10 +11,11 @@ COPY --from=ghcr.io/astral-sh/uv:0.13.1 /uv /bin/uv
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app/backend
 COPY backend/pyproject.toml backend/uv.lock ./
-# Só as dependências primeiro: a camada é cacheada enquanto o lock não mudar.
-RUN uv sync --frozen --no-dev --no-install-project
+# Só as dependências primeiro: a camada é cacheada enquanto o lock não mudar. O extra `operacao`
+# (só o psycopg) deixa a imagem rodar o seed e a carga da referência de deriva na VPS (deploy.sh).
+RUN uv sync --frozen --no-dev --no-install-project --extra operacao
 COPY backend/app ./app
-RUN uv sync --frozen --no-dev --no-editable
+RUN uv sync --frozen --no-dev --no-editable --extra operacao
 
 # ---------- estágio 2: os artefatos do release — modelo e snapshot congelado ----------
 # Não existe PowerShell em python:3.12-slim: um RUN não executa .ps1. O script de verdade é
@@ -34,6 +35,7 @@ RUN python scripts/baixar_modelo.py --manifesto artifacts/manifest.json --destin
 
 # ---------- estágio 3: runtime ----------
 FROM python:3.12-slim
+LABEL org.opencontainers.image.source="https://github.com/viniventur/risco-metabolico"
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 \
     PATH="/app/backend/.venv/bin:$PATH" \
     MODELOS_DIR=/app/models ARTEFATOS_DIR=/app/artifacts DADOS_DIR=/app/data/processado \
@@ -47,6 +49,9 @@ COPY --chown=app:app artifacts /app/artifacts
 COPY --chown=app:app sql /app/sql
 COPY --from=modelo --chown=app:app /app/models /app/models
 COPY --from=modelo --chown=app:app /app/data/processado /app/data/processado
+# O CSV público e a citação: o seed roda a partir desta imagem na VPS (deploy.sh), e ele confere
+# a citação de FONTE.md e grava os dois hashes em operacao.carga_fonte (§3.2).
+COPY --chown=app:app data/bruto /app/data/bruto
 # base_painel.parquet é derivado AQUI, do snapshot, sem banco (python -m app.treino.painel): a
 # imagem publicada é autocontida, porque no provedor não há volume. No compose, ./data/processado
 # é montado por cima e vale o parquet local, que `congelar` escreveu.

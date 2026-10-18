@@ -1,0 +1,11 @@
+# Contexto de build do front (frontend/Dockerfile). Entra só o que o `npm ci` e o `vite build` leem.
+node_modules/
+dist/
+.vite/
+test-results/
+playwright-report/
+e2e/
+.env
+.env.*
+!.env.example
+*.log

@@ -19,7 +19,7 @@ Em volta do modelo: uma API FastAPI com contrato versionado; um front React com 
 5. [Como rodar local, sem nenhuma credencial](#5-como-rodar-local-sem-nenhuma-credencial)
 6. [Como retreinar](#6-como-retreinar)
 7. [O que este projeto corrige do modelo herdado](#7-o-que-este-projeto-corrige-do-modelo-herdado)
-8. [Cold start e hibernação do banco](#8-cold-start-e-hibernação-do-banco)
+8. [Disponibilidade e o banco fora do ar](#8-disponibilidade-e-o-banco-fora-do-ar)
 9. [Desempenho](#9-desempenho)
 10. [Fonte de dados e licença](#10-fonte-de-dados-e-licença)
 11. [Autoria](#11-autoria)
@@ -38,7 +38,7 @@ Em volta do modelo: uma API FastAPI com contrato versionado; um front React com 
 | Documentação interativa da API (`/docs`) | _publicação em andamento — URL preenchida no deploy_ |
 | Vivacidade da API (`/api/v1/health`) | _publicação em andamento — URL preenchida no deploy_ |
 
-Se o serviço estiver hibernando, a primeira chamada pode levar até 60 s (seção 8).
+Hospedado na VPS do autor, em contêineres, sem hibernação (seção 8 e [ADR 0009](docs/decisoes/0009-provedor-de-hospedagem.md)).
 
 ## 2. Capturas de tela
 
@@ -72,8 +72,8 @@ flowchart TB
         R["React 19 + Vite 8 + TS<br/>Recharts 3 · TanStack Query/Table/Virtual<br/>filtros na URL (nuqs)"]
     end
 
-    subgraph vercel["Vercel (estático)"]
-        D["dist/ + public/study/*.json"]
+    subgraph web["nginx na VPS — mesma origem do front"]
+        D["dist/ + public/study/*.json<br/>proxy de /api/ e /docs para a API"]
     end
 
     subgraph api["Contêiner FastAPI — único que fala com o banco"]
@@ -90,7 +90,7 @@ flowchart TB
         DT["data/processado/base_painel.parquet"]
     end
 
-    subgraph pg["Postgres gerenciado (publicado) / compose (local)"]
+    subgraph pg["Postgres em contêiner (VPS e local) — só na rede interna"]
         T1["dados.registros_triagem<br/>dados.rotulos_escala"]
         T3["operacao.log_predicao"]
         T4["operacao.carga_fonte<br/>operacao.snapshot_treino<br/>operacao.distribuicao_treino_*"]
@@ -165,8 +165,9 @@ Pop-Location
 # 3. O artefato de modelo: baixa o .pkl do release v<versao> e confere o sha256 do manifest
 python scripts\baixar_modelo.py --manifesto artifacts\manifest.json --destino models
 
-# 4. API + banco em contêineres (origem cruzada de verdade, para o CORS ser testado antes do deploy)
-docker compose up -d --build        # http://127.0.0.1:8000/docs
+# 4. A mesma stack da VPS: banco, API, nginx com o front e a retenção do log
+docker compose up -d --build        # site em http://127.0.0.1:8080 (nginx) e a API em http://127.0.0.1:8000/docs
+bash scripts/verificar-stack.sh     # o mesmo aceite do CI: 55 verificações, por dentro e por fora
 
 # 5. Front em modo de desenvolvimento
 Push-Location frontend
@@ -175,7 +176,7 @@ npm run dev                         # http://localhost:5173 — fala com http://
 Pop-Location
 ```
 
-Para rodar a API fora do contêiner (depuração), de `backend/`: `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000` com `BANCO_URL` acima, `BANCO_HABILITADO=true`, `N_MINIMO_DERIVA=200` e `LIMITE_TAXA_ATIVO=false` no ambiente ou no `.env` (copie de `.env.example`).
+No compose, a API entra no banco com o papel `triagem_api`, de menor privilégio (`sql/usuario-api.sh`); os comandos de CLI acima usam o dono `postgres`, local e descartável. Para rodar a API fora do contêiner (depuração), de `backend/`: `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000` com `BANCO_URL` acima, `BANCO_HABILITADO=true`, `N_MINIMO_DERIVA=200` e `LIMITE_TAXA_ATIVO=false` no ambiente ou no `.env` (copie de `.env.example`).
 
 **Armadilha do `initdb`:** os scripts de `/docker-entrypoint-initdb.d` só rodam quando o volume está vazio — depois de alterar `sql/schema.sql`, rode `docker compose down -v` antes de subir de novo, e semeie outra vez.
 
@@ -206,11 +207,11 @@ A auditoria do artefato legado (um `.pkl` de XGBoost, 43 features) encontrou qua
 3. **`handle_unknown='ignore'` escondeu 17 de 43 features permanentemente zeradas em serviço**: o app enviava as 5 escalas ordinais como texto de faixa, o encoder treinado sobre inteiros não as reconhecia e devolvia zero em silêncio. Aqui, `handle_unknown='error'` com `categories=` explícito, e a exceção vira 422 nomeando campo e valor.
 4. **Duas opções do formulário não existiam no domínio do encoder** (`Automóvel`, `Motocicleta` contra `Carro`, `Moto`): para quem as escolhia, 22 de 43 features iam a zero sem aviso. Aqui, o formulário nasce de `GET /metadata`, que nasce do mesmo domínio que treinou o modelo, e um teste de paridade treino ↔ serviço fecha o CI.
 
-## 8. Cold start e hibernação do banco
+## 8. Disponibilidade e o banco fora do ar
 
-**Serviço:** o backend roda em um plano gratuito que hiberna por inatividade. **A primeira chamada pode levar até 60 s enquanto o serviço acorda.** O front faz `GET /health` ao montar e mostra "Acordando o modelo…" até a resposta; o pipeline é carregado no `lifespan`, não na primeira requisição, então `/health` é honesto.
+**Serviço:** backend, front e banco rodam em contêineres na VPS do autor, sempre ligados; não há plano gratuito hibernando. O plano previa uma nota de *cold start* "se o provedor hibernar" — não se aplica. O front ainda faz `GET /health` ao montar e mostra "Acordando o modelo…" enquanto a API não responde, o que cobre um deploy ou um reinício; o pipeline é carregado no `lifespan`, não na primeira requisição, então `/health` é honesto.
 
-**Banco:** o Postgres do plano gratuito hiberna por inatividade. **O painel inteiro abre sem ele, e só a tela de monitoramento degrada, com aviso.** Comportamento endpoint a endpoint com o banco fora do ar:
+**Banco:** o produto foi desenhado para um Postgres que pausava por inatividade, e o desenho ficou: **o painel inteiro abre sem o banco, e só a tela de monitoramento degrada, com aviso.** Hoje isso cobre um deploy, um reinício ou uma falha do contêiner. Comportamento endpoint a endpoint com o banco fora do ar:
 
 | Endpoint | Com o banco fora | Código |
 |---|---|---|
@@ -220,7 +221,7 @@ A auditoria do artefato legado (um `.pkl` de XGBoost, 43 features) encontrou qua
 | `GET /health` | `banco: "indisponivel"`, `log_predicao: "degradado"`, `logs_descartados: N` | 200 |
 | `GET /ready` | 200 assim que artefato e agregados carregaram — **o banco não entra** | 200 |
 
-Duas defesas, as duas em código: o desenho estático-primeiro acima (a defesa real) e a Action semanal [`manter-banco-vivo.yml`](.github/workflows/manter-banco-vivo.yml), que roda uma consulta trivial e a retenção do log (conforto; `schedule` do GitHub atrasa sob carga e é desativado após 60 dias sem atividade).
+A retenção do log de predição (`operacao.manutencao_log`, 90 dias e um teto de linhas) roda no serviço `retencao-log` do compose, ao lado do banco, ao subir e a cada 7 dias — o Postgres não publica porta nenhuma, nem na VPS nem localmente, então nada de fora precisa alcançá-lo.
 
 ## 9. Desempenho
 
@@ -235,7 +236,7 @@ Números **medidos, não prometidos** — copiados de [`artifacts/metricas/laten
 | modo | `TestClient` em processo, sem rede; inclui validação, pipeline e serialização |
 | máquina | Intel Core i7-14700HX, Windows 11, Python 3.12.15 — medido em 2026-10-17 |
 
-Em produção some a vantagem do processo local: rede, TLS e, no primeiro acesso, o cold start da seção 8. O simulador exibe a latência de cada resposta no rodapé do resultado (`latencia_ms`, medida no servidor).
+Em produção some a vantagem do processo local: rede, TLS e o proxy do nginx. O simulador exibe a latência de cada resposta no rodapé do resultado (`latencia_ms`, medida no servidor).
 
 ## 10. Fonte de dados e licença
 
@@ -271,39 +272,37 @@ As duas afirmações convivem de propósito: a interface diz que nenhum registro
 - **Triagem, não diagnóstico**, sobre uma base majoritariamente sintética: a saída ordena prioridade de atenção e nenhuma leitura epidemiológica das distribuições do painel é válida.
 - **Sem autenticação, por decisão** ([ADR 0007](docs/decisoes/0007-postgres-sem-autenticacao.md)): sem login não há usuário, e sem usuário não há escrita por pessoa (marcar, anotar, favoritar) nem preferência salva. É o que fecha o escopo e o que garante que o navegador nunca fala com o banco.
 - **Paleta provisória.** As fotos do painel de referência não estavam disponíveis; [`docs/design-tokens.md`](docs/design-tokens.md) registra a origem da paleta como PROVISÓRIA e os quatro arquivos que uma futura tarefa de skin pode tocar.
-- **Latência medida localmente** (seção 9); o número publicado não inclui rede nem o cold start do plano gratuito.
+- **Latência medida localmente** (seção 9); o número publicado não inclui rede, TLS nem o proxy.
 - **Log de predição com retenção curta e sem identificador**: nenhum IP, `User-Agent` ou nome é gravado; a limitação de taxa usa um HMAC diário do IP só em memória. O simulador avisa que as entradas são registradas de forma anônima para monitoramento.
 
 ## 15. Deploy e variáveis de ambiente
 
-Provedores e passos do autor em [ADR 0009](docs/decisoes/0009-provedor-de-hospedagem.md): backend como contêiner (`backend/Dockerfile`, contexto de build na **raiz**, `HEALTHCHECK` em `/api/v1/health`, `--workers 1`), front estático a partir de `frontend/` (`vercel.json` com rewrites de SPA, CSP e cache de `/study/`), Postgres gerenciado com pooler IPv4 na porta 6543. A imagem é autocontida: o build baixa do release o `.pkl` e o snapshot congelado, confere os dois `sha256` do manifest e deriva `base_painel.parquet` sem banco (`python -m app.treino.painel`). Nada no código depende do provedor: o backend lê só variáveis de ambiente, o front só `VITE_*`, e o SQL é aplicado por `psql` a partir dos mesmos arquivos do compose:
+Hospedagem na **VPS do autor**, decidida em [ADR 0009](docs/decisoes/0009-provedor-de-hospedagem.md) e descrita passo a passo em [`docs/deploy-vps.md`](docs/deploy-vps.md). Três imagens, montadas e testadas pelo CI e publicadas no GitHub Container Registry presas pelo digest:
 
-```powershell
-# banco — uma vez, na instância publicada; $env:BANCO_URL usa o host do POOLER
-psql $env:BANCO_URL -v ON_ERROR_STOP=1 -f sql\schema.sql
-psql $env:BANCO_URL -v ON_ERROR_STOP=1 -f sql\grants.sql
-Push-Location backend
-uv run --extra treino python -m app.dados.seed --arquivo ..\data\bruto\obesity.csv --tabela dados.registros_triagem
-Pop-Location
-pwsh .\scripts\carregar-distribuicao-treino.ps1
-```
+- **`risco-metabolico-api`** (`backend/Dockerfile`, contexto na raiz): autocontida — o build baixa do release o `.pkl` e o snapshot congelado, confere os dois `sha256` do manifest e deriva `base_painel.parquet` sem banco (`python -m app.treino.painel`). Usuário sem root, sistema de arquivos só de leitura, `HEALTHCHECK` em `/api/v1/health`, `--workers 1`.
+- **`risco-metabolico-web`** (`frontend/Dockerfile`): o build do Vite servido por nginx sem root, que faz proxy de `/api/`, `/docs` e `/openapi.json` para a API. **Front e API na mesma origem**: `VITE_API_URL=/api/v1`, sem CORS em produção; CSP, HSTS e os demais cabeçalhos em `frontend/seguranca.conf`; limite de consultas respondendo no envelope de erro da API.
+- **`risco-metabolico-banco`** (`database/Dockerfile`): `postgres:16-alpine` com `sql/schema.sql`, `sql/grants.sql` e `sql/usuario-api.sh` dentro, aplicados pelo `initdb` e reaplicados a cada deploy. Só na rede interna; a API entra com o papel `triagem_api`.
 
-As **22 variáveis do backend** estão em [`.env.example`](.env.example), na ordem e sem valor real. As que a instância publicada precisa definir de forma diferente do local:
+O deploy é o job `deploy` do CI, no ambiente `producao` do GitHub (só a `main`): SSH para a VPS com uma chave presa a `scripts/deploy.sh`, que confere cada variável recebida pelo stdin, baixa as imagens, reaplica schema, grants e papel, semeia (idempotente), carrega a referência de deriva, sobe tudo, confere `/api/v1/health` e `/api/v1/ready` pelo nginx e volta sozinho para a versão anterior se algo falhar. Na VPS não há código-fonte. O Caddy faz o HTTPS e entrega para `127.0.0.1:WEB_HOST_PORT`.
+
+As **22 variáveis do backend** estão em [`.env.example`](.env.example), na ordem e sem valor real, seguidas das variáveis do compose. O que a produção fixa, pelo `deploy.sh` e pelo `docker-compose.yml`:
 
 | Variável | Publicado | Observação |
 |---|---|---|
-| `ORIGENS_CORS` | `https://<host-do-front>` | lista separada por vírgula, sem barra final |
-| `BANCO_URL` | DSN do **pooler**, com a senha | único lugar da senha em todo o projeto |
+| `ORIGENS_CORS` | `https://<dominio>` (a própria origem) | só importa para chamadas de fora e para o preflight do aceite |
+| `BANCO_URL` | `postgresql://triagem_api:…@banco:5432/app_local` | papel de menor privilégio; o dono só semeia, congela e faz a retenção |
 | `BANCO_HABILITADO` | `true` | desligado, a API sobe e serve tudo que é estático |
 | `N_MINIMO_DERIVA` | `200` | medido ([ADR 0008](docs/decisoes/0008-limiares-de-psi.md)); obrigatória com o banco ligado |
 | `LIMITE_TAXA_ATIVO` / `SAL_TAXA` | `true` / sal gerado | a API recusa subir com o limitador ligado e o sal vazio |
 | `EXIGIR_INTEGRIDADE` | `true` | `sha256` do artefato divergente vira 503, não aviso |
 
-O front tem **duas** variáveis, e só estas: `VITE_API_URL` (`https://<host-da-api>/api/v1`) e `VITE_REPO_URL`. Nenhuma variável de banco tem prefixo `VITE_`, o build do front não recebe `env_file`, e `scripts/verificar-bundle.ps1` varre `dist/` depois do build (no CI e no aceite do deploy) por `supabase`, `service_role`, `postgres://`, `postgresql://` e `eyJ`. O keep-alive usa o segredo de repositório `BANCO_URL_POOLER` e as variáveis `RETENCAO_DIAS` (padrão 90) e `TETO_LINHAS_LOG` (padrão 500000).
+Segredos do ambiente `producao`: `POSTGRES_PASSWORD`, `API_DB_PASSWORD`, `SAL_TAXA`, `VPS_SSH_KEY`, `VPS_KNOWN_HOSTS`. Variáveis do repositório: `VPS_HOST` (liga o deploy), `VPS_USER`, `SITE_URL` (liga o aceite externo), `WEB_HOST_PORT`, `RETENCAO_DIAS` (90) e `TETO_LINHAS_LOG` (500000 até a medição de §6.8.6).
+
+O front tem **duas** variáveis, e só estas: `VITE_API_URL` e `VITE_REPO_URL`. Nenhuma variável de banco tem prefixo `VITE_`, o build do front não recebe `env_file`, e `scripts/verificar-bundle.ps1` varre `dist/` depois do build por `supabase`, `service_role`, `postgres://`, `postgresql://` e JWT — no CI, e `scripts/verificar-producao.sh` repete a varredura no bundle servido, depois de cada deploy.
 
 ## 16. Testes e portões
 
-Na ordem do CI ([`ci.yml`](.github/workflows/ci.yml)): proveniência → banco → SQL → backend → front → imagem. O CI nunca aponta para a instância publicada; o Postgres é um serviço descartável do job.
+Na ordem do CI ([`ci.yml`](.github/workflows/ci.yml)): proveniência → banco → SQL → backend → front → ambiente completo em Docker (`scripts/verificar-stack.sh`) → publicação das imagens → deploy → aceite visto de fora (`scripts/verificar-producao.sh`). O CI nunca aponta para a instância publicada; o Postgres é um serviço descartável do job.
 
 ```powershell
 pwsh .\scripts\verificar-proveniencia.ps1          # lista negra de termos e nomes; também no pre-commit e no commit-msg
@@ -319,6 +318,7 @@ npx tsc --noEmit; npm run lint; npx vitest run; npm run build
 npx playwright test                                 # 6 smokes; precisam do backend em 127.0.0.1:8000 e do banco do compose
 Pop-Location
 pwsh .\scripts\verificar-bundle.ps1                 # nenhuma credencial em frontend\dist
+docker compose up -d --build; bash scripts\verificar-stack.sh    # a stack inteira: containers, papel da API, nginx, cabeçalhos, limite
 ```
 
 Os testes de maior valor: paridade treino ↔ serviço (a mesma entrada pelo pipeline do treino e pela API produz as mesmas probabilidades), ordem e completude das colunas, domínio fechado (os dois bugs do legado viram teste), paridade SQL × pandas dos 8 agregados, contrato OpenAPI congelado, e "o log não pode derrubar a predição" (banco morto, fila cheia, payload acima do teto).
@@ -326,15 +326,20 @@ Os testes de maior valor: paridade treino ↔ serviço (a mesma entrada pelo pip
 ## 17. Mapa do repositório e documentação
 
 ```
-backend/      FastAPI (app/api, esquemas, dominio, nucleo, dados, treino) + tests/ + Dockerfile
-frontend/     React 19 + Vite 8 + TypeScript; e2e/ com os smokes do Playwright; public/study/ gerado
-sql/          schema.sql, grants.sql, agregados/, pontos/, deriva/
+backend/      FastAPI (app/api, esquemas, dominio, nucleo, dados, treino) + tests/ + Dockerfile (imagem api)
+frontend/     React 19 + Vite 8 + TypeScript; e2e/ com os smokes do Playwright; public/study/ gerado;
+              Dockerfile + nginx.conf + seguranca.conf (imagem web)
+database/     Dockerfile da imagem do banco (postgres + sql/)
+sql/          schema.sql, grants.sql, usuario-api.sh, agregados/, pontos/, deriva/
 artifacts/    manifest.json, agregados/*.json, distribuicao_treino.json, metricas/
 data/bruto/   obesity.csv + FONTE.md          data/processado/  gerado (gitignore)
 study/        01_comparacao_de_modelos.ipynb (com saídas, de propósito) + README.md
 tools/        nb2json.py, medir_n_minimo_deriva.py, verificar-cabecalhos-sql.py
-scripts/      proveniência, bundle, baixar_modelo.py, carregar-distribuicao-treino.ps1, higiene-notebook.py
-docs/         contrato da API, modelagem, dicionário, agregados, auditoria do legado, tokens, capturas, decisões/
+scripts/      proveniência, bundle, baixar_modelo.py, carregar-distribuicao-treino.ps1, higiene-notebook.py,
+              deploy.sh, pacote.Dockerfile, verificar-stack.sh, verificar-producao.sh
+docker-compose.yml (local, monta as imagens) · docker-compose.producao.yml (VPS, imagens por digest)
+docs/         contrato da API, modelagem, dicionário, agregados, auditoria do legado, tokens, capturas,
+              deploy-vps.md, decisões/
 ```
 
 | Documento | O que responde |
@@ -346,5 +351,6 @@ docs/         contrato da API, modelagem, dicionário, agregados, auditoria do l
 | [`docs/auditoria-do-legado.md`](docs/auditoria-do-legado.md) | as quatro divergências do artefato herdado, com evidência |
 | [`docs/design-tokens.md`](docs/design-tokens.md) · [`docs/estilo-de-codigo.md`](docs/estilo-de-codigo.md) | paleta (provisória) e convenções herdadas do legado |
 | [`study/README.md`](study/README.md) | como reexecutar o notebook e o mapa célula → função do backend |
+| [`docs/deploy-vps.md`](docs/deploy-vps.md) | como a VPS é publicada: chave presa ao `deploy.sh`, segredos, Caddy, aceite |
 
 Decisões registradas (`docs/decisoes/`): [0001 nome](docs/decisoes/0001-nome-do-projeto.md) · [0002 binning desligado](docs/decisoes/0002-binning-ligado-ou-desligado.md) · [0003 IMC como feature](docs/decisoes/0003-imc-como-feature.md) · [0004 artefato fora do git](docs/decisoes/0004-artefato-fora-do-git.md) · [0005 filtros no servidor](docs/decisoes/0005-filtros-no-servidor.md) · [0006 agregados em SQL](docs/decisoes/0006-agregados-em-sql.md) · [0007 Postgres sem autenticação](docs/decisoes/0007-postgres-sem-autenticacao.md) · [0008 limiares de PSI](docs/decisoes/0008-limiares-de-psi.md) · [0009 provedor de hospedagem](docs/decisoes/0009-provedor-de-hospedagem.md).

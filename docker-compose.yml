@@ -1,49 +1,143 @@
-# docker-compose.yml — "git clone + um comando e sobe", sem nenhuma credencial (plano, §4.3.9).
-# O MESMO schema.sql, o MESMO grants.sql e o MESMO seed da instância publicada rodam aqui.
+# docker-compose.yml — ambiente local que simula a VPS, sem nenhuma credencial de nuvem (§4.3.9).
+#
+# Uso:  docker compose up -d --build            (ou só o banco: docker compose up -d --wait banco)
+#       cp .env.example .env para mudar portas ou senhas locais — os defaults abaixo já funcionam.
+#
+# As MESMAS imagens que o CI monta, testa e publica no GitHub Container Registry sobem na VPS
+# (docker-compose.producao.yml, por cima deste). Todas as portas são publicadas só em 127.0.0.1:
+# nada fica exposto na rede, o mesmo cuidado da VPS (lá, só o Caddy é público).
 #
 # Armadilha do initdb: os scripts de /docker-entrypoint-initdb.d só rodam quando o volume está
-# VAZIO. Depois de alterar sql/schema.sql: `docker compose down -v` antes de subir de novo.
-# E sempre `docker compose up -d --wait banco`: sem --wait o seed corre contra um banco que ainda
-# está aplicando o schema, e a falha é intermitente.
+# VAZIO. Depois de alterar sql/schema.sql: `docker compose down -v` antes de subir de novo. E sempre
+# `docker compose up -d --wait banco`: sem --wait o seed corre contra um banco que ainda está
+# aplicando o schema, e a falha é intermitente.
+
+name: risco-metabolico
+
+# Logs do Docker com tamanho limitado: no máximo 3 arquivos de 10 MB por serviço.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   banco:
-    image: postgres:16-alpine
+    # Postgres com schema.sql, grants.sql e o papel da API dentro da imagem (database/Dockerfile).
+    # Mudou algo em sql/? `docker compose build banco` e `docker compose down -v`.
+    image: risco-metabolico-banco
+    build: { context: ., dockerfile: database/Dockerfile }
+    restart: unless-stopped
+    logging: *logging
+    security_opt: ["no-new-privileges:true"]
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres     # local e descartável: versionado de propósito
-      POSTGRES_DB: app_local
-    ports: ["55432:5432"]             # 55432 evita colidir com Postgres do host
+      POSTGRES_DB: ${POSTGRES_DB:-app_local}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}      # local e descartável: versionado de propósito
+      # Papel de menor privilégio com que a API entra no banco (sql/usuario-api.sh).
+      API_DB_USER: ${API_DB_USER:-triagem_api}
+      API_DB_PASSWORD: ${API_DB_PASSWORD:-triagem_api_local}  # idem: só vale no compose local
+      TZ: UTC
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-55432}:5432"   # 55432 evita colidir com Postgres do host
     volumes:
-      - ./sql/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql:ro
-      - ./sql/grants.sql:/docker-entrypoint-initdb.d/20-grants.sql:ro
       - banco_local:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d app_local"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 20
 
-  backend:
-    build: { context: ., dockerfile: backend/Dockerfile }   # contexto na RAIZ: lê scripts/, artifacts/ e sql/
-    ports: ["8000:8000"]
+  api:
+    # Contexto na RAIZ: o Dockerfile lê scripts/, artifacts/, sql/, models/, data/ (§11.2).
+    image: risco-metabolico-api
+    build: { context: ., dockerfile: backend/Dockerfile }
+    restart: unless-stopped
+    logging: *logging
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
     environment:
-      ORIGENS_CORS: "http://localhost:5173"
-      MODELOS_DIR: /app/models
-      ARTEFATOS_DIR: /app/artifacts
-      # /painel/* e /registros são servidos DESTE parquet (§6.2). Sem a variável e sem o volume,
-      # o aceite de F10 ("o produto abre com o banco parado") falha por arquivo ausente.
-      DADOS_DIR: /app/data/processado
-      SQL_DIR: /app/sql
+      # Publicado, o front está na MESMA origem (nginx do serviço web): o CORS só importa para
+      # chamadas de fora e para o dev server do Vite (origem cruzada de verdade, §11.4).
+      ORIGENS_CORS: ${ORIGENS_CORS:-http://localhost:5173,http://127.0.0.1:5173}
       BANCO_HABILITADO: "true"
-      BANCO_URL: "postgresql://postgres:postgres@banco:5432/app_local"
+      # A API nunca entra com o dono do banco: só com o papel de sql/usuario-api.sh.
+      BANCO_URL: postgresql://${API_DB_USER:-triagem_api}:${API_DB_PASSWORD:-triagem_api_local}@banco:5432/${POSTGRES_DB:-app_local}
       # Sem default em app/config.py: a API recusa subir com BANCO_HABILITADO=true e esta vazia.
       # Valor medido (ADR 0008).
       N_MINIMO_DERIVA: "200"
-      LIMITE_TAXA_ATIVO: "false"
+      EXIGIR_INTEGRIDADE: ${EXIGIR_INTEGRIDADE:-false}
+      LIMITE_TAXA_ATIVO: ${LIMITE_TAXA_ATIVO:-false}
+      SAL_TAXA: ${SAL_TAXA:-}
+      LOG_PREDICAO_HABILITADO: ${LOG_PREDICAO_HABILITADO:-true}
+      # MODELOS_DIR, ARTEFATOS_DIR, DADOS_DIR e SQL_DIR já são ENV da imagem (/app/...).
+    ports:
+      - "127.0.0.1:${API_HOST_PORT:-8000}:8000"
+    # Local: o artefato, os agregados e o parquet do painel vêm da árvore de trabalho, para o
+    # retreino aparecer sem rebuild. Publicado, a imagem é autocontida (nada é montado).
     volumes:
       - ./models:/app/models:ro
       - ./artifacts:/app/artifacts:ro
       - ./data/processado:/app/data/processado:ro
+    depends_on:
+      banco: { condition: service_healthy }
+
+  web:
+    # nginx sem root servindo o build do Vite e fazendo proxy de /api/, /docs e /openapi.json
+    # para a API (frontend/nginx.conf). É a única porta que a VPS publica, para o Caddy.
+    image: risco-metabolico-web
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api/v1
+        VITE_REPO_URL: ${VITE_REPO_URL:-https://github.com/viniventur/risco-metabolico}
+    restart: unless-stopped
+    logging: *logging
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    ports:
+      - "127.0.0.1:${WEB_HOST_PORT:-8080}:8080"
+    depends_on:
+      - api
+
+  # Retenção do log de predição (§6.8.6): operacao.manutencao_log(dias, teto) uma vez por semana
+  # e ao subir, com o dono do banco (a API não tem DELETE). Substitui a Action de keep-alive do
+  # plano: na VPS o Postgres não hiberna e não publica porta, então a retenção roda ao lado dele.
+  retencao-log:
+    image: risco-metabolico-banco
+    restart: unless-stopped
+    logging: *logging
+    user: postgres
+    read_only: true
+    tmpfs: [/tmp]
+    network_mode: service:banco
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    environment:
+      PGHOST: 127.0.0.1
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATABASE: ${POSTGRES_DB:-app_local}
+      RETENCAO_DIAS: ${RETENCAO_DIAS:-90}
+      TETO_LINHAS_LOG: ${TETO_LINHAS_LOG:-500000}
+    # Parâmetros por -v, nunca interpolados no SQL. -qtAX: saída mínima, sem a DSN no log.
+    command: >
+      sh -c 'trap "exit 0" TERM;
+      while true; do
+      psql -v ON_ERROR_STOP=1 -qtAX -v dias="$$RETENCAO_DIAS" -v teto="$$TETO_LINHAS_LOG"
+      -c "select '"'"'retencao'"'"', now() at time zone '"'"'UTC'"'"', * from operacao.manutencao_log(:dias, :teto);"
+      || echo "retencao: falhou; tenta de novo em 7 dias";
+      sleep 604800 & wait $$!;
+      done'
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 60s
+      timeout: 3s
+      start_period: 5s
     depends_on:
       banco: { condition: service_healthy }
 

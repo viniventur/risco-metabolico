@@ -1,6 +1,6 @@
 # ADR 0007 — Postgres gerenciado sem autenticação de usuário
 
-**Data:** 2026-10-17 · **Estado:** aceita · **Fases:** F3b (desenho), F17 (conferência no provedor)
+**Data:** 2026-10-17 (conferência na VPS em 2026-10-18) · **Estado:** aceita · **Fases:** F3b (desenho), F17 (conferência)
 
 ## Contexto
 
@@ -24,19 +24,19 @@ Consequência que sustenta a decisão: **o navegador nunca fala com o Postgres.*
 
 ## Desenho estático-primeiro (§4.3.8)
 
-O plano gratuito pausa o projeto por inatividade. Duas defesas, as duas obrigatórias: (a) a Action semanal `manter-banco-vivo.yml` (conforto); (b) **o produto abre inteiro com o banco pausado** — painel, simulador, estudos e predição não dependem dele; só `/monitoramento/deriva` degrada, com `200` e `disponivel: false`, nunca com tela de erro. A defesa real é a (b).
+O plano previa um Postgres gerenciado que pausa por inatividade, com duas defesas: (a) uma Action semanal de keep-alive e (b) **o produto abre inteiro com o banco fora do ar** — painel, simulador, estudos e predição não dependem dele; só `/monitoramento/deriva` degrada, com `200` e `disponivel: false`, nunca com tela de erro. Com a hospedagem na VPS (ADR 0009) o banco não pausa e a defesa (a) saiu: a retenção semanal do log, que viajava no keep-alive, roda no serviço `retencao-log`, ao lado do banco, com o dono. A defesa (b) continua inteira e agora cobre deploy, reinício e falha do banco.
 
-## A conferir no painel do provedor (F17)
+## Conferido na VPS (F17)
 
-Campos preenchidos na fase de deploy, com a data da consulta — este ADR **não afirma prazo** de pausa nem hosts de memória:
+O plano pedia esta tabela para o "painel do provedor". Não há painel: o banco é um contêiner na VPS do autor (ADR 0009). Cada linha diz o que vale agora e como é conferido — nada aqui é afirmado de memória:
 
-| Item | Valor | Conferido em |
+| Item do plano | Na VPS | Conferido |
 |---|---|---|
-| Schemas expostos pela API REST (deve ser: sem `dados`, sem `operacao`; idealmente Data API desligada) | a conferir | — |
-| Prazo vigente da política de pausa por inatividade e se há remoção após a pausa | a conferir | — |
-| Host do **pooler** (porta 6543) oferecido para conexão IPv4 — usado em `BANCO_URL` e no segredo `BANCO_URL_POOLER` | a conferir | — |
-| `rolbypassrls` do papel usado pelo seed e pelo backend | a conferir | — |
-| Cota de disco do plano, para o critério de `TETO_LINHAS_LOG` (§6.8.6) | a conferir | — |
+| Schemas expostos por API REST | Não há API REST nem porta publicada: o Postgres só existe na rede interna do compose (`docker-compose.producao.yml` zera `ports` do banco e da API). Só o nginx publica `127.0.0.1:WEB_HOST_PORT`, para o Caddy | `scripts/verificar-stack.sh` ("nenhuma porta aberta para a rede") em 2026-10-18, local e no CI; `scripts/verificar-producao.sh` (porta 5432 fechada vista de fora) a cada deploy |
+| Prazo da pausa por inatividade | Não se aplica: `restart: unless-stopped`, sem pausa | — |
+| Host do pooler para `BANCO_URL` | Não se aplica: a API fala com `banco:5432` pela rede interna; `statement_cache_size=0` fica por não custar nada | — |
+| `rolbypassrls` do papel da API | `triagem_api` (`sql/usuario-api.sh`): `BYPASSRLS = true`, `NOSUPERUSER`, `SELECT` nos dois schemas, `INSERT` só em `operacao.log_predicao`, sem `UPDATE`/`DELETE`/`TRUNCATE`, sem `CREATE`, sem `COPY TO PROGRAM`. O seed, `congelar` e a retenção usam o dono | 12 verificações de `scripts/verificar-stack.sh` em 2026-10-18 (55 de 55 ok), local e no CI |
+| Cota de disco, para `TETO_LINHAS_LOG` (§6.8.6) | O disco da VPS, compartilhado com outros sistemas. O teto fica em `500000` (padrão do plano) até existirem linhas reais no log para medir `pg_column_size`; a medição e o valor entram aqui no primeiro deploy | a preencher no primeiro deploy |
 
 ## Consequências
 
