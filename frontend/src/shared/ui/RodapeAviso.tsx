@@ -4,8 +4,7 @@ import { FRASE_DADOS_FICTICIOS } from "@/shared/dominio";
 export function RodapeAviso({ extra }: { extra?: string }) {
   return (
     <p className="text-sm text-texto-fraco" role="note">
-      Os dados exibidos são fictícios e servem apenas para demonstração. Nenhum registro corresponde a uma pessoa real.
-      Esta ferramenta é de triagem e não substitui avaliação clínica.
+      Os dados exibidos são fictícios e servem apenas para demonstração. Nenhum registro corresponde a uma pessoa real. Esta ferramenta é de triagem e não substitui avaliação clínica.
       {extra ? ` ${extra}` : null}
       <span className="sr-only">{FRASE_DADOS_FICTICIOS}</span>
     </p>

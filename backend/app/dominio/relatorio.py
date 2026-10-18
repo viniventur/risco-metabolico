@@ -13,11 +13,9 @@ from app.config import CONFIG
 from app.esquemas.entrada import EntradaTriagem
 from app.esquemas.saida import RespostaTriagem
 
-FRASE_DADOS_FICTICIOS = (
-    "Os dados exibidos são fictícios e servem apenas para demonstração. "
-    "Nenhum registro corresponde a uma pessoa real. "
-    "Esta ferramenta é de triagem e não substitui avaliação clínica."
-)
+# Em UMA linha de propósito: o portão test_aviso_de_dados_ficticios_presente procura a frase
+# literal e contígua neste arquivo; literais concatenados a esconderiam dele.
+FRASE_DADOS_FICTICIOS = "Os dados exibidos são fictícios e servem apenas para demonstração. Nenhum registro corresponde a uma pessoa real. Esta ferramenta é de triagem e não substitui avaliação clínica."  # noqa: E501
 
 
 def montar_relatorio_html(
