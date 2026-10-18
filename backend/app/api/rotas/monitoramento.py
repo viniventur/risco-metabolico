@@ -102,9 +102,8 @@ async def deriva(
             corpo = _indisponivel(
                 janela_dias,
                 artefato,
-                "O histórico de predições está indisponível no momento — o banco do plano "
-                f"gratuito hiberna por inatividade (estado: {banco.estado}). "
-                "O restante do painel não depende dele.",
+                "O histórico de predições está indisponível no momento — o banco não "
+                f"respondeu (estado: {banco.estado}). O restante do painel não depende dele.",
             )
             return resposta_cacheavel(request, corpo.model_dump(), max_age=60, com_etag=False)
         resultados[nome] = [dict(ln) for ln in linhas]
