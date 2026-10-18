@@ -4,7 +4,7 @@
 # GitHub Container Registry, presa pelo digest. O scripts/deploy.sh grava os digests no .env e liga
 # este arquivo pelo COMPOSE_FILE, então qualquer `docker compose` rodado na pasta do app já usa os
 # dois. Só o web publica porta (127.0.0.1:WEB_HOST_PORT, para o Caddy); banco e API ficam na rede
-# interna do Docker, e a API não monta nada: a imagem é autocontida (modelo, agregados e parquet).
+# interna do Docker. Nenhum serviço monta arquivo: as imagens são autocontidas.
 #
 # Escrito serviço a serviço, sem âncora do YAML: versões mais antigas do Compose ignoram o !reset
 # que chega por âncora.
@@ -19,7 +19,6 @@ services:
     build: !reset null
     pull_policy: never
     ports: !reset []
-    volumes: !reset []
   web:
     image: ${WEB_IMAGE:?o deploy.sh grava WEB_IMAGE no .env}
     build: !reset null

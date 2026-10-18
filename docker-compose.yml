@@ -75,12 +75,9 @@ services:
       # MODELOS_DIR, ARTEFATOS_DIR, DADOS_DIR e SQL_DIR já são ENV da imagem (/app/...).
     ports:
       - "127.0.0.1:${API_HOST_PORT:-8000}:8000"
-    # Local: o artefato, os agregados e o parquet do painel vêm da árvore de trabalho, para o
-    # retreino aparecer sem rebuild. Publicado, a imagem é autocontida (nada é montado).
-    volumes:
-      - ./models:/app/models:ro
-      - ./artifacts:/app/artifacts:ro
-      - ./data/processado:/app/data/processado:ro
+    # Nada é montado: a imagem é autocontida (modelo, snapshot, agregados, parquet do painel), aqui
+    # e na VPS. Depois de um retreino local, `docker compose build api` (o estágio `modelo` usa o
+    # .pkl e o snapshot que estão em models/ e data/processado/ em vez de baixar do release).
     depends_on:
       banco: { condition: service_healthy }
 

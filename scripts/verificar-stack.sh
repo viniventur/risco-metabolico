@@ -16,9 +16,17 @@
 set -uo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 
+# O dono do banco: do ambiente, senão do .env que o compose leu (o CI gera senhas aleatórias nele),
+# senão os defaults descartáveis do docker-compose.yml. Lido linha a linha, sem `source`: o .env
+# tem valores com ";" (LIMITE_TAXA_*) que o bash executaria.
+valor_env() { sed -n "s/^$1=//p" .env 2>/dev/null | tail -1; }
+WEB_HOST_PORT=${WEB_HOST_PORT:-$(valor_env WEB_HOST_PORT)}
 BASE="http://127.0.0.1:${WEB_HOST_PORT:-8080}"
+POSTGRES_USER=${POSTGRES_USER:-$(valor_env POSTGRES_USER)}
 POSTGRES_USER=${POSTGRES_USER:-postgres}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-$(valor_env POSTGRES_PASSWORD)}
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+POSTGRES_DB=${POSTGRES_DB:-$(valor_env POSTGRES_DB)}
 POSTGRES_DB=${POSTGRES_DB:-app_local}
 FALHAS=0
 

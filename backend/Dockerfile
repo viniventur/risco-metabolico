@@ -53,8 +53,7 @@ COPY --from=modelo --chown=app:app /app/data/processado /app/data/processado
 # a citação de FONTE.md e grava os dois hashes em operacao.carga_fonte (§3.2).
 COPY --chown=app:app data/bruto /app/data/bruto
 # base_painel.parquet é derivado AQUI, do snapshot, sem banco (python -m app.treino.painel): a
-# imagem publicada é autocontida, porque no provedor não há volume. No compose, ./data/processado
-# é montado por cima e vale o parquet local, que `congelar` escreveu.
+# imagem é autocontida, local e na VPS — nenhum compose monta arquivo por cima dela.
 RUN python -m app.treino.painel && chown -R app:app /app/data
 USER app
 EXPOSE 8000
