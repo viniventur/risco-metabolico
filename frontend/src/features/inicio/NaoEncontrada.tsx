@@ -1,6 +1,7 @@
 import { Compass, House } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { CreditosDoAutor } from "@/shared/autor/CreditosDoAutor";
 import { EstadoVazio } from "@/shared/estados/EstadoVazio";
 import { PageHeader } from "@/shared/layout/PageHeader";
 import { Button } from "@/shared/ui/button";
@@ -22,6 +23,9 @@ export function NaoEncontrada() {
           </Button>
         }
       />
+      <div className="mt-8 flex justify-center">
+        <CreditosDoAutor className="text-muted-foreground" />
+      </div>
     </>
   );
 }

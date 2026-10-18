@@ -21,6 +21,8 @@ export const router = createBrowserRouter([
       },
       { path: "estudos", lazy: () => import("./features/estudos/ListaEstudosPage").then((m) => ({ Component: m.ListaEstudosPage })) },
       { path: "estudos/:slug", lazy: () => import("./features/estudos/NotebookPage").then((m) => ({ Component: m.NotebookPage })) },
+      // Fora do menu: o rodapé de toda tela e o Início linkam para ela.
+      { path: "privacidade", lazy: () => import("./features/legal/PrivacidadePage").then((m) => ({ Component: m.PrivacidadePage })) },
       { path: "*", lazy: () => import("./features/inicio/NaoEncontrada").then((m) => ({ Component: m.NaoEncontrada })) },
     ],
   },

@@ -1,0 +1,299 @@
+/* Efeitos do Início, sem biblioteca: no estilo dos componentes do React Bits, do uiverse e do 21st.dev
+   (holofote que segue o ponteiro, feixe que corre pela borda, texto com brilho, o visor que assenta),
+   feitos em CSS para não somar dependência nem script de terceiro (a CSP é 'self').
+
+   Regras: toda cor é token do tema (hsl(var(--...)), tokens.css), na lógica da marca Visor: tinta e
+   papel; magenta só no ponteiro. As máscaras usam "black" só como canal alfa, nunca como cor pintada. Com prefers-reduced-motion, nada se mexe: o estado final já
+   está na tela. Na impressão, tudo some ou fica estático. */
+
+/* Em @layer components, e não solto: CSS fora de camada vence QUALQUER utilitário do Tailwind (que mora
+   em @layer utilities), e um `position: relative` daqui derrubava o `absolute` dos conectores. */
+@layer components {
+  /* ---- Fundo do herói: a grade de pontos, em tinta, sumindo a partir do canto de cima à direita ---- */
+
+  .grade-de-pontos {
+    background-image: radial-gradient(hsl(var(--foreground) / 0.12) 1px, transparent 1px);
+    background-size: 22px 22px;
+    mask-image: radial-gradient(ellipse at top right, black, transparent 70%);
+  }
+
+  /* ---- O visor da balança: a régua gira e assenta, com um pequeno balanço, como ao subir numa balança;
+          depois, gira com a rolagem (Heroi.tsx). O centro do giro é o do arco (600, 1460 no viewBox). -- */
+
+  .visor-regua {
+    transform-box: view-box;
+    transform-origin: 600px 1460px;
+    animation: pesar 2.6s cubic-bezier(0.22, 0.8, 0.25, 1) 0.2s both;
+  }
+
+  /* ---- Texto com brilho: o gradiente tem o dobro da largura e começa e termina na mesma cor, então
+          andar 200% fecha a volta sem emenda. --------------------------------------------------------- */
+
+  .texto-brilhante {
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--foreground)) 0%,
+      hsl(var(--foreground)) 35%,
+      hsl(var(--muted-foreground)) 50%,
+      hsl(var(--foreground)) 65%,
+      hsl(var(--foreground)) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: brilho-do-texto 7s linear infinite;
+  }
+
+  /* ---- Palavras que entram desfocadas, uma depois da outra (o atraso vem em --ordem). -------------- */
+
+  .palavra-desfocada {
+    display: inline-block;
+    animation: focar 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--ordem, 0) * 28ms + 150ms);
+  }
+
+  /* ---- Cartão com holofote: um brilho suave que segue o ponteiro por dentro e acende a borda perto
+          dele. A posição vem de --holofote-x/y (seguirOPonteiro.ts). --------------------------------- */
+
+  .cartao-holofote {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .cartao-holofote::before,
+  .cartao-holofote::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+  }
+
+  .cartao-holofote::before {
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(22rem circle at var(--holofote-x, 50%) var(--holofote-y, 0%), hsl(var(--primary) / 0.1), transparent 60%);
+  }
+
+  .cartao-holofote::after {
+    inset: -1px;
+    padding: 1px;
+    background: radial-gradient(16rem circle at var(--holofote-x, 50%) var(--holofote-y, 0%), hsl(var(--primary) / 0.7), transparent 65%);
+    -webkit-mask:
+      linear-gradient(black 0 0) content-box,
+      linear-gradient(black 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(black 0 0) content-box exclude,
+      linear-gradient(black 0 0);
+  }
+
+  .cartao-holofote:hover::before,
+  .cartao-holofote:hover::after,
+  .cartao-holofote:focus-within::after {
+    opacity: 1;
+  }
+
+  /* ---- Feixe que corre pela borda (border beam): um arco de gradiente cônico girando, recortado para
+          ficar só no contorno. --angulo-feixe é registrado para o navegador saber interpolar o ângulo. - */
+
+  .borda-com-feixe {
+    position: relative;
+  }
+
+  .borda-com-feixe::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: conic-gradient(
+      from var(--angulo-feixe),
+      transparent 0turn,
+      transparent 0.68turn,
+      hsl(var(--primary) / 0.9) 0.86turn,
+      hsl(var(--grafico-secundaria)) 0.93turn,
+      transparent 1turn
+    );
+    -webkit-mask:
+      linear-gradient(black 0 0) content-box,
+      linear-gradient(black 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(black 0 0) content-box exclude,
+      linear-gradient(black 0 0);
+    animation: girar-feixe 6s linear infinite;
+  }
+
+  /* ---- Linha com um feixe que corre por ela: os conectores do "como funciona" e do pipeline. ------- */
+
+  .linha-com-feixe {
+    position: relative;
+    overflow: hidden;
+    background: hsl(var(--border));
+  }
+
+  .linha-com-feixe::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(var(--direcao-feixe, 90deg), transparent, hsl(var(--primary)), transparent);
+    background-repeat: no-repeat;
+    background-size: var(--tamanho-feixe, 40% 100%);
+    animation: correr-feixe var(--duracao-feixe, 2.6s) ease-in-out infinite;
+    animation-delay: var(--atraso-feixe, 0s);
+  }
+
+  .linha-com-feixe--vertical::after {
+    --direcao-feixe: 180deg;
+    --tamanho-feixe: 100% 45%;
+    animation-name: correr-feixe-vertical;
+  }
+
+  /* ---- Botão com brilho: uma faixa de luz atravessa no hover (o desenho dos botões do uiverse). ---- */
+
+  .botao-brilho {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .botao-brilho::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, hsl(var(--primary-foreground) / 0.35) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .botao-brilho:hover::after,
+  .botao-brilho:focus-visible::after {
+    transform: translateX(120%);
+  }
+
+  /* ---- Barras que crescem da base quando o bloco aparece (a escala das 7 faixas). ----------------- */
+
+  .barra-que-cresce {
+    transform-origin: bottom;
+    transform: scaleY(0.08);
+    transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--ordem, 0) * 70ms);
+  }
+
+  .barra-que-cresce[data-ativo="true"] {
+    transform: scaleY(1);
+  }
+
+  /* ---- Movimento reduzido e impressão --------------------------------------------------------------- */
+
+  @media (prefers-reduced-motion: reduce) {
+    .visor-regua,
+    .texto-brilhante,
+    .palavra-desfocada,
+    .borda-com-feixe::before,
+    .linha-com-feixe::after {
+      animation: none;
+    }
+    .borda-com-feixe::before,
+    .linha-com-feixe::after {
+      display: none;
+    }
+    .barra-que-cresce {
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* Alto contraste do sistema: o texto recortado no gradiente sumiria; volta à cor do texto. */
+  @media (forced-colors: active) {
+    .texto-brilhante {
+      background: none;
+      color: CanvasText;
+    }
+  }
+
+  @media print {
+    .texto-brilhante {
+      background: none;
+      color: inherit;
+    }
+    .borda-com-feixe::before,
+    .grade-de-pontos {
+      display: none;
+    }
+  }
+}
+
+/* ---- Registro e quadros-chave (globais, fora da camada) ---- */
+
+@property --angulo-feixe {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes brilho-do-texto {
+  from {
+    background-position: 200% 50%;
+  }
+  to {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes focar {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(6px);
+  }
+}
+
+@keyframes girar-feixe {
+  to {
+    --angulo-feixe: 360deg;
+  }
+}
+
+@keyframes correr-feixe {
+  from {
+    background-position: -60% 0;
+  }
+  to {
+    background-position: 160% 0;
+  }
+}
+
+@keyframes correr-feixe-vertical {
+  from {
+    background-position: 0 -80%;
+  }
+  to {
+    background-position: 0 180%;
+  }
+}
+
+/* Do horário para o zero: as marcas andam para a esquerda, como o peso subindo — o mesmo sentido do giro
+   com a rolagem (Heroi.tsx) —, passam um pouco do ponto e assentam. */
+@keyframes pesar {
+  0% {
+    transform: rotate(16deg);
+  }
+  55% {
+    transform: rotate(-2.2deg);
+  }
+  75% {
+    transform: rotate(0.8deg);
+  }
+  90% {
+    transform: rotate(-0.3deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}

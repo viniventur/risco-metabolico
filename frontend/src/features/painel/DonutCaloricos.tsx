@@ -27,8 +27,10 @@ export function DonutCaloricos() {
     pct: l.valores.pct ?? null,
   }));
   const total = dados.reduce((s, d) => s + d.contagem, 0);
-  // Regra de cor legítima herdada: Consumo_Calorico_Frequente = 'Sim' -> azul (7.3).
-  const cor = (categoria: string) => (categoria === "Sim" ? tema.primaria : tema.textoFraco);
+  // Regra de cor legítima herdada: Consumo_Calorico_Frequente = 'Sim' -> a série principal (7.3); na marca
+  // Visor ela é grafite, e o "Não" vai para o cinza claro da segunda série — o cinza de texto ficava perto
+  // demais do grafite para separar as duas fatias.
+  const cor = (categoria: string) => (categoria === "Sim" ? tema.primaria : tema.secundaria);
 
   return (
     <ChartFrame

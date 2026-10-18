@@ -34,7 +34,7 @@ export function CascaCarregando() {
           <Skeleton className="h-72 w-full" />
         </div>
         <div className="border-t px-4 py-4 sm:px-6 lg:px-8">
-          <RodapeAviso className="max-w-4xl" />
+          <RodapeAviso />
         </div>
       </div>
     </div>

@@ -3,6 +3,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
+// Source Serif 4, a fonte da marca Visor, servida do próprio site (a CSP é font-src 'self'): o eixo de
+// tamanho óptico (opsz) deixa o texto miúdo da interface mais aberto e os títulos mais finos.
+import "@fontsource-variable/source-serif-4/opsz.css";
+import "@fontsource-variable/source-serif-4/opsz-italic.css";
+
 import { router } from "./routes";
 import "./shared/tema/tokens.css";
 

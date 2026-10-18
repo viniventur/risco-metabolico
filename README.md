@@ -48,7 +48,7 @@ Hospedado na VPS do autor, em contêineres, sem hibernação (seção 8 e [ADR 0
 
 **Simulador de triagem** — o formulário nasce de `GET /metadata`, em três seções, com o aviso de registro anônimo no topo e o botão sempre visível; o resultado fica fixo ao lado e traz a classe estimada, o risco acumulado, o IMC, as 7 probabilidades em ordem clínica e o relatório para baixar ou imprimir.
 
-Tema claro e escuro, barra lateral recolhível e gaveta no celular. O desenho (shadcn/ui sobre Radix, Tailwind v4, tokens HSL) e o diagnóstico que o motivou estão em [`docs/redesenho-front.md`](docs/redesenho-front.md) e na [ADR 0010](docs/decisoes/0010-redesenho-do-front.md).
+Tema claro e escuro, barra lateral recolhível e gaveta no celular. O desenho (shadcn/ui sobre Radix, Tailwind v4, tokens HSL) e o diagnóstico que o motivou estão em [`docs/redesenho-front.md`](docs/redesenho-front.md) e na [ADR 0010](docs/decisoes/0010-redesenho-do-front.md); a identidade visual é a da **marca Visor** — o símbolo de uma balança cujo visor é uma fita métrica, tinta e papel, o magenta só no resultado da previsão, Source Serif 4 em tudo, favicon e manifesto — ([ADR 0011](docs/decisoes/0011-marca-visor.md)). As capturas abaixo são de antes da marca.
 
 ![Simulador de triagem](docs/capturas/simulador.png)
 
@@ -169,7 +169,7 @@ python scripts\baixar_modelo.py --manifesto artifacts\manifest.json --destino mo
 
 # 4. A mesma stack da VPS: banco, API, nginx com o front e a retenção do log
 docker compose up -d --build        # site em http://127.0.0.1:8080 (nginx) e a API em http://127.0.0.1:8000/docs
-bash scripts/verificar-stack.sh     # o mesmo aceite do CI: 55 verificações, por dentro e por fora
+bash scripts/verificar-stack.sh     # o mesmo aceite do CI: 60 verificações, por dentro e por fora (no Git Bash do Windows, com MSYS_NO_PATHCONV=1)
 
 # 5. Front em modo de desenvolvimento
 Push-Location frontend
@@ -250,6 +250,8 @@ As duas afirmações convivem de propósito: a interface diz que nenhum registro
 
 **Vinícius Ventura.** Código sob licença [MIT](LICENSE); dados sob CC BY 4.0, creditados em `data/bruto/FONTE.md`.
 
+No front, os créditos ("Desenvolvido por", com a marca do autor e o link para [viniciusventura.com.br](https://viniciusventura.com.br)) ficam no pé do menu lateral, no fim do Início, na Política de Privacidade e no 404 (`frontend/src/shared/autor`). A **Política de Privacidade** fica em `/privacidade`, com link no rodapé de toda tela: o texto mora em `frontend/src/features/legal/politica-privacidade.md` e os dados do responsável e os prazos (retenção do log, rodízio dos registros técnicos, janela do limite) em `responsavel.ts` — mudou um prazo na infraestrutura, muda lá.
+
 ## 12. O que não está no repositório e por quê
 
 | Ausente | Por quê | Onde está |
@@ -273,7 +275,7 @@ As duas afirmações convivem de propósito: a interface diz que nenhum registro
 - **Limitação de taxa em memória de um processo.** O serviço roda com `--workers 1`, onde a contagem do `slowapi` é exata; com N instâncias o limite efetivo vira N×. Contar no Postgres foi descartado porque colocaria uma escrita síncrona no caminho crítico da predição.
 - **Triagem, não diagnóstico**, sobre uma base majoritariamente sintética: a saída ordena prioridade de atenção e nenhuma leitura epidemiológica das distribuições do painel é válida.
 - **Sem autenticação, por decisão** ([ADR 0007](docs/decisoes/0007-postgres-sem-autenticacao.md)): sem login não há usuário, e sem usuário não há escrita por pessoa (marcar, anotar, favoritar) nem preferência salva. É o que fecha o escopo e o que garante que o navegador nunca fala com o banco.
-- **Paleta provisória.** As fotos do painel de referência não estavam disponíveis; [`docs/design-tokens.md`](docs/design-tokens.md) registra a origem da paleta como PROVISÓRIA e os quatro arquivos que uma futura tarefa de skin pode tocar.
+- **Capturas anteriores à marca.** As duas imagens de `docs/capturas/` são do redesenho da ADR 0010, com a paleta azul; a marca Visor (ADR 0011) chegou depois e elas ainda não foram refeitas.
 - **Latência medida localmente** (seção 9); o número publicado não inclui rede, TLS nem o proxy.
 - **Log de predição com retenção curta e sem identificador**: nenhum IP, `User-Agent` ou nome é gravado; a limitação de taxa usa um HMAC diário do IP só em memória. O simulador avisa que as entradas são registradas de forma anônima para monitoramento.
 
@@ -357,4 +359,4 @@ docs/         contrato da API, modelagem, dicionário, agregados, auditoria do l
 | [`study/README.md`](study/README.md) | como reexecutar o notebook e o mapa célula → função do backend |
 | [`docs/deploy-vps.md`](docs/deploy-vps.md) | como a VPS é publicada: chave presa ao `deploy.sh`, segredos, Caddy, aceite |
 
-Decisões registradas (`docs/decisoes/`): [0001 nome](docs/decisoes/0001-nome-do-projeto.md) · [0002 binning desligado](docs/decisoes/0002-binning-ligado-ou-desligado.md) · [0003 IMC como feature](docs/decisoes/0003-imc-como-feature.md) · [0004 artefato fora do git](docs/decisoes/0004-artefato-fora-do-git.md) · [0005 filtros no servidor](docs/decisoes/0005-filtros-no-servidor.md) · [0006 agregados em SQL](docs/decisoes/0006-agregados-em-sql.md) · [0007 Postgres sem autenticação](docs/decisoes/0007-postgres-sem-autenticacao.md) · [0008 limiares de PSI](docs/decisoes/0008-limiares-de-psi.md) · [0009 provedor de hospedagem](docs/decisoes/0009-provedor-de-hospedagem.md) · [0010 redesenho do front](docs/decisoes/0010-redesenho-do-front.md).
+Decisões registradas (`docs/decisoes/`): [0001 nome](docs/decisoes/0001-nome-do-projeto.md) · [0002 binning desligado](docs/decisoes/0002-binning-ligado-ou-desligado.md) · [0003 IMC como feature](docs/decisoes/0003-imc-como-feature.md) · [0004 artefato fora do git](docs/decisoes/0004-artefato-fora-do-git.md) · [0005 filtros no servidor](docs/decisoes/0005-filtros-no-servidor.md) · [0006 agregados em SQL](docs/decisoes/0006-agregados-em-sql.md) · [0007 Postgres sem autenticação](docs/decisoes/0007-postgres-sem-autenticacao.md) · [0008 limiares de PSI](docs/decisoes/0008-limiares-de-psi.md) · [0009 provedor de hospedagem](docs/decisoes/0009-provedor-de-hospedagem.md) · [0010 redesenho do front](docs/decisoes/0010-redesenho-do-front.md) · [0011 marca Visor](docs/decisoes/0011-marca-visor.md).

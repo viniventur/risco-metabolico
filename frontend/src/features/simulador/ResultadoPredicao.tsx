@@ -78,7 +78,9 @@ export function ResultadoPredicao({ resposta, entrada, nome, calculando }: Props
         <div className="flex flex-col gap-5 p-5">
           <div className="flex flex-col gap-1">
             <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Classe estimada</span>
-            <p className="flex items-center gap-2.5 text-2xl leading-tight font-semibold tracking-tight">
+            {/* O resultado da previsão: o magenta da marca Visor (ADR 0011). O ponto ao lado é a cor da macro-faixa,
+                a mesma da dispersão e da consulta. */}
+            <p className="flex items-center gap-2.5 text-2xl leading-tight font-semibold tracking-tight text-previsao">
               <span aria-hidden="true" className={cn("size-3 shrink-0 rounded-full", faixa ? PONTO[faixa] : "bg-muted")} />
               {resposta.classe_prevista}
             </p>

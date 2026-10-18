@@ -1,7 +1,9 @@
 import { NuqsAdapter } from "nuqs/adapters/react-router/v7";
 import { useState } from "react";
-import { Outlet, useLocation, useNavigation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigation } from "react-router-dom";
 
+import { ROTA_DA_PRIVACIDADE } from "@/features/legal/rota";
+import { URL_REPO } from "@/shared/api/http";
 import { useAtalhoEsc } from "@/shared/filtros/useAtalhoEsc";
 import { useMenuLateral } from "@/shared/layout/menuLateral";
 import { Sidebar } from "@/shared/layout/Sidebar";
@@ -68,8 +70,20 @@ function Casca() {
             <main id="conteudo" tabIndex={-1} className="min-w-0 flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8 lg:py-8">
               <Outlet />
             </main>
-            <footer className="nao-imprimir border-t px-4 py-4 sm:px-6 lg:px-8">
-              <RodapeAviso className="max-w-4xl" />
+            {/* O aviso ocupa a largura toda: com a largura limitada ele quebrava em "não substitui", com
+                metade da linha sobrando. Os links ficam na linha de baixo, para não disputar espaço com ele. */}
+            <footer className="nao-imprimir flex flex-col gap-2 border-t px-4 py-4 sm:px-6 lg:px-8">
+              <RodapeAviso />
+              <nav aria-label="Rodapé" className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                <Link to={ROTA_DA_PRIVACIDADE} className="underline-offset-4 hover:text-foreground hover:underline">
+                  Política de Privacidade
+                </Link>
+                {URL_REPO ? (
+                  <a href={URL_REPO} target="_blank" rel="noreferrer" className="underline-offset-4 hover:text-foreground hover:underline">
+                    Código-fonte no GitHub
+                  </a>
+                ) : null}
+              </nav>
             </footer>
           </div>
         </div>

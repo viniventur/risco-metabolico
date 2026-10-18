@@ -2,6 +2,7 @@ import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useId } from "react";
 import { NavLink } from "react-router-dom";
 
+import { CreditosDoAutor } from "@/shared/autor/CreditosDoAutor";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Marca } from "@/shared/ui/Marca";
@@ -60,11 +61,12 @@ export function Sidebar({ recolhido = false, aoAlternarRecolhido, aoNavegar, idD
         })}
       </nav>
 
-      {aoAlternarRecolhido ? (
-        <div className={cn("shrink-0 border-t border-sidebar-border py-2", recolhido ? "flex justify-center px-2" : "px-3")}>
-          <BotaoDeRecolher recolhido={recolhido} aoAlternar={aoAlternarRecolhido} controla={idDoMenu} />
-        </div>
-      ) : null}
+      {/* O pé, FORA do <nav> (não são itens do menu): os créditos de quem fez o projeto e, no desktop, o
+          botão de recolher. Recolhido, os créditos viram só o símbolo, com o nome na dica. */}
+      <div className={cn("flex shrink-0 flex-col gap-1 border-t border-sidebar-border py-2", recolhido ? "items-center px-2" : "px-3")}>
+        <CreditosDoAutor variante={recolhido ? "compacta" : "completa"} tamanho="pequeno" className={recolhido ? undefined : "px-2.5 py-2"} />
+        {aoAlternarRecolhido ? <BotaoDeRecolher recolhido={recolhido} aoAlternar={aoAlternarRecolhido} controla={idDoMenu} /> : null}
+      </div>
     </div>
   );
 }

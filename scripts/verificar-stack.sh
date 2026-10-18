@@ -89,9 +89,14 @@ conferir "a API não faz TRUNCATE" nega sql_api "TRUNCATE operacao.log_predicao;
 
 # ---------------------------------------------------------------------------
 secao "Telas e arquivos estáticos pelo nginx ($BASE)"
-for tela in / /painel /consulta /simulador /monitoramento /estudos /estudos/comparacao-de-modelos; do
+for tela in / /painel /consulta /simulador /monitoramento /estudos /estudos/comparacao-de-modelos /privacidade; do
   conferir "$tela abre o app (200)" contem "$(status "$tela")" "^200 text/html"
 done
+# Os ícones da marca Visor (frontend/public): favicon em SVG e em ICO, ícone de toque e o manifesto.
+conferir "favicon em SVG" contem "$(status /favicon.svg)" "^200 image/svg\+xml"
+conferir "favicon em ICO" contem "$(status /favicon.ico)" "^200 image/"
+conferir "ícone de toque (apple-touch-icon)" contem "$(status /apple-touch-icon.png)" "^200 image/png"
+conferir "manifesto do app" contem "$(status /site.webmanifest)" "^200 application/manifest\+json"
 conferir "endereço que não existe responde 404, com o app" contem "$(status /pagina-que-nao-existe)" "^404 text/html"
 conferir "módulo Estudos estático (/study/manifest.json)" contem "$(status /study/manifest.json)" "^200 application/json"
 conferir "/study/ com cache de uma hora" contem "$(cabecalhos /study/manifest.json)" "cache-control: public, max-age=3600"

@@ -10,6 +10,8 @@ function lerVar(nome: string): string {
 
 export type TemaGrafico = {
   primaria: string;
+  /** o resultado da previsão (a classe estimada): o magenta da marca, e só ele */
+  previsao: string;
   secundaria: string;
   feminino: string;
   masculino: string;
@@ -37,7 +39,8 @@ function montar(): TemaGrafico {
   const corDaMacroFaixa: Record<string, string> = {};
   for (const [nivel, faixa] of Object.entries(MACRO_FAIXA)) corDaMacroFaixa[nivel] = lerVar(`--faixa-${faixa}`);
   return {
-    primaria: lerVar("--primary"),
+    primaria: lerVar("--grafico-primaria"),
+    previsao: lerVar("--previsao"),
     secundaria: lerVar("--grafico-secundaria"),
     feminino: lerVar("--feminino"),
     masculino: lerVar("--masculino"),

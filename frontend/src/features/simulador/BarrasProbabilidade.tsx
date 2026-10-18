@@ -26,8 +26,9 @@ const ALTURA_POR_CLASSE = 40;
 
 /**
  * 7 barras horizontais em ORDEM CLÍNICA, domínio fixo [0, 100], rótulo {v:.1f}% — como o Altair do
- * legado — e em COR ÚNICA (§7.5): a classe estimada em opacidade cheia, as demais na mesma cor mais
- * clara. Antes eram dois azuis sem legenda (redesenho, 1.14).
+ * legado. A classe estimada é o resultado da previsão: leva o magenta da marca Visor (ADR 0011), o
+ * único lugar do app com essa cor além do ponteiro do símbolo; as demais ficam em grafite claro. O
+ * rótulo continua na cor do texto, nunca na da série.
  */
 export function BarrasProbabilidade({ resposta, mostrarTabela }: { resposta: RespostaTriagem; mostrarTabela?: boolean }) {
   const tema = useChartTheme();
@@ -61,7 +62,7 @@ export function BarrasProbabilidade({ resposta, mostrarTabela }: { resposta: Res
           <Tooltip content={<TooltipBarras />} cursor={{ fill: tema.grade, fillOpacity: 0.5 }} />
           <Bar dataKey="pct" fill={tema.primaria} radius={[0, 5, 5, 0]} background={{ fill: tema.grade, fillOpacity: 0.35, radius: 5 }} isAnimationActive={false}>
             {dados.map((d) => (
-              <Cell key={d.classe} fillOpacity={d.prevista ? 1 : 0.5} />
+              <Cell key={d.classe} fill={d.prevista ? tema.previsao : tema.primaria} fillOpacity={d.prevista ? 1 : 0.4} />
             ))}
             <LabelList dataKey="pct" position="right" formatter={(v: unknown) => fmtPct(Number(v) / 100)} fill={tema.texto} fontSize={FONTE_DO_EIXO} />
           </Bar>

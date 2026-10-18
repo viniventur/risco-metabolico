@@ -36,6 +36,11 @@ export const NAVEGACAO: GrupoDeNavegacao[] = [
   },
 ];
 
+/** Telas que não estão no menu (o rodapé linka para elas), com a trilha que a barra do topo mostra. */
+const FORA_DO_MENU: Record<string, { grupo: string; item: string }> = {
+  "/privacidade": { grupo: "Sobre", item: "Política de Privacidade" },
+};
+
 /** O grupo e o item da rota atual, para a trilha da barra do topo. */
 export function localDaRota(caminho: string): { grupo: string; item: string } | null {
   for (const grupo of NAVEGACAO) {
@@ -44,5 +49,5 @@ export function localDaRota(caminho: string): { grupo: string; item: string } | 
       if (casa) return { grupo: grupo.titulo, item: item.rotulo };
     }
   }
-  return null;
+  return FORA_DO_MENU[caminho] ?? null;
 }

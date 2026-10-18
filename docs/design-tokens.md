@@ -1,11 +1,10 @@
 # Tokens de design
 
-**Origem da paleta: do produto** ([ADR 0010](decisoes/0010-redesenho-do-front.md)). A paleta
-provisória de F15 era derivada do azul herdado `#3262DA` à espera das fotos do painel de referência;
-o redesenho geral do front a substituiu por tokens claro/escuro medidos
-([`redesenho-front.md`](redesenho-front.md) §3), e o mesmo azul (`#3463da`) continua como
-`--primary` do tema claro. As fotos de referência, se um dia forem usadas, entram como referência
-visual de um novo ajuste — e continuam fora do git e de pull request (plano, §3.1).
+**Origem da paleta: a marca Visor** ([ADR 0011](decisoes/0011-marca-visor.md)), manual 1.0 de
+outubro de 2026. Tinta (`#201E1D`) e papel (`#F3F2F2`) fazem quase todo o trabalho; o magenta
+(`#D6006C`) é reservado ao ponteiro do símbolo e ao **resultado da previsão**; grafite (`#444141`) e
+visor (`#F8F4F4`) completam o símbolo. Antes disso a paleta era a do produto
+([ADR 0010](decisoes/0010-redesenho-do-front.md)), com o azul herdado `#3463da` como `--primary`.
 
 ## Onde os tokens vivem
 
@@ -30,28 +29,35 @@ a cor em atributo de SVG, onde `var()` não resolve de forma confiável.
 
 ## Paleta (tema claro / tema escuro)
 
-Contraste medido contra `--card` de cada tema.
+Contraste medido contra `--card` de cada tema (`#fdfcfc` no claro, `#252322` no escuro).
 
 | Token | Papel | Claro | Escuro | Contraste |
 |---|---|---|---|---|
-| `--background` | fundo da página | `220 25% 97%` `#f5f7f9` | `222 40% 8%` `#0c111d` | — |
-| `--foreground` | texto | `222 47% 16%` `#16213c` | `220 40% 96%` `#f1f3f9` | 15,9 / 16,0 |
-| `--card` / `--popover` | cartões, menus, balões | `0 0% 100%` | `222 35% 11%` `#121826` / `222 33% 13%` | — |
-| `--muted` | fundos de apoio, cabeçalho de tabela, esqueleto | `220 25% 95%` `#eff1f5` | `222 25% 17%` `#212736` | — |
-| `--muted-foreground` | rótulos, descrições, ticks | `222 14% 40%` `#586074` | `220 16% 68%` `#a0a9ba` | 6,3 / 7,5 |
-| `--primary` | ação principal, barras de uma série, "Sim" do donut | `223 69% 53%` `#3463da` | `225 85% 70%` `#7192f4` | 5,3 / 6,0 |
-| `--primary-foreground` | texto sobre a primária | `0 0% 100%` | `222 47% 10%` | 5,3 / 6,2 |
-| `--accent` / `--accent-foreground` | hover, item ativo, chips de filtro | `223 80% 96%` / `223 60% 36%` | `225 40% 20%` / `225 100% 90%` | — |
-| `--destructive` | erro, risco > 50% | `5 65% 45%` `#bd3528` | `5 85% 66%` `#f26b5f` | 5,7 / 5,9 |
-| `--success` | risco baixo, PSI estável, API pronta | `145 63% 30%` `#1c7d44` | `145 55% 52%` `#41c879` | 5,2 / 8,2 |
-| `--warning` | extrapolação, PSI em atenção, banco fora | `32 95% 36%` `#b36205` | `36 92% 58%` `#f6a831` | 4,5 / 8,9 |
-| `--border` / `--input` | bordas / borda de campo | `220 22% 88%` / `220 20% 80%` | `222 22% 22%` / `222 20% 30%` | — |
-| `--control` | preenchimento de campo (não some no cartão escuro) | `0 0% 100%` | `222 33% 14%` | — |
-| `--ring` | anel de foco (2 px, `:focus-visible`) | `223 69% 53%` | `225 90% 75%` | — |
-| `--zebra` | linha alternada OPACA da tabela (1ª coluna fixa) | `220 25% 97.5%` | `222 30% 13%` | — |
-| `--overlay` | fundo da gaveta modal (a 60 %) | `222 47% 8%` | `222 47% 3%` | — |
-| `--sidebar-*` | barra lateral | fundo `0 0% 100%`, ativo `223 80% 96%` | fundo `222 40% 10%`, ativo `225 40% 20%` | — |
-| `--papel` | folha das figuras PNG dos notebooks | `220 20% 97%` | igual | — |
+| `--marca-*` | as cinco cores do manual, **iguais nos dois temas** (o símbolo e o favicon) | tinta `20 4.9% 12%` · papel `0 4% 95.1%` · magenta `329.7 100% 42%` · grafite `0 2.3% 26.1%` · visor `0 22.2% 96.5%` | iguais | — |
+| `--background` | fundo da página: o papel | `0 4% 95.1%` `#f3f2f2` | `30 3.8% 10.2%` `#1b1a19` | — |
+| `--foreground` | texto: a tinta | `20 4.9% 12%` `#201e1d` | `0 4% 95.1%` `#f3f2f2` | 16,2 / 14,0 |
+| `--card` / `--popover` | cartões, menus, balões | `0 20% 99%` `#fdfcfc` | `20 4.2% 13.9%` `#252322` / `20 3.6% 16.3%` | — |
+| `--muted` | fundos de apoio, cabeçalho de tabela, esqueleto | `20 6.4% 90.8%` `#e9e7e6` | `15 4.1% 19.2%` `#33302f` | — |
+| `--muted-foreground` | rótulos, descrições, ticks | `17.1 3.7% 36.7%` `#615c5a` | `15 4.8% 67.5%` `#b0aaa8` | 6,4 / 6,8 |
+| `--primary` | ação principal: **tinta** sobre papel (no escuro, papel sobre tinta) | `20 4.9% 12%` | `0 4% 95.1%` | 16,2 / 14,0 |
+| `--primary-foreground` | texto sobre a primária | `0 4% 95.1%` | `20 4.9% 12%` | 14,9 / 14,9 |
+| `--previsao` | **o resultado da previsão** (classe estimada e a barra dela no simulador, no relatório): o único uso do magenta fora do símbolo | `329.7 100% 42%` `#d6006c` | `332.7 100% 67.6%` `#ff5aa5` | 5,0 / 5,4 |
+| `--accent` / `--accent-foreground` | hover, item ativo, chips de filtro | `15 7.4% 89.4%` / tinta | `24 4.5% 21.8%` / papel | — |
+| `--destructive` | erro, risco > 50% | `5 65% 45%` `#bd3528` | `5 85% 66%` `#f26b5f` | 5,5 / 5,2 |
+| `--success` | risco baixo, PSI estável, API pronta | `145 63% 30%` `#1c7d44` | `145 55% 52%` `#41c879` | 5,0 / 7,3 |
+| `--warning` | extrapolação, PSI em atenção, banco fora | `32 95% 34%` `#a95c04` | `36 92% 58%` `#f6a831` | 4,9 / 7,9 |
+| `--border` / `--input` | bordas / borda de campo | `12 6.7% 85.3%` / `17.1 5.6% 75.5%` | `24 4.4% 22.2%` / `20 4.2% 28.2%` | — |
+| `--control` | preenchimento de campo (não some no cartão escuro) | `0 20% 99%` | `20 4.8% 12.4%` | — |
+| `--ring` | anel de foco (2 px, `:focus-visible`) | tinta | papel | — |
+| `--zebra` | linha alternada OPACA da tabela (1ª coluna fixa) | `30 12.5% 96.9%` | `20 3.7% 15.9%` | — |
+| `--overlay` | fundo da gaveta modal (a 60 %) | `20 4.9% 8%` | `20 4.9% 4%` | — |
+| `--sidebar-*` | barra lateral | fundo `0 9.1% 97.8%`, ativo `15 9.1% 91.4%` | fundo tinta `20 4.9% 12%`, ativo `25.7 6.9% 19.8%` | — |
+| `--papel` | folha das figuras PNG dos notebooks | `0 4% 97%` | igual | — |
+| `--autor-ciano` | o chapéu do símbolo do AUTOR nos créditos (`shared/autor`), nunca cor do produto | `193.6 100% 34.5%` `#0088b0` | igual, de propósito: o manual da marca do autor pede o mesmo ciano em qualquer fundo | — |
+
+**Por que o magenta clareia no escuro:** o `#D6006C` dá 3,2:1 sobre a tinta — serve para o traço do
+símbolo (gráfico, ≥ 3:1), não para texto. No escuro, `--previsao` sobe para `#ff5aa5` (5,4:1); o
+símbolo continua com o magenta do manual (`--marca-magenta`).
 
 ## Escalas dos gráficos
 
@@ -60,14 +66,14 @@ A cor segue a **entidade**, nunca o índice do array.
 **Macro-faixas** (dispersão, ponto do nível na tabela da consulta, classe estimada e cartão de IMC do
 simulador): rampa ordinal com ΔL\* ≈ 10 por degrau e toda marca ≥ 3:1 contra o cartão. No escuro a
 rampa corre ao contrário — mais IMC = mais luminoso —, e a faixa de maior risco é a mais saliente
-nos dois temas.
+nos dois temas. Ficou como estava: é semântica (abaixo, normal, sobrepeso, obesidade), não marca.
 
-| Token | Claro | L\* | Escuro | L\* |
+| Token | Claro | Contraste | Escuro | Contraste |
 |---|---|---|---|---|
-| `--faixa-abaixo` | `200 85% 47%` `#129ade` | 60,3 | `205 80% 41%` `#1576bc` | 48,1 |
-| `--faixa-normal` | `165 75% 30%` `#138669` | 49,7 | `162 62% 39%` `#26a17c` | 59,3 |
-| `--faixa-sobrepeso` | `30 92% 30%` `#934c06` | 40,3 | `36 92% 50%` `#f5970a` | 70,5 |
-| `--faixa-obesidade` | `350 72% 32%` `#8c172a` | 30,4 | `352 100% 86%` `#ffb8c1` | 81,4 |
+| `--faixa-abaixo` | `200 85% 47%` `#129ade` | 3,1 | `205 80% 41%` `#1576bc` | 3,2 |
+| `--faixa-normal` | `165 75% 30%` `#138669` | 4,4 | `162 62% 39%` `#26a17c` | 4,8 |
+| `--faixa-sobrepeso` | `30 92% 30%` `#934c06` | 6,3 | `36 92% 50%` `#f5970a` | 6,9 |
+| `--faixa-obesidade` | `350 72% 32%` `#8c172a` | 9,0 | `352 100% 86%` `#ffb8c1` | 9,6 |
 
 Na dispersão, o segundo canal são as **linhas de IMC** 18,5 · 25 · 30 · 35 · 40 (`LIMITES_IMC` em
 `shared/dominio.ts`), e não mais a forma da marca.
@@ -76,17 +82,21 @@ Na dispersão, o segundo canal são as **linhas de IMC** 18,5 · 25 · 30 · 35 
 
 | Uso | Token | Claro | Escuro |
 |---|---|---|---|
-| Feminino (regra herdada) | `--feminino` | `338 66% 52%` | `338 85% 70%` |
-| Masculino (regra herdada) | `--masculino` | `215 75% 55%` | `213 90% 70%` |
-| Série única (nível, probabilidade, log) e "Sim" do donut | `--primary` | | |
-| Segunda série (álcool, treino × log) | `--grafico-secundaria` | `207 100% 33%` | `207 75% 60%` |
-| "Não" do donut, ticks, rótulos de eixo | `--muted-foreground` | | |
+| Série única (nível, log) e "Sim" do donut | `--grafico-primaria` | grafite `0 2.3% 26.1%` (9,9:1) | `20 7.1% 83.5%` (10,6:1) |
+| Segunda série (álcool, treino × log) e "Não" do donut | `--grafico-secundaria` | `10 2.5% 53.7%` (3,5:1) | `17.1 3% 54.7%` (4,6:1) |
+| Classe estimada nas barras de probabilidade (as demais em grafite a 40 %) | `--previsao` | magenta | magenta claro |
+| Feminino | `--feminino` | `17 82% 56%` `#eb6733` (3,1:1) | `17 70% 50%` `#d95926` (4,0:1) |
+| Masculino | `--masculino` | `213 68% 50%` `#2977d6` (4,4:1) | `213 76% 56%` `#3a86e4` (4,3:1) |
+| Ticks, rótulos de eixo | `--muted-foreground` | | |
 | Grade e linha de eixo | `--border` | | |
 
+O par de gênero é o laranja e o azul da paleta de referência do método de visualização, validado
+pelo script dele nos dois temas (ΔE de CVD 24,7 no claro e 26,8 no escuro; o piso é 8). O rosa
+herdado saiu: era quase o magenta, que a marca reserva à previsão.
+
 As regras de cor condicional que existem: `Genero = 'Feminino'` → `--feminino`, `Masculino` →
-`--masculino`; `Consumo_Calorico_Frequente = 'Sim'` → `--primary`. As regras condicionadas a
-`Fumante` do painel original são herança morta e não foram replicadas (§7.3). Os antigos
-`--nivel-1…7` saíram: nenhum componente os lia.
+`--masculino`; `Consumo_Calorico_Frequente = 'Sim'` → `--grafico-primaria`. As regras condicionadas
+a `Fumante` do painel original são herança morta e não foram replicadas (§7.3).
 
 ## Forma, tipografia e movimento
 
@@ -94,7 +104,7 @@ As regras de cor condicional que existem: `Genero = 'Feminino'` → `--feminino`
 |---|---|
 | `--radius` | 0,625 rem (`rounded-lg`); `rounded-md` = −2 px, `rounded-sm` = −4 px |
 | sombra | `shadow-sm` nos cartões, `shadow-lg` em balões e toasts (as do Tailwind) |
-| fonte | `--font-sans`: Segoe UI Variable/Segoe UI, system-ui; `--font-mono`: Cascadia Code, Consolas |
+| fonte | `--font-sans`: **Source Serif 4** (a da marca: "uma família só para nome, títulos e interface"), variável com tamanho óptico, servida do próprio site por `@fontsource-variable/source-serif-4` (a CSP é `font-src 'self'`); semibold 600 em nome, títulos e no percentual previsto, regular 400 no texto, itálico em notas. `--font-mono`: Cascadia Code, Consolas |
 | título da tela (`<h1>`, um por página) | `text-[1.75rem]` semibold, `tracking-tight` |
 | título de cartão | 15 px semibold, até 2 linhas |
 | descrição de cartão | 13 px, `--muted-foreground`, até 2 linhas |
@@ -106,6 +116,7 @@ As regras de cor condicional que existem: `Genero = 'Feminino'` → `--feminino`
 | refetch | o quadro anterior em `opacity: .55` (`.refetching`) — nunca *skeleton* |
 | primeira carga | `Skeleton` com a forma do conteúdo |
 | movimento | troca de tema por revelação radial a partir do clique (View Transitions API, 550 ms, `useTema`); entrada da gaveta (200 ms), surgimento do fundo (160 ms), barra de progresso de rota; tudo desligado com `prefers-reduced-motion` (a troca de tema fica seca, sem a animação) |
+| movimento do Início | `features/inicio/inicio.css` (em `@layer components`, para os utilitários continuarem vencendo) e `shared/movimento`: números que contam até o valor (o final vai para o leitor de tela, uma vez), revelação ao rolar, holofote que segue o ponteiro, feixe na borda, texto com brilho e o visor da balança no pé do herói (a régua em arco gira e assenta sob o ponteiro magenta e, depois, gira com a rolagem: ao descer, as marcas andam para a esquerda, como o peso aumentando); com `prefers-reduced-motion`, o conteúdo nasce no lugar e os números no valor final |
 
 ## Grade da Visão Geral
 
@@ -125,8 +136,10 @@ em pai `auto` desenha 0 px): os cartões de uma linha têm a mesma altura e term
 
 ## Ícones e componentes
 
-Ícones de `lucide-react`, importados um a um (só os usados entram no bundle). A marca do produto é um
-SVG próprio (`shared/ui/Marca.tsx`), no topo da barra lateral. Os componentes seguem o padrão
+Ícones de `lucide-react`, importados um a um (só os usados entram no bundle). O símbolo Visor está
+em `shared/ui/Marca.tsx` (versões principal, negativa e reduzida, com as cores `--marca-*`), no topo
+da barra lateral, na barra do topo do celular e no herói do Início; o favicon, o ícone de toque e o
+manifesto estão em `frontend/public` (ADR 0011). Os componentes seguem o padrão
 shadcn/ui sobre Radix (`shared/ui/`), com `class-variance-authority` e `tailwind-merge`; a casca, os
 estados e os gráficos estão em `shared/layout/`, `shared/estados/` e `shared/graficos/`
 (lista em [`redesenho-front.md`](redesenho-front.md) §4).

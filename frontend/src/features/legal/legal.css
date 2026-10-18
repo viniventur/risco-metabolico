@@ -1,0 +1,190 @@
+/* O texto da Política de Privacidade (PrivacidadePage). Folha própria, e não classes do Tailwind, porque
+   o HTML nasce do Markdown em tempo de execução e o Tailwind só gera a classe que vê no código. As cores
+   são os tokens do tema (tokens.css): claro e escuro valem sem nada a mais. */
+
+.legal-texto {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.legal-texto h2 {
+  margin: 2.25rem 0 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 4.5rem;
+}
+
+.legal-texto h2:first-child {
+  margin-top: 0;
+}
+
+.legal-texto h3 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.legal-texto p,
+.legal-texto ul,
+.legal-texto ol {
+  margin-bottom: 0.75rem;
+}
+
+/* O preflight do Tailwind tira os marcadores das listas: o texto precisa deles. */
+.legal-texto ul {
+  padding-left: 1.4em;
+  list-style: disc;
+}
+
+.legal-texto ol {
+  padding-left: 1.4em;
+  list-style: decimal;
+}
+
+.legal-texto li + li {
+  margin-top: 0.25rem;
+}
+
+.legal-texto li::marker {
+  color: hsl(var(--muted-foreground));
+}
+
+.legal-texto strong {
+  font-weight: 600;
+}
+
+.legal-texto a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-texto hr {
+  margin: 2rem 0 1rem;
+  border: 0;
+  border-top: 1px solid hsl(var(--border));
+}
+
+.legal-texto em {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}
+
+.legal-texto code {
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: hsl(var(--muted));
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Tabelas: tabela de verdade no desktop, cartões no celular ---------------------------------- */
+
+.legal-texto table {
+  width: 100%;
+  margin: 0.75rem 0 1.25rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) + 2px);
+  background: hsl(var(--card));
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.legal-texto th,
+.legal-texto td {
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.legal-texto thead th {
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.legal-texto tbody tr + tr td {
+  border-top: 1px solid hsl(var(--border));
+}
+
+/* Campo e valor (o responsável): sem cabeçalho, o rótulo na primeira coluna. */
+.legal-texto .tabela-campos thead {
+  display: none;
+}
+
+.legal-texto .tabela-campos td:first-child {
+  width: 34%;
+  color: hsl(var(--muted-foreground));
+}
+
+@media (max-width: 639px) {
+  .legal-texto table,
+  .legal-texto tbody,
+  .legal-texto tr,
+  .legal-texto td {
+    display: block;
+  }
+
+  .legal-texto table {
+    border: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .legal-texto thead {
+    display: none;
+  }
+
+  .legal-texto tbody tr {
+    padding: 0.75rem 1rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: calc(var(--radius) + 2px);
+    background: hsl(var(--card));
+  }
+
+  .legal-texto tbody tr + tr {
+    margin-top: 0.5rem;
+  }
+
+  .legal-texto tbody tr + tr td {
+    border-top: 0;
+  }
+
+  .legal-texto td {
+    padding: 0;
+  }
+
+  .legal-texto td + td {
+    margin-top: 0.5rem;
+  }
+
+  .legal-texto td[data-rotulo]::before {
+    content: attr(data-rotulo);
+    display: block;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .legal-texto .tabela-campos td:first-child {
+    width: auto;
+    font-size: 0.75rem;
+  }
+
+  .legal-texto .tabela-campos td + td {
+    margin-top: 0;
+  }
+
+  .legal-texto .tabela-campos tr {
+    padding-block: 0.5rem;
+  }
+}
