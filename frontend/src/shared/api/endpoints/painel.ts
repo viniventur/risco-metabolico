@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQueries, useQuery } from "@tanstack/react-query";
 
 import type { FiltroPainel } from "@/shared/filtros/filtroSchema";
 import { paraQueryString } from "@/shared/filtros/paraQueryString";
@@ -23,9 +23,10 @@ export function useResumo(filtros: FiltroPainel) {
   });
 }
 
-/** `useAgregado(campo, metrica, filtros)` do plano (§12/#7), sobre TanStack Query. */
-export function usePorCategoria(campo: string, metrica: "contagem" | "imc_medio", filtros: FiltroPainel, serie?: string) {
-  return useQuery({
+export type PedidoPorCategoria = { campo: string; metrica: "contagem" | "imc_medio"; filtros: FiltroPainel; serie?: string };
+
+function consultaPorCategoria({ campo, metrica, filtros, serie }: PedidoPorCategoria) {
+  return {
     queryKey: chaves.porCategoria(campo, metrica, serie, filtros),
     queryFn: async () =>
       desembrulhar(
@@ -33,7 +34,18 @@ export function usePorCategoria(campo: string, metrica: "contagem" | "imc_medio"
           params: { query: { campo, metrica, ...(serie ? { serie } : {}), ...paraQueryString(filtros) } },
         }),
       ),
-    placeholderData: (anterior) => anterior,
+  };
+}
+
+/** `useAgregado(campo, metrica, filtros)` do plano (§12/#7), sobre TanStack Query. */
+export function usePorCategoria(campo: string, metrica: "contagem" | "imc_medio", filtros: FiltroPainel, serie?: string) {
+  return useQuery({ ...consultaPorCategoria({ campo, metrica, filtros, serie }), placeholderData: (anterior) => anterior });
+}
+
+/** Vários agregados de uma vez (o gráfico de fatores), com as MESMAS chaves de cache de `usePorCategoria`. */
+export function usePorCategorias(pedidos: PedidoPorCategoria[]) {
+  return useQueries({
+    queries: pedidos.map((p) => ({ ...consultaPorCategoria(p), placeholderData: keepPreviousData })),
   });
 }
 

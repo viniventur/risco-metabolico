@@ -1,132 +1,166 @@
-import { useId } from "react";
-
 import { useGenero } from "@/shared/api/endpoints/painel";
 import type { GeneroResumo } from "@/shared/api/endpoints/tipos";
+import { ORDEM_CLINICA } from "@/shared/dominio";
 import { QueryState } from "@/shared/estados/QueryState";
+import { maximoDe, pivotar } from "@/shared/filtros/agregadoUtil";
+import { FILTRO_VAZIO } from "@/shared/filtros/filtroSchema";
+import { useAgregado } from "@/shared/filtros/useAgregado";
+import { useCrossFilter } from "@/shared/filtros/useCrossFilter";
 import { useFiltros } from "@/shared/filtros/useFiltros";
 import { fmtInt, fmtNum, fmtPontosPct } from "@/shared/format/ptBR";
+import { ChartFrame } from "@/shared/graficos/ChartFrame";
+import { TabelaEquivalente } from "@/shared/graficos/TabelaEquivalente";
 import { cn } from "@/shared/lib/utils";
-import { Card } from "@/shared/ui/card";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 
-const ORDEM = ["Feminino", "Masculino"];
+import { FUNDO_DO_NIVEL } from "./niveis";
+
+const ORDEM = ["Feminino", "Masculino"] as const;
 /** Regra de cor legítima herdada (§7.3): feminino e masculino, pela entidade. */
 const COR: Record<string, { fundo: string; texto: string }> = {
   Feminino: { fundo: "bg-feminino", texto: "text-feminino" },
   Masculino: { fundo: "bg-masculino", texto: "text-masculino" },
 };
 
-function PercentBadge({ dado }: { dado: GeneroResumo }) {
+function PercentBadge({ dado, alinhar }: { dado: GeneroResumo; alinhar: "esquerda" | "direita" }) {
   const cor = COR[dado.genero] ?? COR.Masculino!;
   return (
-    <div className="flex min-w-0 flex-col">
+    <div className={cn("flex min-w-0 flex-col", alinhar === "direita" && "items-end text-right")}>
       <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         <span aria-hidden="true" className={cn("size-2 rounded-full", cor.fundo)} />
         {dado.genero}
       </span>
-      <span className={cn("text-2xl leading-tight font-semibold tabular-nums", cor.texto)}>{fmtPontosPct(dado.percentual)}</span>
+      <span className="text-2xl leading-tight font-semibold tabular-nums">{fmtPontosPct(dado.percentual)}</span>
+      <span className="text-xs text-muted-foreground tabular-nums">
+        {fmtInt(dado.n)} registros · IMC médio <span className="font-medium text-foreground">{dado.imc_medio === null ? "n < 15" : fmtNum(dado.imc_medio, 1)}</span>
+      </span>
     </div>
   );
 }
 
+type LinhaPiramide = { nivel: string; Feminino: number; Masculino: number };
+
 /**
- * Divisão por Gênero, sem Recharts (§7.3). Substitui os dois visuais de HTML injetado do painel de
- * referência por JSON tipado formatado aqui. Antes eram duas colunas de 135 px que se sobrepunham
- * (redesenho, 1.1): agora uma barra 100% com os percentuais em cima e uma TABELA embaixo, que
- * distribui a largura pelo conteúdo e deixa o nível quebrar dentro da própria célula.
+ * Uma barra da pirâmide: cresce do centro para fora (feminino à esquerda, masculino à direita), na cor
+ * do gênero. O número fica do lado de fora da ponta; a escala é a da base inteira, para o desenho não
+ * pular ao filtrar.
+ */
+function BarraDaPiramide({ genero, n, teto, apagada, aoClicar, nivel }: { genero: string; n: number; teto: number; apagada: boolean; aoClicar: () => void; nivel: string }) {
+  const esquerda = genero === "Feminino";
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={aoClicar}
+          aria-label={`${nivel}, ${genero}: ${fmtInt(n)} registros. Filtrar ${genero.toLowerCase()}`}
+          className={cn("group flex h-6 min-w-0 items-center gap-1.5", esquerda ? "flex-row-reverse" : "flex-row", apagada && "opacity-35")}
+        >
+          <span
+            className={cn("h-4 transition-[width] duration-300 group-hover:brightness-110 motion-reduce:transition-none", COR[genero]?.fundo, esquerda ? "rounded-l-[4px]" : "rounded-r-[4px]")}
+            style={{ width: teto > 0 ? `${(n / teto) * 100}%` : 0 }}
+          />
+          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{fmtInt(n)}</span>
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top">
+        {nivel} · {genero}: {fmtInt(n)} registros
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+/**
+ * Gênero e nível (§7.3, Divisão por Gênero): a participação e o IMC médio de cada gênero no topo e,
+ * embaixo, a pirâmide dos 7 níveis — feminino à esquerda, masculino à direita. Ela mostra o que a
+ * tabela de antes escondia: na base, Obesidade III é quase toda feminina e Obesidade II quase toda
+ * masculina (efeito da parte sintética da base, não um achado clínico). O IMC médio por gênero, que era
+ * um gráfico de duas colunas quase iguais, virou número no cabeçalho.
+ * ORIGEM de cross-filter de gênero: clicar numa barra filtra o gênero; a pirâmide não se filtra por
+ * gênero nem por nível (os níveis fora do filtro só esmaecem).
  */
 export function PainelGenero() {
   const { filtros } = useFiltros();
-  const q = useGenero(filtros);
-  const idTitulo = useId();
-  const dados = ORDEM.map((g) => q.data?.find((d) => d.genero === g)).filter((d): d is GeneroResumo => d !== undefined);
+  const cf = useCrossFilter("piramide", "genero");
+  // Origem de gênero: os dois gêneros ficam no cartão com o filtro de gênero ligado (o outro esmaece).
+  const resumo = useGenero({ ...filtros, genero: [] });
+  const q = useAgregado("nivel", "contagem", { ...filtros, genero: [], nivel: [] }, "genero");
+  const global = useAgregado("nivel", "contagem", FILTRO_VAZIO, "genero");
+  const teto = maximoDe(pivotar(global.data), "contagem");
+  const linhas: LinhaPiramide[] = ORDEM_CLINICA.map((nivel) => {
+    const linha: LinhaPiramide = { nivel, Feminino: 0, Masculino: 0 };
+    for (const l of pivotar(q.data)) if (l.categoria === nivel && l.serie && (l.serie === "Feminino" || l.serie === "Masculino")) linha[l.serie] = l.valores.contagem ?? 0;
+    return linha;
+  });
+  const dados = ORDEM.map((g) => resumo.data?.find((d) => d.genero === g)).filter((d): d is GeneroResumo => d !== undefined);
+  const niveisSelecionados = filtros.nivel;
+
   return (
-    <Card className="flex h-full flex-col">
-      <section className="flex h-full flex-col" aria-labelledby={idTitulo}>
-        <header className="p-5 pb-3">
-          <h2 id={idTitulo} className="text-[15px] leading-tight font-semibold tracking-tight">
-            Divisão por Gênero
-          </h2>
-          <p className="mt-1 line-clamp-2 min-h-[2lh] text-[13px] leading-snug text-muted-foreground">Participação de cada gênero no recorte, com o IMC médio e o nível mais frequente.</p>
-        </header>
-        <div className="flex flex-1 flex-col px-5 pb-5">
-          <QueryState
-            carregando={q.isPending}
-            erro={q.error}
-            atualizando={q.isFetching && !q.isPending}
-            vazio={dados.length === 0}
-            aoTentarNovamente={() => void q.refetch()}
-            esqueleto={
-              <div className="flex flex-col gap-4">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-3 w-full rounded-full" />
-                <Skeleton className="h-28 w-full" />
+    <ChartFrame
+      titulo="Gênero e Nível de Obesidade"
+      descricao="Participação e IMC médio de cada gênero; embaixo, os níveis de cada um. Clique numa barra para filtrar o gênero."
+      altura={300}
+      alturaNatural
+      tabela={
+        <TabelaEquivalente
+          legenda="Registros por nível de obesidade e gênero"
+          colunas={[
+            { chave: "nivel", rotulo: "Nível" },
+            { chave: "Feminino", rotulo: "Feminino", alinhar: "right" },
+            { chave: "Masculino", rotulo: "Masculino", alinhar: "right" },
+          ]}
+          linhas={linhas.map((l) => ({ nivel: l.nivel, Feminino: fmtInt(l.Feminino), Masculino: fmtInt(l.Masculino) }))}
+        />
+      }
+    >
+      <QueryState
+        carregando={resumo.isPending || q.isPending}
+        erro={resumo.error ?? q.error}
+        atualizando={(resumo.isFetching && !resumo.isPending) || (q.isFetching && !q.isPending)}
+        vazio={dados.length === 0}
+        aoTentarNovamente={() => {
+          void resumo.refetch();
+          void q.refetch();
+        }}
+        esqueleto={
+          <div className="flex flex-col gap-4">
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-2.5 w-full rounded-full" />
+            <Skeleton className="h-48 w-full" />
+          </div>
+        }
+      >
+        <div className="flex h-full flex-col gap-4">
+          <div className="flex items-end justify-between gap-4">
+            {dados.map((d, i) => (
+              <div key={d.genero} className={cn("min-w-0 transition-opacity", cf.opacidade(d.genero) < 1 && "opacity-40")}>
+                <PercentBadge dado={d} alinhar={i === 0 ? "esquerda" : "direita"} />
               </div>
-            }
-          >
-            <div className="flex h-full flex-col gap-4">
-              <div className="flex items-end justify-between gap-4">
-                {dados.map((d) => (
-                  <PercentBadge key={d.genero} dado={d} />
-                ))}
-              </div>
-              <div className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full" aria-hidden="true">
-                {dados.map((d) => (
-                  <div key={d.genero} className={cn("h-full first:rounded-l-full last:rounded-r-full", COR[d.genero]?.fundo)} style={{ width: `${d.percentual ?? 0}%` }} />
-                ))}
-              </div>
-              <table className="w-full text-[13px]">
-                <caption className="sr-only">Indicadores por gênero no recorte</caption>
-                <thead>
-                  <tr className="border-b">
-                    <th scope="col" className="py-2 pr-2 text-left text-xs font-medium text-muted-foreground">
-                      <span className="sr-only">Indicador</span>
-                    </th>
-                    {dados.map((d) => (
-                      <th key={d.genero} scope="col" className="py-2 pl-2 text-right text-xs font-medium text-muted-foreground">
-                        {d.genero}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b">
-                    <th scope="row" className="py-2 pr-2 text-left font-normal text-muted-foreground">
-                      Registros
-                    </th>
-                    {dados.map((d) => (
-                      <td key={d.genero} className="py-2 pl-2 text-right font-medium tabular-nums">
-                        {fmtInt(d.n)}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr className="border-b">
-                    <th scope="row" className="py-2 pr-2 text-left font-normal text-muted-foreground">
-                      IMC médio
-                    </th>
-                    {dados.map((d) => (
-                      <td key={d.genero} className="py-2 pl-2 text-right font-medium tabular-nums">
-                        {fmtNum(d.imc_medio, 1)}
-                      </td>
-                    ))}
-                  </tr>
-                  <tr>
-                    <th scope="row" className="py-2 pr-2 text-left align-top font-normal text-muted-foreground">
-                      Nível predominante
-                    </th>
-                    {dados.map((d) => (
-                      <td key={d.genero} className="py-2 pl-2 text-right align-top font-medium">
-                        {d.nivel_predominante ?? "—"}
-                        {d.nivel_predominante ? <span className="block text-xs font-normal text-muted-foreground tabular-nums">n = {fmtInt(d.n_predominante)}</span> : null}
-                      </td>
-                    ))}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </QueryState>
+            ))}
+          </div>
+          <div className="flex h-2.5 w-full gap-0.5 overflow-hidden rounded-full" aria-hidden="true">
+            {dados.map((d) => (
+              <div key={d.genero} className={cn("h-full", COR[d.genero]?.fundo, cf.opacidade(d.genero) < 1 && "opacity-35")} style={{ width: `${d.percentual ?? 0}%` }} />
+            ))}
+          </div>
+          <ul className="flex flex-col" aria-label="Registros por nível, feminino à esquerda e masculino à direita">
+            {linhas.map((l) => {
+              const apagado = niveisSelecionados.length > 0 && !niveisSelecionados.includes(l.nivel);
+              return (
+                <li key={l.nivel} className={cn("grid grid-cols-[minmax(0,1fr)_7.5rem_minmax(0,1fr)] items-center gap-2", apagado && "opacity-40")}>
+                  <BarraDaPiramide genero="Feminino" n={l.Feminino} teto={teto} nivel={l.nivel} apagada={cf.opacidade("Feminino") < 1} aoClicar={() => cf.aoClicar("Feminino")} />
+                  <span className="flex items-center justify-center gap-1.5 text-center text-xs leading-tight">
+                    <span aria-hidden="true" className={cn("size-2 shrink-0 rounded-full", FUNDO_DO_NIVEL[l.nivel])} />
+                    {l.nivel}
+                  </span>
+                  <BarraDaPiramide genero="Masculino" n={l.Masculino} teto={teto} nivel={l.nivel} apagada={cf.opacidade("Masculino") < 1} aoClicar={() => cf.aoClicar("Masculino")} />
+                </li>
+              );
+            })}
+          </ul>
         </div>
-      </section>
-    </Card>
+      </QueryState>
+    </ChartFrame>
   );
 }

@@ -52,6 +52,13 @@
   --color-faixa-normal: hsl(var(--faixa-normal));
   --color-faixa-sobrepeso: hsl(var(--faixa-sobrepeso));
   --color-faixa-obesidade: hsl(var(--faixa-obesidade));
+  --color-nivel-abaixo: hsl(var(--nivel-abaixo));
+  --color-nivel-normal: hsl(var(--nivel-normal));
+  --color-nivel-sobrepeso-1: hsl(var(--nivel-sobrepeso-1));
+  --color-nivel-sobrepeso-2: hsl(var(--nivel-sobrepeso-2));
+  --color-nivel-obesidade-1: hsl(var(--nivel-obesidade-1));
+  --color-nivel-obesidade-2: hsl(var(--nivel-obesidade-2));
+  --color-nivel-obesidade-3: hsl(var(--nivel-obesidade-3));
   --color-grafico-primaria: hsl(var(--grafico-primaria));
   --color-previsao: hsl(var(--previsao));
   --color-previsao-foreground: hsl(var(--previsao-foreground));
@@ -165,6 +172,17 @@
   --faixa-normal: 165 75% 30%;
   --faixa-sobrepeso: 30 92% 30%;
   --faixa-obesidade: 350 72% 32%;
+  /* Os 7 níveis da Visão Geral: a matiz da macro-faixa (as cores das 7 faixas do Início) e, dentro da
+     família, um degradê do grau mais leve ao mais grave — no claro, mais grave = mais escuro. Validados
+     pelo script do dataviz: vizinhos com ΔE de CVD >= 9,9 e de visão normal >= 15,7, todos >= 3:1
+     contra o cartão; cada família passa como rampa ordinal (docs/design-tokens.md). */
+  --nivel-abaixo: 200 85% 47%;
+  --nivel-normal: 165 75% 30%;
+  --nivel-sobrepeso-1: 32.4 73.1% 46.7%;
+  --nivel-sobrepeso-2: 30.2 96% 29.6%;
+  --nivel-obesidade-1: 358.2 64% 58.6%;
+  --nivel-obesidade-2: 351.4 66.3% 37.3%;
+  --nivel-obesidade-3: 345.6 76.7% 20.2%;
   /* Papel das figuras PNG dos notebooks (fundo branco do matplotlib): folha clara nos dois temas. */
   --papel: 0 4% 97%;
   /* O chapéu do símbolo do AUTOR (#0088B0, pacote da marca 1.0), só nos créditos (shared/autor). O
@@ -220,6 +238,14 @@
     --faixa-normal: 162 62% 39%;
     --faixa-sobrepeso: 36 92% 50%;
     --faixa-obesidade: 352 100% 86%;
+    /* Os 7 níveis no escuro: dentro da família, mais grave = mais luminoso (ΔE de CVD >= 9,9, visão normal >= 16,4). */
+    --nivel-abaixo: 205 80% 41%;
+    --nivel-normal: 162 62% 39%;
+    --nivel-sobrepeso-1: 28.6 65.4% 45.3%;
+    --nivel-sobrepeso-2: 35.4 99% 59%;
+    --nivel-obesidade-1: 0 57.3% 54.1%;
+    --nivel-obesidade-2: 354.3 93.5% 75.9%;
+    --nivel-obesidade-3: 351.4 100% 90.4%;
   }
 }
 
@@ -268,6 +294,14 @@
   --faixa-normal: 162 62% 39%;
   --faixa-sobrepeso: 36 92% 50%;
   --faixa-obesidade: 352 100% 86%;
+  /* Os 7 níveis no escuro: dentro da família, mais grave = mais luminoso (ΔE de CVD >= 9,9, visão normal >= 16,4). */
+  --nivel-abaixo: 205 80% 41%;
+  --nivel-normal: 162 62% 39%;
+  --nivel-sobrepeso-1: 28.6 65.4% 45.3%;
+  --nivel-sobrepeso-2: 35.4 99% 59%;
+  --nivel-obesidade-1: 0 57.3% 54.1%;
+  --nivel-obesidade-2: 354.3 93.5% 75.9%;
+  --nivel-obesidade-3: 351.4 100% 90.4%;
 }
 
 @layer base {

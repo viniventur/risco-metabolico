@@ -33,6 +33,16 @@ export const ROTULO_FILTRO: Record<NomeFiltro, string> = {
   historico_familiar: "Histórico familiar",
 };
 
+/** O rótulo que cabe dentro do gatilho compacto da faixa de filtros ("Água · Todos"); o completo vai ao leitor de tela. */
+export const ROTULO_CURTO_FILTRO: Record<NomeFiltro, string> = {
+  nivel: "Nível",
+  genero: "Gênero",
+  agua: "Água",
+  alcool: "Álcool",
+  caloricos: "Calóricos",
+  historico_familiar: "Histórico",
+};
+
 export function filtroVazio(f: FiltroPainel): boolean {
   return NOMES_FILTRO.every((n) => f[n].length === 0);
 }

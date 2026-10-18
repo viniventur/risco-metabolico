@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { fmtImc, fmtInt, fmtMs, fmtPct, fmtPontosPct } from "./ptBR";
+import { fmtDiferenca, fmtDiferencaPontos, fmtImc, fmtInt, fmtMs, fmtPct, fmtPontosPct } from "./ptBR";
 
 describe("formatação pt-BR", () => {
   it("fmtPct(0.413) === '41,3%'", () => {
@@ -20,6 +20,14 @@ describe("formatação pt-BR", () => {
   it("fmtImc tem sempre 2 casas, fmtMs uma", () => {
     expect(fmtImc(24.2)).toBe("24,20");
     expect(fmtMs(3.25)).toBe("3,3 ms");
+  });
+
+  it("fmtDiferenca e fmtDiferencaPontos levam sinal, e o que arredonda para zero sai sem sinal", () => {
+    expect(fmtDiferenca(2.71)).toBe("+2,7");
+    expect(fmtDiferenca(-0.44)).toBe("−0,4");
+    expect(fmtDiferenca(-0.04)).toBe("0,0");
+    expect(fmtDiferencaPontos(9.94)).toBe("+9,9 p.p.");
+    expect(fmtDiferencaPontos(null)).toBe("—");
   });
 
   it("nulos viram travessão, nunca NaN", () => {

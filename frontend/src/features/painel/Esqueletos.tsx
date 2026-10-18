@@ -1,6 +1,6 @@
 import { Skeleton } from "@/shared/ui/skeleton";
 
-// Esqueletos com a forma do gráfico que vai chegar: barras deitadas, colunas ou rosca. Só na
+// Esqueletos com a forma do gráfico que vai chegar: barras deitadas ou colunas. Só na
 // primeira carga — refetch mantém o quadro anterior em opacidade (§7.3).
 
 const LARGURAS = ["72%", "78%", "80%", "80%", "92%", "82%", "88%"];
@@ -24,14 +24,6 @@ export function EsqueletoBarras({ barras = 4, horizontal = false }: { barras?: n
       {Array.from({ length: barras }, (_, i) => (
         <Skeleton key={i} className="w-full max-w-14" style={{ height: ALTURAS[i % ALTURAS.length] }} />
       ))}
-    </div>
-  );
-}
-
-export function EsqueletoRosca() {
-  return (
-    <div className="flex h-full items-center justify-center">
-      <Skeleton className="aspect-square h-[78%] rounded-full" />
     </div>
   );
 }

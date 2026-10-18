@@ -15,6 +15,13 @@ type Props = {
   selecionados: string[];
   aoAlternar: (valor: string) => void;
   aoLimpar: () => void;
+  /**
+   * `padrao`: rótulo em cima e gatilho de 44 px (a Consulta). `compacto`: o rótulo DENTRO do gatilho
+   * ("Gênero · Todos"), para a faixa de filtros da Visão Geral caber numa linha só.
+   */
+  variante?: "padrao" | "compacto";
+  /** O rótulo visível no gatilho compacto ("Água"); `rotulo` continua sendo o nome acessível. */
+  rotuloCurto?: string;
 };
 
 /**
@@ -24,7 +31,7 @@ type Props = {
  * (antes era só cor de fundo, invisível ao leitor de tela — redesenho, 1.16). A lista é um Popover
  * do Radix: o Esc fecha a lista e marca o evento, e o atalho global de limpar filtros o ignora.
  */
-export function MultiSelect({ rotulo, opcoes, selecionados, aoAlternar, aoLimpar }: Props) {
+export function MultiSelect({ rotulo, opcoes, selecionados, aoAlternar, aoLimpar, variante = "padrao", rotuloCurto }: Props) {
   const [aberto, setAberto] = useState(false);
   const [busca, setBusca] = useState("");
   const [ativo, setAtivo] = useState(0);
@@ -33,6 +40,7 @@ export function MultiSelect({ rotulo, opcoes, selecionados, aoAlternar, aoLimpar
   const idValor = `${base}-valor`;
   const idLista = `${base}-lista`;
   const lista = useRef<HTMLUListElement>(null);
+  const compacto = variante === "compacto";
 
   const visiveis = opcoes.filter((o) => o.rotulo.toLowerCase().includes(busca.toLowerCase()));
   const nomes = opcoes.filter((o) => selecionados.includes(o.valor)).map((o) => o.rotulo);
@@ -74,9 +82,11 @@ export function MultiSelect({ rotulo, opcoes, selecionados, aoAlternar, aoLimpar
 
   return (
     <div className="flex min-w-0 flex-col gap-1.5">
-      <span id={idRotulo} className="text-xs font-medium text-muted-foreground">
-        {rotulo}
-      </span>
+      {compacto ? null : (
+        <span id={idRotulo} className="text-xs font-medium text-muted-foreground">
+          {rotulo}
+        </span>
+      )}
       <Popover open={aberto} onOpenChange={mudarAberto}>
         <PopoverTrigger asChild>
           <button
@@ -92,10 +102,31 @@ export function MultiSelect({ rotulo, opcoes, selecionados, aoAlternar, aoLimpar
                 mudarAberto(true);
               }
             }}
-            className={cn(CLASSE_DO_CONTROLE, "items-center justify-between gap-2 text-left hover:bg-accent/60")}
+            className={cn(
+              CLASSE_DO_CONTROLE,
+              "items-center justify-between gap-2 text-left hover:bg-accent/60",
+              // Compacto: 40 px desenhados (o .alvo-toque leva a área a 44) e o filtro LIGADO se distingue
+              // do desligado sem abrir a lista — quem rola o painel vê o recorte na própria faixa.
+              compacto && "alvo-toque h-10",
+              compacto && nomes.length > 0 && "border-primary/45 bg-accent",
+            )}
           >
-            <span id={idValor} className={cn("truncate", nomes.length === 0 && "text-muted-foreground")}>
-              {resumo}
+            <span className="flex min-w-0 items-baseline gap-1.5">
+              {compacto ? (
+                <span id={idRotulo} className="shrink-0 text-xs text-muted-foreground">
+                  {rotuloCurto ? (
+                    <>
+                      <span aria-hidden="true">{rotuloCurto}</span>
+                      <span className="sr-only">{rotulo}</span>
+                    </>
+                  ) : (
+                    rotulo
+                  )}
+                </span>
+              ) : null}
+              <span id={idValor} className={cn("truncate", nomes.length === 0 ? "text-muted-foreground" : compacto && "font-medium")}>
+                {resumo}
+              </span>
             </span>
             <ChevronsUpDown aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
           </button>

@@ -11,11 +11,11 @@ import { Button } from "@/shared/ui/button";
 
 import { BarrasPorNivel } from "./BarrasPorNivel";
 import { DispersaoAlturaPeso } from "./DispersaoAlturaPeso";
-import { DonutCaloricos } from "./DonutCaloricos";
 import { FaixaKpis } from "./FaixaKpis";
+import { FatoresAssociados } from "./FatoresAssociados";
+import { FiltrosDoPainel } from "./FiltrosDoPainel";
 import { ImcPorAlcool } from "./ImcPorAlcool";
 import { ImcPorAtividade } from "./ImcPorAtividade";
-import { ImcPorGenero } from "./ImcPorGenero";
 import { PainelGenero } from "./PainelGenero";
 
 /** O painel se compartilha por link (os filtros moram na URL): copiar é levar o recorte junto. */
@@ -36,9 +36,21 @@ function BotaoCompartilhar() {
   );
 }
 
+/** O título de uma parte do painel: a pergunta que os cartões embaixo respondem. */
+function TituloDaSecao({ titulo, descricao }: { titulo: string; descricao: string }) {
+  return (
+    <div className="col-span-full mt-4 flex flex-col gap-0.5 first:mt-0">
+      <h2 className="text-lg leading-tight font-semibold tracking-tight">{titulo}</h2>
+      <p className="text-sm text-muted-foreground">{descricao}</p>
+    </div>
+  );
+}
+
 /**
- * Visão Geral (§7.3) na grade de docs/redesenho-front.md §2.2: um titular e quatro apoios, depois
- * gráficos em 12 colunas a partir de 1280 px, 2 colunas entre 768 e 1279 px e 1 abaixo disso. Os
+ * Visão Geral (§7.3) contada em três partes: QUEM está no recorte (KPIs, níveis e gênero), O QUE ANDA
+ * JUNTO com a obesidade (os fatores de hábito e histórico) e O CORPO (altura, peso e IMC). Acima de
+ * tudo, a faixa de filtros em dropdowns, presa ao topo no desktop; o clique nos visuais filtra igual.
+ * Gráficos em 12 colunas a partir de 1280 px, 2 colunas entre 768 e 1279 px e 1 abaixo disso; os
  * cartões de uma linha têm a mesma altura (ChartFrame estica a área do gráfico até o fundo).
  */
 export function PainelPage() {
@@ -51,8 +63,9 @@ export function PainelPage() {
         titulo="Visão Geral"
         descricao={
           <>
-            A base de triagem em indicadores e sete visuais com filtros cruzados: clique numa barra, fatia ou coluna para filtrar o
-            painel inteiro. <kbd className="rounded border bg-muted px-1 font-mono text-[11px]">Esc</kbd> limpa os filtros.
+            A base de triagem em indicadores e visuais com filtros cruzados: escolha nos filtros abaixo ou clique numa barra
+            para filtrar o painel inteiro. <kbd className="rounded border bg-muted px-1 font-mono text-[11px]">Esc</kbd> limpa os
+            filtros.
           </>
         }
         acoes={
@@ -71,28 +84,34 @@ export function PainelPage() {
       </PageHeader>
 
       <div className="flex flex-col gap-4">
+        <FiltrosDoPainel />
         <FaixaKpis resumo={resumo} />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-12">
+          <TituloDaSecao titulo="Quem está no recorte" descricao="Os sete níveis de obesidade em ordem clínica e como eles se dividem entre os gêneros." />
           <div className="md:col-span-2 xl:col-span-7">
             <BarrasPorNivel />
           </div>
-          <div className="xl:col-span-5">
-            <DonutCaloricos />
-          </div>
-          <div className="xl:col-span-5">
+          <div className="md:col-span-2 xl:col-span-5">
             <PainelGenero />
           </div>
-          <div className="xl:col-span-3">
-            <ImcPorGenero />
+
+          <TituloDaSecao
+            titulo="O que anda junto com a obesidade"
+            descricao="Histórico familiar e hábitos: a composição dos níveis em cada resposta. Associação observada na base — não causa."
+          />
+          <div className="md:col-span-2 xl:col-span-12">
+            <FatoresAssociados />
           </div>
-          <div className="xl:col-span-4">
-            <ImcPorAlcool />
-          </div>
-          <div className="md:col-span-2 xl:col-span-7">
+
+          <TituloDaSecao titulo="O corpo: altura, peso e IMC" descricao="Onde cada nível cai entre as linhas de IMC, e o IMC médio por atividade física e por consumo de álcool." />
+          <div className="md:col-span-2 xl:col-span-12">
             <DispersaoAlturaPeso />
           </div>
-          <div className="md:col-span-2 xl:col-span-5">
+          <div className="xl:col-span-6">
             <ImcPorAtividade />
+          </div>
+          <div className="xl:col-span-6">
+            <ImcPorAlcool />
           </div>
         </div>
       </div>

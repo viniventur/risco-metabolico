@@ -20,8 +20,10 @@ export type TemaGrafico = {
   grade: string;
   eixo: string;
   superficie: string;
-  /** macro-faixa (rampa ordinal de 4 tons) — dispersão, ponto do nível na tabela, cartão de IMC */
+  /** macro-faixa (rampa ordinal de 4 tons) — ponto do nível na tabela, classe estimada, cartão de IMC */
   corDaMacroFaixa: Record<string, string>;
+  /** os 7 níveis: a matiz da macro-faixa com um degradê por grau dentro da família (a Visão Geral) */
+  corDoNivel: Record<string, string>;
 };
 
 /** Nível clínico -> token da macro-faixa (a cor segue a ENTIDADE, nunca o índice do array). */
@@ -35,9 +37,22 @@ export const MACRO_FAIXA: Record<string, "abaixo" | "normal" | "sobrepeso" | "ob
   "Obesidade III": "obesidade",
 };
 
+/** Nível clínico -> token do nível: a família (matiz) e o grau dentro dela (o passo do degradê). */
+export const TOKEN_DO_NIVEL: Record<string, string> = {
+  "Abaixo do Peso": "--nivel-abaixo",
+  "Peso Normal": "--nivel-normal",
+  "Sobrepeso I": "--nivel-sobrepeso-1",
+  "Sobrepeso II": "--nivel-sobrepeso-2",
+  "Obesidade I": "--nivel-obesidade-1",
+  "Obesidade II": "--nivel-obesidade-2",
+  "Obesidade III": "--nivel-obesidade-3",
+};
+
 function montar(): TemaGrafico {
   const corDaMacroFaixa: Record<string, string> = {};
   for (const [nivel, faixa] of Object.entries(MACRO_FAIXA)) corDaMacroFaixa[nivel] = lerVar(`--faixa-${faixa}`);
+  const corDoNivel: Record<string, string> = {};
+  for (const [nivel, token] of Object.entries(TOKEN_DO_NIVEL)) corDoNivel[nivel] = lerVar(token);
   return {
     primaria: lerVar("--grafico-primaria"),
     previsao: lerVar("--previsao"),
@@ -50,6 +65,7 @@ function montar(): TemaGrafico {
     eixo: lerVar("--muted-foreground"),
     superficie: lerVar("--card"),
     corDaMacroFaixa,
+    corDoNivel,
   };
 }
 

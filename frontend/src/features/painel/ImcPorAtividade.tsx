@@ -1,5 +1,7 @@
-import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+import { LIMITES_IMC } from "@/shared/dominio";
+import { categoriasDe, maximoDe, pivotar, tetoDoEixo } from "@/shared/filtros/agregadoUtil";
 import { FILTRO_VAZIO } from "@/shared/filtros/filtroSchema";
 import { useAgregado } from "@/shared/filtros/useAgregado";
 import { useCrossFilter } from "@/shared/filtros/useCrossFilter";
@@ -14,12 +16,17 @@ import { QueryState } from "@/shared/estados/QueryState";
 import { useChartTheme } from "@/shared/tema/useChartTheme";
 
 import { EsqueletoBarras } from "./Esqueletos";
-import { categoriasDe, maximoDe, pivotar, tetoDoEixo } from "./agregadoUtil";
 import { TooltipSeries, type LinhaSeries } from "./Tooltips";
 
 const SERIES = ["Feminino", "Masculino"] as const;
+/** Onde começam o sobrepeso e a obesidade (OMS, `LIMITES_IMC`): o contexto que a média sozinha não dá. */
+const REFERENCIAS = [LIMITES_IMC[1], LIMITES_IMC[2]];
 
-/** Colunas agrupadas (Feminino, Masculino) de IMC MÉDIO por frequência de atividade física. */
+/**
+ * Colunas agrupadas (Feminino, Masculino) de IMC MÉDIO por frequência de atividade física, com as
+ * linhas onde começam o sobrepeso (25) e a obesidade (30): a leitura deixa de ser "barras parecidas"
+ * e passa a ser em que faixa de IMC cada grupo cai.
+ */
 export function ImcPorAtividade() {
   const { filtros } = useFiltros();
   const cf = useCrossFilter("imc-atividade", "genero");
@@ -47,7 +54,7 @@ export function ImcPorAtividade() {
   return (
     <ChartFrame
       titulo="IMC Médio por Frequência de Atividade Física"
-      descricao="Média do IMC por gênero em cada faixa de atividade semanal. Clique numa coluna para filtrar o gênero."
+      descricao="Média do IMC por gênero em cada faixa de atividade semanal; as linhas marcam IMC 25 (sobrepeso) e 30 (obesidade). Clique numa coluna para filtrar o gênero."
       altura={300}
       tabela={
         <TabelaEquivalente
@@ -79,7 +86,7 @@ export function ImcPorAtividade() {
         esqueleto={<EsqueletoBarras barras={8} />}
       >
         <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 460, height: 300 }}>
-          <BarChart data={dados} margin={{ top: 8, right: 4, bottom: 18, left: 0 }} barGap={3} barCategoryGap="22%">
+          <BarChart data={dados} margin={{ top: 8, right: 26, bottom: 18, left: 0 }} barGap={3} barCategoryGap="22%">
             <CartesianGrid vertical={false} stroke={tema.grade} strokeDasharray="2 4" strokeOpacity={0.7} />
             <XAxis
               dataKey="rotulo"
@@ -96,12 +103,17 @@ export function ImcPorAtividade() {
               label={{ value: "IMC médio", angle: -90, position: "insideLeft", offset: 14, fill: tema.textoFraco, fontSize: FONTE_DO_EIXO }}
             />
             <Tooltip content={<TooltipSeries />} cursor={{ fill: tema.grade, fillOpacity: 0.5 }} />
+            {/* O número na ponta direita, FORA da área das colunas: dentro, ele brigava com elas. */}
+            {REFERENCIAS.map((imc) => (
+              <ReferenceLine key={imc} y={imc} stroke={tema.textoFraco} strokeDasharray="4 4" strokeOpacity={0.9} label={{ value: fmtNum(imc, 0), position: "right", fill: tema.textoFraco, fontSize: 11 }} />
+            ))}
             {SERIES.map((s) => (
               <Bar
                 key={s}
                 dataKey={s}
                 fill={cor(s)}
                 radius={[4, 4, 0, 0]}
+                maxBarSize={32}
                 isAnimationActive={false}
                 className="cursor-pointer"
                 onClick={() => cf.aoClicar(s)}

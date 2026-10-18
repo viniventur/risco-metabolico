@@ -11,9 +11,10 @@ import { ChartFrame } from "@/shared/graficos/ChartFrame";
 import { dominioRedondo, FONTE_DO_EIXO, propsDoEixo, ticksEntre } from "@/shared/graficos/eixos";
 import { LegendaHtml } from "@/shared/graficos/LegendaHtml";
 import { TabelaEquivalente } from "@/shared/graficos/TabelaEquivalente";
-import { MACRO_FAIXA, useChartTheme } from "@/shared/tema/useChartTheme";
+import { useChartTheme } from "@/shared/tema/useChartTheme";
 import { Skeleton } from "@/shared/ui/skeleton";
 
+import { amostraDaFamilia, FAMILIAS } from "./niveis";
 import { TooltipPonto, type PontoPlot } from "./Tooltips";
 
 const AMOSTRA = 2000;
@@ -22,20 +23,13 @@ const PASSO_ALTURA = 0.1;
 /** Pontos por curva de IMC: o bastante para a parábola parecer lisa na largura do cartão. */
 const PONTOS_DA_CURVA = 24;
 
-const MACROS = [
-  { chave: "abaixo", rotulo: "Abaixo do peso", nivel: "Abaixo do Peso" },
-  { chave: "normal", rotulo: "Peso normal", nivel: "Peso Normal" },
-  { chave: "sobrepeso", rotulo: "Sobrepeso (I e II)", nivel: "Sobrepeso I" },
-  { chave: "obesidade", rotulo: "Obesidade (I a III)", nivel: "Obesidade I" },
-] as const;
-
 /** Nada é desenhado nos vértices da curva de IMC: ela é só a linha (`line` do <Scatter>). */
 const semMarca = () => <g />;
 
 /**
- * Nuvem altura × peso, uma série por nível (7 séries), recebendo o cross-filter do donut e da barra
- * de nível pelo servidor. Redesenho (1.3, 1.4): pontos pequenos e semitransparentes na rampa
- * ordinal das macro-faixas, eixos em passos redondos com a unidade no título, e as LINHAS DE IMC
+ * Nuvem altura × peso, uma série por nível (7 séries), recebendo os filtros pelo servidor. Pontos
+ * pequenos e semitransparentes na cor do nível (a matiz da família e o degradê do grau, a mesma do
+ * gráfico de níveis), eixos em passos redondos com a unidade no título, e as LINHAS DE IMC
  * (18,5 · 25 · 30 · 35 · 40) como segundo canal no lugar das formas de marca — elas mostram por
  * que as classes aparecem em faixas diagonais: o nível é, quase todo, o IMC = peso / altura².
  */
@@ -112,7 +106,7 @@ export function DispersaoAlturaPeso() {
         <LegendaHtml
           titulo="Faixas na dispersão"
           itens={[
-            ...MACROS.map((m) => ({ rotulo: m.rotulo, cor: tema.corDaMacroFaixa[m.nivel] ?? "", forma: "circulo" as const })),
+            ...FAMILIAS.map((f) => ({ rotulo: f.rotulo, cor: amostraDaFamilia(f.niveis, tema), forma: "circulo" as const })),
             { rotulo: "Limite de IMC", cor: tema.textoFraco, forma: "quadrado" as const },
           ]}
         />
@@ -170,8 +164,8 @@ export function DispersaoAlturaPeso() {
                 key={n}
                 name={n}
                 data={grupos[n] ?? []}
-                fill={tema.corDaMacroFaixa[n]}
-                fillOpacity={MACRO_FAIXA[n] === "obesidade" ? 0.5 : 0.62}
+                fill={tema.corDoNivel[n]}
+                fillOpacity={0.6}
                 isAnimationActive={false}
               />
             ))}

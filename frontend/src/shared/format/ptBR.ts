@@ -37,6 +37,23 @@ export function fmtNum(valor: number | null | undefined, casas = 1): string {
   return f.format(valor);
 }
 
+/**
+ * Diferença com sinal (o recorte contra a base): 2.71 -> "+2,7"; −0.4 -> "−0,4"; o que arredonda
+ * para zero sai sem sinal ("0,0"). O menos é o sinal tipográfico (U+2212), não o hífen.
+ */
+export function fmtDiferenca(valor: number | null | undefined, casas = 1): string {
+  if (valor === null || valor === undefined || Number.isNaN(valor)) return "—";
+  const arredondado = Number(valor.toFixed(casas));
+  const sinal = arredondado > 0 ? "+" : arredondado < 0 ? "−" : "";
+  return `${sinal}${fmtNum(Math.abs(arredondado), casas)}`;
+}
+
+/** Diferença entre dois percentuais, em pontos percentuais: 9.94 -> "+9,9 p.p." */
+export function fmtDiferencaPontos(pontos: number | null | undefined, casas = 1): string {
+  const texto = fmtDiferenca(pontos, casas);
+  return texto === "—" ? texto : `${texto} p.p.`;
+}
+
 /** 24.22 -> "24,22" (IMC, 2 casas, como o app legado). */
 export function fmtImc(valor: number | null | undefined): string {
   return fmtNum(valor, 2);

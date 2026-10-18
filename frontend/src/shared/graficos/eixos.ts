@@ -14,12 +14,13 @@ export function propsDoEixo(tema: TemaGrafico) {
 }
 
 /**
- * Largura do eixo de categorias a partir do maior rótulo: ~7 px por caractere a 12 px, mais folga.
- * Antes as larguras eram fixas e cortavam "Frequentemente" e "Abaixo do Peso" (redesenho, 1.3).
+ * Largura do eixo de categorias a partir do maior rótulo: ~7,4 px por caractere a 12 px na Source
+ * Serif 4 (mais larga que a fonte do sistema, para a qual eram 7), mais a folga do tick. Antes as
+ * larguras eram fixas e cortavam "Frequentemente"; com 7 px, "Abaixo do Peso" quebrava em duas linhas.
  */
 export function larguraDoRotulo(rotulos: string[], minimo = 48): number {
   const maior = rotulos.reduce((m, r) => Math.max(m, r.length), 0);
-  return Math.max(minimo, Math.ceil(maior * 7 + 12));
+  return Math.max(minimo, Math.ceil(maior * 7.4 + 18));
 }
 
 /** Domínio "redondo" [piso, teto] em múltiplos de `passo` — derivado do dado, nunca escrito à mão. */

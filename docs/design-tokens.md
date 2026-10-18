@@ -78,12 +78,36 @@ nos dois temas. Ficou como estava: é semântica (abaixo, normal, sobrepeso, obe
 Na dispersão, o segundo canal são as **linhas de IMC** 18,5 · 25 · 30 · 35 · 40 (`LIMITES_IMC` em
 `shared/dominio.ts`), e não mais a forma da marca.
 
+**Os 7 níveis** (Visão Geral: barras por nível, dispersão, KPIs de excesso de peso e obesidade,
+pirâmide e fatores associados): a **família** dá a matiz — a mesma das macro-faixas, as cores das 7
+faixas do Início — e o **grau** dá o passo do degradê dentro dela. No claro, mais grave = mais escuro;
+no escuro, mais luminoso. Abaixo do peso e peso normal têm um grau só e repetem a macro-faixa.
+
+| Token | Claro | Contraste | Escuro | Contraste |
+|---|---|---|---|---|
+| `--nivel-abaixo` | `200 85% 47%` `#129ade` | 3,1 | `205 80% 41%` `#1576bc` | 3,2 |
+| `--nivel-normal` | `165 75% 30%` `#138669` | 4,4 | `162 62% 39%` `#26a17c` | 4,8 |
+| `--nivel-sobrepeso-1` | `32.4 73.1% 46.7%` `#ce7e20` | 3,1 | `28.6 65.4% 45.3%` `#bf7028` | 4,2 |
+| `--nivel-sobrepeso-2` | `30.2 96% 29.6%` `#944c03` | 6,2 | `35.4 99% 59%` `#fea92f` | 8,1 |
+| `--nivel-obesidade-1` | `358.2 64% 58.6%` `#d95256` | 3,9 | `0 57.3% 54.1%` `#cd4747` | 3,4 |
+| `--nivel-obesidade-2` | `351.4 66.3% 37.3%` `#9e2032` | 7,6 | `354.3 93.5% 75.9%` `#fb8893` | 6,7 |
+| `--nivel-obesidade-3` | `345.6 76.7% 20.2%` `#5b0c1f` | 13,5 | `351.4 100% 90.4%` `#ffced5` | 11,2 |
+
+Validação pelo script do dataviz (`validate_palette.js`, pares vizinhos, contra o cartão): ΔE de CVD
+**9,9** no claro e **9,9** no escuro (alvo 8), ΔE de visão normal **15,7** e **16,4** (piso 15), todas
+as marcas ≥ 3:1. Cada família (sobrepeso I–II, obesidade I–III) passa como rampa ordinal (`--ordinal`:
+uma matiz, luminosidade monótona, degraus ≥ 0,06). O script ainda acusa a faixa de luminosidade na ponta
+de cada rampa (obesidade III no claro; sobrepeso II e obesidade II–III no escuro) e o croma baixo do
+rosa de obesidade III no escuro: é o esperado de uma rampa — a ponta grave é a mais saliente de
+propósito —, e a regra da faixa é para paleta categórica. A dispersão pinta 7 séries, acima do teto de
+3 do teste de todos os pares: lá, as linhas de IMC são o segundo canal que separa as faixas.
+
 **Categóricas e cor única:**
 
 | Uso | Token | Claro | Escuro |
 |---|---|---|---|
-| Série única (nível, log) e "Sim" do donut | `--grafico-primaria` | grafite `0 2.3% 26.1%` (9,9:1) | `20 7.1% 83.5%` (10,6:1) |
-| Segunda série (álcool, treino × log) e "Não" do donut | `--grafico-secundaria` | `10 2.5% 53.7%` (3,5:1) | `17.1 3% 54.7%` (4,6:1) |
+| Série única (log do monitoramento, barras do simulador) | `--grafico-primaria` | grafite `0 2.3% 26.1%` (9,9:1) | `20 7.1% 83.5%` (10,6:1) |
+| Segunda série (IMC por álcool, treino × log) | `--grafico-secundaria` | `10 2.5% 53.7%` (3,5:1) | `17.1 3% 54.7%` (4,6:1) |
 | Classe estimada nas barras de probabilidade (as demais em grafite a 40 %) | `--previsao` | magenta | magenta claro |
 | Feminino | `--feminino` | `17 82% 56%` `#eb6733` (3,1:1) | `17 70% 50%` `#d95926` (4,0:1) |
 | Masculino | `--masculino` | `213 68% 50%` `#2977d6` (4,4:1) | `213 76% 56%` `#3a86e4` (4,3:1) |
@@ -95,8 +119,10 @@ pelo script dele nos dois temas (ΔE de CVD 24,7 no claro e 26,8 no escuro; o pi
 herdado saiu: era quase o magenta, que a marca reserva à previsão.
 
 As regras de cor condicional que existem: `Genero = 'Feminino'` → `--feminino`, `Masculino` →
-`--masculino`; `Consumo_Calorico_Frequente = 'Sim'` → `--grafico-primaria`. As regras condicionadas
-a `Fumante` do painel original são herança morta e não foram replicadas (§7.3).
+`--masculino`; `Nivel_Obesidade` → o `--nivel-*` da classe. A regra herdada `Consumo_Calorico_Frequente
+= 'Sim'` → `--grafico-primaria` saiu com a rosca de calóricos (o consumo virou um grupo do gráfico de
+fatores, pintado pelos níveis). As regras condicionadas a `Fumante` do painel original são herança
+morta e não foram replicadas (§7.3).
 
 ## Forma, tipografia e movimento
 
@@ -120,15 +146,20 @@ a `Fumante` do painel original são herança morta e não foram replicadas (§7.
 
 ## Grade da Visão Geral
 
-KPIs: `grid-cols-2 lg:grid-cols-4 xl:grid-cols-[1.5fr_1fr_1fr_1fr_1.25fr]` — o titular ("Registros
-no recorte") ocupa a linha toda até 1279 px. Gráficos: 12 colunas a partir de 1280 px, 2 entre 768 e
-1279 px, 1 abaixo disso.
+Acima de tudo, a **faixa de filtros** (`FiltrosDoPainel`): os 6 filtros em dropdowns compactos
+(rótulo curto dentro do gatilho, 40 px desenhados e 44 px de alvo), `md:grid-cols-3 xl:grid-cols-6`,
+presa em `lg:top-[4.25rem]` (abaixo da barra do topo); o filtro ligado ganha borda e fundo de destaque.
 
-| Linha | Cartões (`xl:col-span`) |
+KPIs: `grid-cols-2 lg:grid-cols-4 xl:grid-cols-[1.4fr_1fr_1fr_1.1fr_1.25fr]` — o titular ("Registros
+no recorte") ocupa a linha toda até 1279 px; depois, excesso de peso, obesidade, nível predominante e o
+perfil médio. Gráficos: 12 colunas a partir de 1280 px, 2 entre 768 e 1279 px, 1 abaixo disso, em três
+partes com título de seção (`text-lg` semibold e uma frase em `--muted-foreground`).
+
+| Parte | Cartões (`xl:col-span`) |
 |---|---|
-| 2 | Divisão por Nível de Obesidade (7) · Consumo de Alimentos Calóricos (5) |
-| 3 | Divisão por Gênero (5) · IMC Médio por Gênero (3) · IMC Médio por Consumo de Álcool (4) |
-| 4 | Altura, Peso e o Nível de Obesidade (7) · IMC Médio por Frequência de Atividade Física (5) |
+| Quem está no recorte | Divisão por Nível de Obesidade (7) · Gênero e Nível de Obesidade (5) |
+| O que anda junto com a obesidade | Fatores associados à obesidade (12) |
+| O corpo: altura, peso e IMC | Altura, Peso e o Nível de Obesidade (12) · IMC Médio por Atividade Física (6) · IMC Médio por Consumo de Álcool (6) |
 
 Todo cartão de gráfico é `h-full flex flex-col` e a área do gráfico é `flex-1` com altura mínima
 (o conteúdo num bloco absoluto de tamanho resolvido, porque `<ResponsiveContainer height="100%">`

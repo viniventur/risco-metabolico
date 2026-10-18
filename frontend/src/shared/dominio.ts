@@ -42,6 +42,12 @@ export function calcularImc(peso: number, altura: number): number {
   return Math.round((peso / (altura * altura)) * 100) / 100;
 }
 
+/**
+ * A ordem de LEITURA das respostas de frequência (consumo de álcool, lanches entre refeições): a do
+ * servidor é a do código de ponto ("Frequentemente" antes de "Não"), que não diz nada a quem lê.
+ */
+export const ORDEM_FREQUENCIA = ["Não", "Às vezes", "Frequentemente", "Sempre"] as const;
+
 /** Rótulos curtos de apresentação para a escala ordinal de atividade física (eixo; o tooltip mostra o rótulo de /metadata). */
 export const ROTULO_CURTO_ATIVIDADE: Record<string, string> = {
   "0": "nenhuma",

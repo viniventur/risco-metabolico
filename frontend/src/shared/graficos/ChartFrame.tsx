@@ -17,6 +17,11 @@ type Props = {
   acoes?: ReactNode;
   /** Legenda em HTML, fora do SVG, abaixo da área do gráfico. */
   legenda?: ReactNode;
+  /**
+   * O conteúdo em fluxo normal, com a altura que ele pedir (gráficos em HTML, como o de fatores). O
+   * padrão é o bloco absoluto do tamanho da área, que os gráficos do Recharts exigem.
+   */
+  alturaNatural?: boolean;
   className?: string;
   children: ReactNode;
 };
@@ -26,7 +31,7 @@ type Props = {
  * cresce até o fundo do cartão (os cartões de uma linha têm a mesma altura e os gráficos terminam
  * alinhados), legenda em HTML e o alternador "Ver dados" (tabela equivalente) / gráfico.
  */
-export function ChartFrame({ titulo, descricao, altura = 280, tabela, acoes, legenda, className, children }: Props) {
+export function ChartFrame({ titulo, descricao, altura = 280, tabela, acoes, legenda, alturaNatural = false, className, children }: Props) {
   const [mostrarTabela, setMostrarTabela] = useState(false);
   const idTitulo = useId();
   return (
@@ -64,11 +69,17 @@ export function ChartFrame({ titulo, descricao, altura = 280, tabela, acoes, leg
         {/* A área cresce até o fundo do cartão (os cartões de uma linha têm a mesma altura) e nunca
             fica abaixo de `altura`; o conteúdo vai num bloco absoluto, de tamanho sempre resolvido. */}
         <div className="flex flex-1 flex-col gap-3 px-5 pb-5">
-          <div style={{ minHeight: altura }} className="relative w-full min-w-0 flex-1">
-            <div className="absolute inset-0">
-              {mostrarTabela && tabela ? <div className="h-full overflow-auto rounded-md border">{tabela}</div> : children}
+          {alturaNatural ? (
+            <div style={{ minHeight: altura }} className="w-full min-w-0 flex-1">
+              {mostrarTabela && tabela ? <div className="max-h-[36rem] overflow-auto rounded-md border">{tabela}</div> : children}
             </div>
-          </div>
+          ) : (
+            <div style={{ minHeight: altura }} className="relative w-full min-w-0 flex-1">
+              <div className="absolute inset-0">
+                {mostrarTabela && tabela ? <div className="h-full overflow-auto rounded-md border">{tabela}</div> : children}
+              </div>
+            </div>
+          )}
           {legenda && !mostrarTabela ? legenda : null}
         </div>
       </section>

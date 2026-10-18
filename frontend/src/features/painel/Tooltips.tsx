@@ -1,13 +1,12 @@
 // Conteúdos de <Tooltip> declarados FORA do render dos gráficos (§7.3), todos sobre o TooltipGrafico.
 import { TooltipGrafico } from "@/shared/graficos/TooltipGrafico";
-import { fmtImc, fmtInt, fmtNum, fmtPontosPct } from "@/shared/format/ptBR";
+import { fmtImc, fmtInt, fmtNum } from "@/shared/format/ptBR";
 
 type Carga<T> = {
   active?: boolean;
   payload?: Array<{ payload: T; dataKey?: string | number; name?: string | number; color?: string; fill?: string }>;
 };
 
-export type LinhaContagem = { categoria: string; rotulo: string; contagem: number; pct: number | null };
 export type LinhaMedia = {
   categoria: string;
   rotulo: string;
@@ -16,20 +15,6 @@ export type LinhaMedia = {
   suprimido: boolean;
   rotuloValor: string;
 };
-
-export function TooltipContagem({ active, payload }: Carga<LinhaContagem>) {
-  if (!active || !payload?.[0]) return null;
-  const l = payload[0].payload;
-  return (
-    <TooltipGrafico
-      titulo={l.rotulo}
-      linhas={[
-        { rotulo: "Registros", valor: fmtInt(l.contagem), cor: payload[0].color ?? payload[0].fill },
-        { rotulo: "Do recorte", valor: fmtPontosPct(l.pct) },
-      ]}
-    />
-  );
-}
 
 export function TooltipMedia({ active, payload }: Carga<LinhaMedia>) {
   if (!active || !payload?.[0]) return null;

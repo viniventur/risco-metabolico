@@ -1,5 +1,7 @@
-import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Cell, LabelList, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+import { LIMITES_IMC, ORDEM_FREQUENCIA } from "@/shared/dominio";
+import { maximoDe, pivotar, tetoDoEixo } from "@/shared/filtros/agregadoUtil";
 import { FILTRO_VAZIO } from "@/shared/filtros/filtroSchema";
 import { useAgregado } from "@/shared/filtros/useAgregado";
 import { useCrossFilter } from "@/shared/filtros/useCrossFilter";
@@ -12,8 +14,16 @@ import { QueryState } from "@/shared/estados/QueryState";
 import { useChartTheme, type TemaGrafico } from "@/shared/tema/useChartTheme";
 
 import { EsqueletoBarras } from "./Esqueletos";
-import { maximoDe, pivotar, tetoDoEixo } from "./agregadoUtil";
 import { TooltipMedia, type LinhaMedia } from "./Tooltips";
+
+/** Onde começam o sobrepeso e a obesidade (OMS, `LIMITES_IMC`): o contexto que a média sozinha não dá. */
+const REFERENCIAS = [LIMITES_IMC[1], LIMITES_IMC[2]];
+
+/** Posição da resposta na ordem de frequência; o que não estiver na lista vai para o fim. */
+function posicao(categoria: string): number {
+  const i = (ORDEM_FREQUENCIA as readonly string[]).indexOf(categoria);
+  return i < 0 ? ORDEM_FREQUENCIA.length : i;
+}
 
 type PropsDoTick = { x?: number | string; y?: number | string; payload?: { value?: string } };
 
@@ -40,7 +50,12 @@ function fabricarTick(dados: LinhaMedia[], tema: TemaGrafico) {
   };
 }
 
-/** Barras horizontais de IMC médio por consumo de álcool, ordenadas desc; n < 15 é suprimido e marcado. */
+/**
+ * Barras horizontais de IMC médio por consumo de álcool, em ORDEM DE FREQUÊNCIA (não, às vezes,
+ * frequentemente, sempre) — e não mais da maior para a menor: numa escala ordinal, é a ordem que
+ * mostra que a relação não é linear ("às vezes" tem o maior IMC). As linhas marcam o início do
+ * sobrepeso e da obesidade; n < 15 é suprimido e marcado.
+ */
 export function ImcPorAlcool() {
   const { filtros } = useFiltros();
   const cf = useCrossFilter("imc-alcool", "alcool");
@@ -56,14 +71,14 @@ export function ImcPorAlcool() {
       suprimido: l.suprimido,
       rotuloValor: l.suprimido ? "n < 15" : fmtNum(l.valores.imc_medio, 1),
     }))
-    .sort((a, b) => b.valor - a.valor);
+    .sort((a, b) => posicao(a.categoria) - posicao(b.categoria));
   const teto = tetoDoEixo(maximoDe(pivotar(global.data), "imc_medio"));
   const eixo = propsDoEixo(tema);
 
   return (
     <ChartFrame
       titulo="IMC Médio por Consumo de Álcool"
-      descricao="Média do IMC por frequência de consumo, da maior para a menor. Clique numa barra para filtrar."
+      descricao="Média do IMC por frequência de consumo; as linhas marcam IMC 25 (sobrepeso) e 30 (obesidade). Clique numa barra para filtrar."
       altura={240}
       tabela={
         <TabelaEquivalente
@@ -85,7 +100,7 @@ export function ImcPorAlcool() {
         esqueleto={<EsqueletoBarras horizontal barras={4} />}
       >
         <ResponsiveContainer width="100%" height="100%" initialDimension={{ width: 460, height: 240 }}>
-          <BarChart data={dados} layout="vertical" margin={{ top: 0, right: 44, bottom: 0, left: 0 }} barCategoryGap="24%">
+          <BarChart data={dados} layout="vertical" margin={{ top: 16, right: 44, bottom: 0, left: 0 }} barCategoryGap="24%">
             <XAxis type="number" domain={[0, teto]} tickFormatter={(v: number) => fmtInt(v)} {...eixo} />
             <YAxis
               type="category"
@@ -97,10 +112,15 @@ export function ImcPorAlcool() {
               tick={fabricarTick(dados, tema)}
             />
             <Tooltip content={<TooltipMedia />} cursor={{ fill: tema.grade, fillOpacity: 0.5 }} />
+            {/* O número em cima da linha, na margem de cima: embaixo, ele brigava com os ticks do eixo. */}
+            {REFERENCIAS.map((imc) => (
+              <ReferenceLine key={imc} x={imc} stroke={tema.textoFraco} strokeDasharray="4 4" strokeOpacity={0.9} label={{ value: fmtNum(imc, 0), position: "top", fill: tema.textoFraco, fontSize: 11 }} />
+            ))}
             <Bar
               dataKey="valor"
               fill={tema.secundaria}
-              radius={[0, 5, 5, 0]}
+              radius={[0, 4, 4, 0]}
+              maxBarSize={28}
               isAnimationActive={false}
               className="cursor-pointer"
               onClick={(_: unknown, i: number) => {

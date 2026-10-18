@@ -6,7 +6,8 @@ import { Skeleton } from "./skeleton";
 
 type Props = {
   rotulo: string;
-  valor: string;
+  /** o número já formatado (ou o nome, na variante `texto`, que pode vir com a amostra da cor da classe) */
+  valor: ReactNode;
   unidade?: string;
   /** texto secundário (ex.: "n = 351") */
   detalhe?: ReactNode;
