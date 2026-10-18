@@ -51,7 +51,7 @@ uv run --extra treino python -m app.treino verificar      # retreina e compara: 
 Pop-Location
 ```
 
-`verificar` não compara o sha256 do `.pkl` (nunca é byte-idêntico): compara o sha256 das probabilidades arredondadas sobre `backend/tests/dados_ouro/entradas.json` e as métricas com tolerância `1e-6`. Se o modelo servido não for o que o pipeline produz sobre os mesmos dados, o CI quebra.
+`verificar` não compara o sha256 do `.pkl` (nunca é byte-idêntico): compara as predições sobre `backend/tests/dados_ouro/entradas.json` e as métricas com tolerância `1e-6`. Na mesma plataforma do treino, a comparação das predições é o sha256 exato das probabilidades arredondadas; noutra plataforma (o CI em Linux contra o artefato treinado em Windows), valem classes iguais e probabilidades a `0,03`, tolerância medida em F17 (máximo observado 0,0214, com métricas idênticas; ADR 0004). Se o modelo servido não for o que o pipeline produz sobre os mesmos dados, o CI quebra.
 
 ## O que a auditoria do artefato herdado encontrou
 

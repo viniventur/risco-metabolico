@@ -45,6 +45,12 @@ SQL_AGREGADOS_PADRAO = RAIZ_REPOSITORIO / "sql" / "agregados"
 DADOS_OURO = RAIZ_REPOSITORIO / "backend" / "tests" / "dados_ouro"
 NOME_PROJETO = "risco-metabolico"
 TOLERANCIA_METRICAS = 1e-6
+# Reprodutibilidade ENTRE plataformas, medida em F17 (2026-10-18, ADR 0004): o mesmo snapshot, os
+# mesmos pacotes e hiperparâmetros produzem, em Windows e em Linux, modelos com métricas iguais a
+# 1e-15 e as mesmas classes nos 24 casos de ouro, mas probabilidades diferentes (máximo 0,0214
+# em 168, mediana 4,8e-5) — o treino do XGBoost não é bit a bit reprodutível entre sistemas.
+# Na MESMA plataforma do treino o critério continua o sha256 exato; noutra, vale esta tolerância.
+TOLERANCIA_PROBAS_ENTRE_PLATAFORMAS = 0.03
 CHAVES_METRICAS = ("acuracia", "f1_macro", "recall_risco")
 
 
@@ -476,10 +482,22 @@ def cmd_verificar(args: argparse.Namespace) -> int:
 
     falhas: list[str] = []
     sha = _sha_probas(probas)
-    if sha != manifest["sha256_predicoes_ouro"]:
-        falhas.append(
-            f"sha256 das predições de ouro: manifest {manifest['sha256_predicoes_ouro'][:12]}… "
-            f"≠ retreino {sha[:12]}…"
+    sistema_do_treino = str((manifest.get("ambiente") or {}).get("sistema") or "")
+    mesma_plataforma = platform.system() == sistema_do_treino
+    if mesma_plataforma:
+        criterio = "sha256 exato das predições de ouro (mesma plataforma do treino)"
+        if sha != manifest["sha256_predicoes_ouro"]:
+            falhas.append(
+                f"sha256 das predições de ouro: manifest "
+                f"{manifest['sha256_predicoes_ouro'][:12]}… ≠ retreino {sha[:12]}…"
+            )
+    else:
+        criterio = (
+            f"classes iguais e probabilidades a {TOLERANCIA_PROBAS_ENTRE_PLATAFORMAS} "
+            f"({sistema_do_treino or 'plataforma desconhecida'} → {platform.system()})"
+        )
+        falhas += _comparar_com_saidas_esperadas(
+            probas, classes, args.dados_ouro / "saidas_esperadas.json"
         )
     for chave in CHAVES_METRICAS:
         esperado, real = float(manifest["metricas_teste"][chave]), float(metricas[chave])
@@ -498,9 +516,37 @@ def cmd_verificar(args: argparse.Namespace) -> int:
     print(
         f"OK: {manifest['algoritmo']} v{manifest['versao']} "
         f"sobre versao_dados={manifest['dataset']['versao_dados']} "
-        f"reproduz as predições de ouro e as métricas (tolerância {TOLERANCIA_METRICAS})"
+        f"reproduz as predições de ouro e as métricas (tolerância {TOLERANCIA_METRICAS}); "
+        f"critério: {criterio}"
     )
     return 0
+
+
+def _comparar_com_saidas_esperadas(
+    probas: np.ndarray, classes: list[str], saidas_esperadas: Path
+) -> list[str]:
+    """Critério entre plataformas: mesma classe e probabilidade dentro da tolerância medida."""
+    if not saidas_esperadas.exists():
+        return [f"{saidas_esperadas.name} ausente ao lado de entradas.json: rode `treinar` antes"]
+    esperadas = json.loads(saidas_esperadas.read_text(encoding="utf-8"))
+    if len(esperadas) != len(probas):
+        return [f"saidas_esperadas.json tem {len(esperadas)} casos; entradas.json, {len(probas)}"]
+    falhas: list[str] = []
+    desvio_max = 0.0
+    for i, (pr, esperado) in enumerate(zip(probas, esperadas, strict=True)):
+        classe = classes[int(np.argmax(pr))]
+        if classe != esperado["classe_prevista"]:
+            falhas.append(f"caso {i}: classe {classe!r} ≠ esperada {esperado['classe_prevista']!r}")
+        for c, v in zip(classes, pr, strict=True):
+            desvio_max = max(desvio_max, abs(float(v) - float(esperado["probabilidades"][c])))
+    if desvio_max > TOLERANCIA_PROBAS_ENTRE_PLATAFORMAS:
+        falhas.append(
+            f"probabilidades de ouro: desvio máximo {desvio_max:.4f} acima da tolerância "
+            f"{TOLERANCIA_PROBAS_ENTRE_PLATAFORMAS} entre plataformas"
+        )
+    else:
+        print(f"probabilidades de ouro: desvio máximo {desvio_max:.4f} entre plataformas")
+    return falhas
 
 
 def construir_parser() -> argparse.ArgumentParser:

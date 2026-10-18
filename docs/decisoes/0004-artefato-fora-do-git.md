@@ -24,6 +24,12 @@ O backend lê `models/` e `artifacts/` por variável de ambiente (`MODELOS_DIR`,
 - `manifest.sha256` é o hash **do arquivo** e serve a uma coisa só: conferir o download do release asset (`scripts/baixar_modelo.py`, stdlib pura, roda dentro da imagem `python:3.12-slim`). Em produção (`EXIGIR_INTEGRIDADE=true`) um hash divergente é 503; em desenvolvimento, aviso.
 - `manifest.sha256_predicoes_ouro` é o critério de **reprodutibilidade**: `python -m app.treino verificar` retreina sobre o mesmo snapshot congelado e compara o sha256 das probabilidades (6 casas) sobre `backend/tests/dados_ouro/entradas.json`, mais as métricas com tolerância `1e-6`. Comparar o sha256 do `.pkl` seria fisicamente impossível (o dump do XGBoost carrega buffers variáveis, o joblib grava versões no cabeçalho, o dict de topo tem `treinado_em`) e viraria um portão que nunca passa.
 
+### Reprodutibilidade entre plataformas (medida em F17, 2026-10-18)
+
+O critério do sha256 exato supunha treino determinístico. Ele vale **na mesma plataforma** — dois treinos em Linux (o runner do CI e um contêiner local) produziram o mesmo hash — mas não entre sistemas: sobre o mesmo snapshot, os mesmos pacotes (uv.lock) e os mesmos hiperparâmetros, o treino em Windows e o treino em Linux deram **métricas iguais a 1e-15** e **as mesmas classes nos 24 casos de ouro**, porém probabilidades diferentes: máximo 0,0214 em 168 probabilidades, mediana 4,8e-5, 4 acima de 0,01. O XGBoost não é bit a bit reprodutível entre sistemas operacionais, e o artefato publicado foi treinado em Windows.
+
+Regra, em `python -m app.treino verificar` e em `tests/test_treino_cli.py`: se `platform.system()` é igual a `ambiente.sistema` do manifest, o critério continua o **sha256 exato**; senão, valem **classes iguais** e probabilidades dentro de `TOLERANCIA_PROBAS_ENTRE_PLATAFORMAS = 0,03` contra `saidas_esperadas.json` — sempre com as métricas a `1e-6` e a largura do modelo igual. A tolerância é o máximo medido com folga, não um número escolhido para o portão passar; se o desvio crescer, o portão fecha e a medição é refeita. `sha256_predicoes_ouro` segue no manifest como impressão digital do artefato publicado.
+
 ## Como o artefato é publicado
 
 1. Local: `gh release create v2.0.0 models/modelo-2.0.0.pkl data/processado/snapshot-<versao_dados>.parquet --title "modelo 2.0.0"` (o README traz o comando). O snapshot vai junto: é o segundo asset que a imagem publicada baixa.
