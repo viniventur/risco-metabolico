@@ -249,20 +249,36 @@ function Dados() {
   const linhas = split ? Number(split.linhas_treino) + Number(split.linhas_teste) : undefined;
   const colunas = info.data ? info.data.n_features_entrada + 1 : undefined;
   return (
-    <Cartao icone={Database} sobretitulo="Dados" titulo="Base pública, majoritariamente sintética" ordem={1}>
-      <dl className="grid grid-cols-3 gap-2">
-        <Estatistica valor={linhas} formatar={fmtInt} rotulo="registros" carregando={info.isPending} />
-        <Estatistica valor={colunas} formatar={fmtInt} rotulo="colunas, com o alvo" carregando={info.isPending} />
-        <Estatistica valor={77} formatar={(v) => `${fmtInt(v)}%`} rotulo="sintéticos" />
-      </dl>
-      <p>
-        Conjunto público do UCI Machine Learning Repository (id 544, licença CC BY 4.0). Os próprios autores geraram 77% dos registros
-        sinteticamente: nenhum registro corresponde a uma pessoa real, e nenhuma leitura epidemiológica das distribuições é válida.
-      </p>
+    <Cartao icone={Database} sobretitulo="Dados" titulo="Duas bases públicas: uma fictícia, outra real e anonimizada" ordem={1}>
+      <div className="flex flex-col gap-2">
+        <h4 className="text-sm font-semibold text-foreground">Obesidade: dados fictícios</h4>
+        <dl className="grid grid-cols-3 gap-2">
+          <Estatistica valor={linhas} formatar={fmtInt} rotulo="registros" carregando={info.isPending} />
+          <Estatistica valor={colunas} formatar={fmtInt} rotulo="colunas, com o alvo" carregando={info.isPending} />
+          <Estatistica valor={77} formatar={(v) => `${fmtInt(v)}%`} rotulo="sintéticos" />
+        </dl>
+        <p>
+          Conjunto público do UCI Machine Learning Repository (id 544, licença CC BY 4.0). Os próprios autores geraram 77% dos registros
+          sinteticamente: nenhum registro corresponde a uma pessoa real, e nenhuma leitura epidemiológica das distribuições é válida.
+        </p>
+      </div>
+      <div className="flex flex-col gap-2 border-t pt-4">
+        <h4 className="text-sm font-semibold text-foreground">Diabetes: dados reais e anonimizados</h4>
+        <p>
+          Respostas reais da pesquisa telefônica de fatores de risco do CDC dos Estados Unidos (BRFSS 2015), no UCI Machine Learning Repository
+          (id 891, licença CC0), anonimizadas na origem: nenhum registro identifica uma pessoa. Sem pesos amostrais, a prevalência da base não
+          estima a da população.
+        </p>
+      </div>
       {URL_REPO ? (
-        <LinkDoCartao para={repo("docs/dicionario-de-dados.md")} externo>
-          Dicionário de dados
-        </LinkDoCartao>
+        <div className="mt-auto flex flex-wrap gap-x-4">
+          <LinkDoCartao para={repo("docs/dicionario-de-dados.md")} externo>
+            Dicionário · obesidade
+          </LinkDoCartao>
+          <LinkDoCartao para={repo("docs/dicionario-de-dados-diabetes.md")} externo>
+            Dicionário · diabetes
+          </LinkDoCartao>
+        </div>
       ) : null}
     </Cartao>
   );
@@ -544,7 +560,8 @@ function Auditoria() {
 
 const LIMITES = [
   "Triagem, não diagnóstico: a saída ordena prioridade de atenção.",
-  "Base majoritariamente sintética: nenhuma leitura epidemiológica é válida.",
+  "Base de obesidade majoritariamente sintética: nenhuma leitura epidemiológica é válida.",
+  "Base de diabetes real, mas autodeclarada e sem pesos amostrais: associação, não causa, e uma prevalência que não é a da população.",
   "Sem login, por decisão: nada é salvo por pessoa, e o registro do simulador é anônimo.",
 ];
 
