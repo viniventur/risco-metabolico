@@ -9,7 +9,7 @@ import { useMenuLateral } from "@/shared/layout/menuLateral";
 import { Sidebar } from "@/shared/layout/Sidebar";
 import { Topbar } from "@/shared/layout/Topbar";
 import { cn } from "@/shared/lib/utils";
-import { RodapeAviso } from "@/shared/ui/RodapeAviso";
+import { RodapeDaRota } from "@/shared/ui/RodapeAviso";
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/shared/ui/sheet";
 import { Toaster } from "@/shared/ui/sonner";
 import { TooltipProvider } from "@/shared/ui/tooltip";
@@ -71,9 +71,10 @@ function Casca() {
               <Outlet />
             </main>
             {/* O aviso ocupa a largura toda: com a largura limitada ele quebrava em "não substitui", com
-                metade da linha sobrando. Os links ficam na linha de baixo, para não disputar espaço com ele. */}
+                metade da linha sobrando. Os links ficam na linha de baixo, para não disputar espaço com ele.
+                A frase é a da vertente da rota; as telas comuns mostram as duas (avisosDaRota). */}
             <footer className="nao-imprimir flex flex-col gap-2 border-t px-4 py-4 sm:px-6 lg:px-8">
-              <RodapeAviso />
+              <RodapeDaRota caminho={pathname} />
               <nav aria-label="Rodapé" className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                 <Link to={ROTA_DA_PRIVACIDADE} className="underline-offset-4 hover:text-foreground hover:underline">
                   Política de Privacidade

@@ -1,5 +1,5 @@
 import { Marca } from "@/shared/ui/Marca";
-import { RodapeAviso } from "@/shared/ui/RodapeAviso";
+import { RodapeDaRota } from "@/shared/ui/RodapeAviso";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 /**
@@ -33,8 +33,9 @@ export function CascaCarregando() {
           </div>
           <Skeleton className="h-72 w-full" />
         </div>
-        <div className="border-t px-4 py-4 sm:px-6 lg:px-8">
-          <RodapeAviso />
+        {/* O endereço do navegador, e não o do roteador: este quadro vem antes da primeira tela. */}
+        <div className="flex flex-col gap-2 border-t px-4 py-4 sm:px-6 lg:px-8">
+          <RodapeDaRota caminho={window.location.pathname} />
         </div>
       </div>
     </div>

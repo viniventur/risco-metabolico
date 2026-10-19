@@ -111,6 +111,7 @@ propósito —, e a regra da faixa é para paleta categórica. A dispersão pint
 | Classe estimada nas barras de probabilidade (as demais em grafite a 40 %) | `--previsao` | magenta | magenta claro |
 | Feminino | `--feminino` | `17 82% 56%` `#eb6733` (3,1:1) | `17 70% 50%` `#d95926` (4,0:1) |
 | Masculino | `--masculino` | `213 68% 50%` `#2977d6` (4,4:1) | `213 76% 56%` `#3a86e4` (4,3:1) |
+| "Com diabetes" (vertente diabetes: % com diabetes nos gráficos, medidor do KPI, ponto da Consulta) | `--diabetes` | violeta `248.1 62% 57.6%` `#6250d6` (5,6:1) | `246.6 69.4% 71.8%` `#9085e9` (5,0:1) |
 | Ticks, rótulos de eixo | `--muted-foreground` | | |
 | Grade e linha de eixo | `--border` | | |
 
@@ -118,8 +119,19 @@ O par de gênero é o laranja e o azul da paleta de referência do método de vi
 pelo script dele nos dois temas (ΔE de CVD 24,7 no claro e 26,8 no escuro; o piso é 8). O rosa
 herdado saiu: era quase o magenta, que a marca reserva à previsão.
 
+**O violeta da vertente diabetes** (`--diabetes`) é o slot 7 da paleta de referência do método de
+visualização, a primeira vaga livre: os slots 1 e 2 (azul e laranja) são o par de gênero, o 5 é quase o
+magenta da previsão, e o verde, o âmbar e o vermelho já falam de estado (sucesso, alerta, erro). Validado
+pelo script dele nos dois temas, contra o cartão: luminosidade e croma dentro da banda, contraste 5,6:1 no
+claro e 5,0:1 no escuro, e ΔE de CVD 17,4 (claro) e 10,4 (escuro) contra o `--previsao` (visão normal 27,3
+e 21,2). Ao lado do azul de `--masculino` ele reprova (ΔE de CVD 4,2 e 2,2; visão normal 10,3 e 9,8): por
+isso a pirâmide da vertente marca o sexo pela POSIÇÃO (mulheres à esquerda, homens à direita), sem o par
+de gênero. Cada gráfico da vertente tem uma série só — o % com diabetes —, sem caixa de legenda (o título
+diz o que é); o "sem diabetes" é o trilho no mesmo tom a 20% (o medidor do KPI) ou o cinza do trilho.
+
 As regras de cor condicional que existem: `Genero = 'Feminino'` → `--feminino`, `Masculino` →
-`--masculino`; `Nivel_Obesidade` → o `--nivel-*` da classe. A regra herdada `Consumo_Calorico_Frequente
+`--masculino`; `Nivel_Obesidade` → o `--nivel-*` da classe; na vertente diabetes, `Diabetes = 'Sim'` →
+`--diabetes` (o ponto da primeira coluna da Consulta). A regra herdada `Consumo_Calorico_Frequente
 = 'Sim'` → `--grafico-primaria` saiu com a rosca de calóricos (o consumo virou um grupo do gráfico de
 fatores, pintado pelos níveis). As regras condicionadas a `Fumante` do painel original são herança
 morta e não foram replicadas (§7.3).
@@ -160,6 +172,13 @@ partes com título de seção (`text-lg` semibold e uma frase em `--muted-foregr
 | Quem está no recorte | Divisão por Nível de Obesidade (7) · Gênero e Nível de Obesidade (5) |
 | O que anda junto com a obesidade | Fatores associados à obesidade (12) |
 | O corpo: altura, peso e IMC | Altura, Peso e o Nível de Obesidade (12) · IMC Médio por Atividade Física (6) · IMC Médio por Consumo de Álcool (6) |
+
+A **Visão Geral da vertente diabetes** (`/diabetes`) segue a mesma grade, com três diferenças: a faixa de
+filtros tem três colunas e fica presa ao topo só a partir de 1280 px (os rótulos vêm da API e são mais
+longos: "Atividade física nos últimos 30 dias"); os KPIs são três, `grid-cols-2 lg:grid-cols-3
+xl:grid-cols-[1.4fr_1fr_1fr]` (respostas no recorte, % com diabetes, IMC médio); e as partes são **Idade e
+sexo** (por faixa etária, 7 · pirâmide, 5), **O peso** (por faixa de IMC, 12) e **O que anda junto com a
+diabetes** (os 16 fatores, 12).
 
 Todo cartão de gráfico é `h-full flex flex-col` e a área do gráfico é `flex-1` com altura mínima
 (o conteúdo num bloco absoluto de tamanho resolvido, porque `<ResponsiveContainer height="100%">`

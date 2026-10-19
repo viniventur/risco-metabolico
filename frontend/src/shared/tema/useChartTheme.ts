@@ -24,6 +24,8 @@ export type TemaGrafico = {
   corDaMacroFaixa: Record<string, string>;
   /** os 7 níveis: a matiz da macro-faixa com um degradê por grau dentro da família (a Visão Geral) */
   corDoNivel: Record<string, string>;
+  /** vertente diabetes: "com diabetes", a cor de todos os gráficos dela */
+  diabetes: string;
 };
 
 /** Nível clínico -> token da macro-faixa (a cor segue a ENTIDADE, nunca o índice do array). */
@@ -66,6 +68,7 @@ function montar(): TemaGrafico {
     superficie: lerVar("--card"),
     corDaMacroFaixa,
     corDoNivel,
+    diabetes: lerVar("--diabetes"),
   };
 }
 

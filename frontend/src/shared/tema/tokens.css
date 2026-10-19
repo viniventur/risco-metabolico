@@ -59,6 +59,7 @@
   --color-nivel-obesidade-1: hsl(var(--nivel-obesidade-1));
   --color-nivel-obesidade-2: hsl(var(--nivel-obesidade-2));
   --color-nivel-obesidade-3: hsl(var(--nivel-obesidade-3));
+  --color-diabetes: hsl(var(--diabetes));
   --color-grafico-primaria: hsl(var(--grafico-primaria));
   --color-previsao: hsl(var(--previsao));
   --color-previsao-foreground: hsl(var(--previsao-foreground));
@@ -183,6 +184,11 @@
   --nivel-obesidade-1: 358.2 64% 58.6%;
   --nivel-obesidade-2: 351.4 66.3% 37.3%;
   --nivel-obesidade-3: 345.6 76.7% 20.2%;
+  /* Vertente diabetes: "com diabetes", a única cor dos gráficos dela. O violeta da paleta de referência
+     do dataviz, a primeira vaga livre (azul e laranja são o par de gênero, o magenta é da previsão,
+     verde, âmbar e vermelho são de estado). 5,6:1 contra o cartão; ΔE de CVD 17,4 contra o magenta.
+     Ao lado do azul masculino ele reprova (ΔE 4,2): a pirâmide da vertente marca o sexo pela posição. */
+  --diabetes: 248.1 62% 57.6%;
   /* Papel das figuras PNG dos notebooks (fundo branco do matplotlib): folha clara nos dois temas. */
   --papel: 0 4% 97%;
   /* O chapéu do símbolo do AUTOR (#0088B0, pacote da marca 1.0), só nos créditos (shared/autor). O
@@ -246,6 +252,8 @@
     --nivel-obesidade-1: 0 57.3% 54.1%;
     --nivel-obesidade-2: 354.3 93.5% 75.9%;
     --nivel-obesidade-3: 351.4 100% 90.4%;
+    /* O violeta da vertente diabetes no passo escuro da paleta de referência: 5,0:1 contra o cartão. */
+    --diabetes: 246.6 69.4% 71.8%;
   }
 }
 
@@ -302,6 +310,7 @@
   --nivel-obesidade-1: 0 57.3% 54.1%;
   --nivel-obesidade-2: 354.3 93.5% 75.9%;
   --nivel-obesidade-3: 351.4 100% 90.4%;
+  --diabetes: 246.6 69.4% 71.8%;
 }
 
 @layer base {

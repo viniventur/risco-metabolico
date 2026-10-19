@@ -12,7 +12,9 @@ export type GrupoDeNavegacao = { titulo: string; itens: ItemDeNavegacao[] };
 
 /**
  * As 7 rotas de §7.1 em três grupos: o que se explora sobre a base, o que se faz com o modelo e o
- * estudo que o sustenta. Mora fora do `Sidebar.tsx` para o componente exportar só componente.
+ * estudo que o sustenta. Mora fora do `Sidebar.tsx` para o componente exportar só componente. A
+ * vertente diabetes (decisão D5) é um grupo próprio, antes dos estudos, com as mesmas quatro telas; a
+ * Visão Geral dela é `exato`, porque /diabetes é prefixo das outras três.
  */
 export const NAVEGACAO: GrupoDeNavegacao[] = [
   {
@@ -28,6 +30,15 @@ export const NAVEGACAO: GrupoDeNavegacao[] = [
     itens: [
       { rotulo: "Simulador", para: "/simulador", icone: Calculator },
       { rotulo: "Monitoramento", para: "/monitoramento", icone: Activity },
+    ],
+  },
+  {
+    titulo: "Diabetes",
+    itens: [
+      { rotulo: "Visão Geral", para: "/diabetes", icone: LayoutDashboard, exato: true },
+      { rotulo: "Consulta", para: "/diabetes/consulta", icone: Table2 },
+      { rotulo: "Simulador", para: "/diabetes/simulador", icone: Calculator },
+      { rotulo: "Monitoramento", para: "/diabetes/monitoramento", icone: Activity },
     ],
   },
   {

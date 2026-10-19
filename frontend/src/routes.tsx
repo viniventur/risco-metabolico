@@ -19,6 +19,20 @@ export const router = createBrowserRouter([
         path: "monitoramento",
         lazy: () => import("./features/monitoramento/MonitoramentoPage").then((m) => ({ Component: m.MonitoramentoPage })),
       },
+      // A vertente diabetes (decisão D5): as mesmas quatro telas, sob /diabetes, com código próprio.
+      { path: "diabetes", lazy: () => import("./features/diabetes/painel/PainelDiabetesPage").then((m) => ({ Component: m.PainelDiabetesPage })) },
+      {
+        path: "diabetes/consulta",
+        lazy: () => import("./features/diabetes/consulta/ConsultaDiabetesPage").then((m) => ({ Component: m.ConsultaDiabetesPage })),
+      },
+      {
+        path: "diabetes/simulador",
+        lazy: () => import("./features/diabetes/simulador/SimuladorDiabetesPage").then((m) => ({ Component: m.SimuladorDiabetesPage })),
+      },
+      {
+        path: "diabetes/monitoramento",
+        lazy: () => import("./features/diabetes/monitoramento/MonitoramentoDiabetesPage").then((m) => ({ Component: m.MonitoramentoDiabetesPage })),
+      },
       { path: "estudos", lazy: () => import("./features/estudos/ListaEstudosPage").then((m) => ({ Component: m.ListaEstudosPage })) },
       { path: "estudos/:slug", lazy: () => import("./features/estudos/NotebookPage").then((m) => ({ Component: m.NotebookPage })) },
       // Fora do menu: o rodapé de toda tela e o Início linkam para ela.

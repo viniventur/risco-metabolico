@@ -14,12 +14,15 @@ type LinhaLonga = { ordem: number; medida: string; valor: number | null; n: numb
   unknown
 >;
 
+/** O que `pivotar` lê de um agregado: também serve à tabela longa da vertente diabetes, que tem o mesmo formato. */
+export type TabelaLonga = Pick<Agregado, "campo" | "serie" | "linhas">;
+
 /**
  * Pivota a tabela longa de /painel/por-categoria (uma linha por categoria × medida) para uma linha
  * por categoria, na ORDEM do domínio que o backend já entrega. O domínio vem completo (grupo
  * ausente = n 0), então o eixo nunca pula quando um filtro esvazia uma categoria.
  */
-export function pivotar(agregado: Agregado | undefined): LinhaAgregado[] {
+export function pivotar(agregado: TabelaLonga | undefined): LinhaAgregado[] {
   if (!agregado) return [];
   const dim = agregado.campo;
   const serie = agregado.serie ?? undefined;

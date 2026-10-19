@@ -102,7 +102,8 @@ conferir "a API não faz TRUNCATE" nega sql_api "TRUNCATE operacao.log_predicao;
 
 # ---------------------------------------------------------------------------
 secao "Telas e arquivos estáticos pelo nginx ($BASE)"
-for tela in / /painel /consulta /simulador /monitoramento /estudos /estudos/comparacao-de-modelos /privacidade; do
+for tela in / /painel /consulta /simulador /monitoramento /estudos /estudos/comparacao-de-modelos /privacidade \
+  /diabetes /diabetes/consulta /diabetes/simulador /diabetes/monitoramento; do
   conferir "$tela abre o app (200)" contem "$(status "$tela")" "^200 text/html"
 done
 # Os ícones da marca Visor (frontend/public): favicon em SVG e em ICO, ícone de toque e o manifesto.

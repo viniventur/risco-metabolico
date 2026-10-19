@@ -3,6 +3,7 @@ import "./inicio.css";
 import { Code, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { SecaoDiabetes } from "@/features/diabetes/inicio/SecaoDiabetes";
 import { ROTA_DA_PRIVACIDADE } from "@/features/legal/rota";
 import { URL_REPO } from "@/shared/api/http";
 import { CreditosDoAutor } from "@/shared/autor/CreditosDoAutor";
@@ -18,8 +19,9 @@ import { SobreOProjeto } from "./SobreOProjeto";
 /**
  * O Início: o herói, as métricas do modelo contando até o valor, a visão geral do projeto (objetivo,
  * dados, entradas, métodos, validação, serviço, monitoramento, auditoria e limitações), o modelo
- * servido, os atalhos e a autoria. O movimento é todo da casa (inicio.css e shared/movimento) e some
- * com `prefers-reduced-motion`: o conteúdo já nasce no lugar e os números, no valor final.
+ * servido, a vertente diabetes (features/diabetes/inicio), os atalhos e a autoria. O movimento é todo
+ * da casa (inicio.css e shared/movimento) e some com `prefers-reduced-motion`: o conteúdo já nasce no
+ * lugar e os números, no valor final.
  */
 export function InicioPage() {
   return (
@@ -30,6 +32,7 @@ export function InicioPage() {
       </div>
       <SobreOProjeto />
       <ModeloServido />
+      <SecaoDiabetes />
       <Explorar />
       <Autoria />
     </div>
