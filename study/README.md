@@ -58,7 +58,7 @@ Acurácia 0,9622, F1-macro 0,9610 e recall de risco 0,9936 pertencem ao artefato
 
 ## O notebook 02 — vertente diabetes
 
-`02_triagem_de_diabetes.ipynb` (40 células) estuda a segunda vertente: a probabilidade de uma pessoa já ter ouvido de um profissional de saúde que tem diabetes, a partir de dez respostas que ela sabe **antes** de qualquer diagnóstico. Escrito do zero para esta base, com as mesmas regras do 01: lê o CSV diretamente (`../data/bruto/diabetes/cdc_diabetes_health_indicators.csv`), não grava artefato nenhum e a prosa não carrega número medido — todo número sai das saídas, que o *Run All* regenera.
+`02_triagem_de_diabetes.ipynb` (51 células) estuda a segunda vertente: a probabilidade de uma pessoa já ter ouvido de um profissional de saúde que tem diabetes, a partir de dez respostas que ela sabe **antes** de qualquer diagnóstico. Escrito do zero para esta base, com as mesmas regras do 01: lê o CSV diretamente (`../data/bruto/diabetes/cdc_diabetes_health_indicators.csv`), não grava artefato nenhum e a prosa não carrega número medido — todo número sai das saídas, que o *Run All* regenera.
 
 > Os dados exibidos são respostas reais e anonimizadas de uma pesquisa pública de saúde dos Estados Unidos (BRFSS 2015, CDC) e servem apenas para demonstração. Nenhum registro identifica uma pessoa. Esta ferramenta é de triagem e não substitui avaliação clínica.
 
@@ -70,6 +70,8 @@ uv run --project backend python tools\nb2json.py --root . --out frontend\public\
 ```
 
 O que ele decide, nesta ordem e com o critério escrito **antes** de cada medição: as entradas (o custo de cada grupo excluído), o modelo (três baselines contra XGBoost e LightGBM, pela PR-AUC da validação cruzada do treino), o tratamento do desbalanceamento (nada, peso de classe ou SMOTE), a calibração e o limiar de triagem (o maior com recall ≥ 0,80 fora da dobra). O teste é tocado **uma vez**, na avaliação final, já com tudo decidido.
+
+Depois do que fica congelado, a seção **Limiar por faixa etária** aplica o critério do limiar dentro de cada um dos três grupos de idade (18 a 44, 45 a 64, 65 ou mais). Nas predições fora da dobra, ela compara outras divisões das 13 faixas, o preço de cada alvo de recall e outros critérios (um piso e o mesmo orçamento do limiar único), com a estabilidade de cada limiar entre as dobras. A regra escolhida é medida uma vez no teste, ao lado do limiar único.
 
 ### Mapa célula → função do backend
 
