@@ -18,6 +18,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.rotas import metadados, modelo, monitoramento, painel, predicoes, registros, saude
 from app.config import CONFIG
+from app.diabetes.api import roteador as roteador_diabetes
+from app.diabetes.dominio.relatorio import FRASE_DADOS_REAIS
+from app.diabetes.nucleo.artefato import RegistroDiabetes
 from app.dominio.agregados import BasePainel
 from app.nucleo.banco import Banco
 from app.nucleo.erros import ArtefatoIndisponivel, registrar_handlers
@@ -36,6 +39,19 @@ def carregar_registro() -> RegistroArtefatos | None:
         )
     except ArtefatoIndisponivel as erro:
         log.error("artefato não carregado: %s", erro.mensagem)
+        return None
+
+
+def carregar_registro_diabetes() -> RegistroDiabetes | None:
+    """O artefato da vertente diabetes, do manifest dela; falha vira log e `/ready` 503."""
+    try:
+        return RegistroDiabetes.carregar(
+            CONFIG.modelos_dir,
+            CONFIG.artefatos_dir / "diabetes",
+            exigir_integridade=CONFIG.exigir_integridade,
+        )
+    except ArtefatoIndisponivel as erro:
+        log.error("artefato da vertente diabetes não carregado: %s", erro.mensagem)
         return None
 
 
@@ -58,6 +74,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """
     app.state.iniciado_em = time.monotonic()
     app.state.registro = carregar_registro()
+    app.state.registro_diabetes = carregar_registro_diabetes()
     app.state.agregados = carregar_base_painel()  # base do painel em memória; nunca o banco
     banco = Banco()
     await banco.abrir()  # não abre conexão: min_size=0
@@ -90,6 +107,14 @@ def criar_app() -> FastAPI:
         lifespan=lifespan,
         docs_url="/docs",
         openapi_url="/openapi.json",
+        # A vertente diabetes tem base real e anonimizada: a frase dela vai na descrição da tag.
+        openapi_tags=[
+            {
+                "name": "diabetes",
+                "description": "Triagem de diabetes: 10 respostas, probabilidade e limiar. "
+                + FRASE_DADOS_REAIS,
+            }
+        ],
     )
     app.add_middleware(
         CORSMiddleware,
@@ -113,6 +138,7 @@ def criar_app() -> FastAPI:
     app.include_router(painel.roteador, prefix=prefixo)
     app.include_router(registros.roteador, prefix=prefixo)
     app.include_router(monitoramento.roteador, prefix=prefixo)
+    app.include_router(roteador_diabetes, prefix=prefixo)
     return app
 
 

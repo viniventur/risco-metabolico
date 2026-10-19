@@ -97,8 +97,10 @@ jobs:
           uv run --extra treino python -m app.treino congelar
           uv run --extra treino python -m app.diabetes.treino snapshot
           python3 ../scripts/baixar_modelo.py --manifesto ../artifacts/manifest.json --destino ../models
+          python3 ../scripts/baixar_modelo.py --manifesto ../artifacts/diabetes/manifest.json --destino ../models
           uv run --extra treino pytest -q --cov=app --cov-fail-under=80
           uv run --extra treino python -m app.treino verificar
+          uv run --extra treino python -m app.diabetes.treino verificar
 
   frontend:
     needs: proveniencia
@@ -194,7 +196,8 @@ jobs:
           sed -i "s/^LIMITE_TAXA_ATIVO=.*/LIMITE_TAXA_ATIVO=true/; s/^EXIGIR_INTEGRIDADE=.*/EXIGIR_INTEGRIDADE=true/" .env
 
       # O estágio `modelo` do backend/Dockerfile baixa o .pkl e o snapshot do release v<versao> e
-      # confere os dois sha256 do manifest (ADR 0004); o front é só `vite build` sobre public/study.
+      # confere os dois sha256 do manifest (ADR 0004) — e o .pkl da vertente diabetes, do release
+      # diabetes-v<versao> do manifest dela; o front é só `vite build` sobre public/study.
       - name: Montar as imagens (banco, api, web) e o pacote de deploy
         run: |
           docker compose build

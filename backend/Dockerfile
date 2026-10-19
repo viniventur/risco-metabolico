@@ -19,10 +19,12 @@ RUN uv sync --frozen --no-dev --no-editable --extra operacao
 
 # ---------- estágio 2: os artefatos do release — modelo e snapshot congelado ----------
 # Não existe PowerShell em python:3.12-slim: um RUN não executa .ps1. O script de verdade é
-# scripts/baixar_modelo.py (stdlib pura): lê artifacts/manifest.json e, para o .pkl e para o
-# snapshot, usa o arquivo se ele já estiver no contexto (models/ e data/processado/ estão fora do
-# git mas presentes localmente) e, senão, baixa o asset do release v<versao> e confere o sha256
-# (ADR 0004). Os .gitkeep garantem que as duas pastas existam no contexto mesmo vazias (CI).
+# scripts/baixar_modelo.py (stdlib pura): lê o manifest e, para o .pkl e para o snapshot, usa o
+# arquivo se ele já estiver no contexto (models/ e data/processado/ estão fora do git mas presentes
+# localmente) e, senão, baixa o asset do release do manifest e confere o sha256 (ADR 0004). Os
+# .gitkeep garantem que as duas pastas existam no contexto mesmo vazias (CI). A vertente diabetes
+# tem manifest e release próprios (diabetes-v<versao>): o modelo dela vem num RUN à parte, que não
+# invalida a camada da obesidade.
 FROM python:3.12-slim AS modelo
 ARG REPO_GITHUB=viniventur/risco-metabolico
 WORKDIR /app
@@ -32,6 +34,9 @@ COPY models/ models/
 COPY data/processado/ data/processado/
 RUN python scripts/baixar_modelo.py --manifesto artifacts/manifest.json --destino models \
         --snapshot-destino data/processado --repo "$REPO_GITHUB"
+COPY artifacts/diabetes/manifest.json artifacts/diabetes/
+RUN python scripts/baixar_modelo.py --manifesto artifacts/diabetes/manifest.json --destino models \
+        --repo "$REPO_GITHUB"
 
 # ---------- estágio 3: runtime ----------
 FROM python:3.12-slim

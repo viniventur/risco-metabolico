@@ -1,4 +1,4 @@
-"""Regras de domínio da vertente diabetes: domínios fechados, rótulos das escalas e faixa do IMC.
+"""Regras de domínio da vertente diabetes: domínios, rótulos, faixa do IMC e a classificação.
 
 Tudo aqui é constante explícita, derivada uma vez da base (data/bruto/diabetes/) e conferida por
 teste contra ela — nenhuma leitura de arquivo em runtime. Os rótulos das escalas traduzem os do
@@ -8,9 +8,10 @@ dólares de 2015 estão explicadas em docs/dicionario-de-dados-diabetes.md.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Final
 
 from app.diabetes.dominio.features import ALVO, COLUNAS_SIM_NAO
+from app.diabetes.esquemas.saida import Classificacao
 
 # 1. Domínio de cada coluna, na ordem lexicográfica que um encoder usaria sozinho para o texto e
 #    na ordem da escala para as inteiras. O IMC não tem domínio fechado: tem a faixa observada.
@@ -68,3 +69,28 @@ ROTULOS_ESCALA: dict[str, dict[int, str]] = {
         8: "US$ 75 mil ou mais",
     },
 }
+
+# 4. Rótulo curto de cada uma das dez entradas, para o formulário e o relatório (APRESENTAÇÃO). A
+#    pergunta completa, como o BRFSS a fez, vai na ajuda do campo (/diabetes/metadata).
+ROTULOS_ENTRADAS: dict[str, str] = {
+    "Faixa_Etaria": "Faixa etária",
+    "Sexo": "Sexo",
+    "IMC": "IMC (kg/m²)",
+    "Pressao_Alta": "Pressão alta",
+    "Colesterol_Alto": "Colesterol alto",
+    "Fumou_100_Cigarros": "Fumou 100 cigarros na vida",
+    "Atividade_Fisica_30_Dias": "Atividade física nos últimos 30 dias",
+    "Fruta_Diaria": "Fruta todo dia",
+    "Verdura_Diaria": "Verdura ou legume todo dia",
+    "Escolaridade": "Escolaridade",
+}
+
+# 5. A classificação de triagem (decisão D4): probabilidade no limiar ou acima dele é risco elevado
+#    — a triagem sugere o exame de glicemia. `>=`, como o `encaminhar = p >= limiar` do notebook.
+RISCO_ELEVADO: Final = "Risco elevado"
+RISCO_BAIXO: Final = "Risco baixo"
+
+
+def classificar(probabilidade: float, limiar: float) -> Classificacao:
+    """Risco elevado no limiar ou acima dele; empate no limiar encaminha, como no critério."""
+    return RISCO_ELEVADO if probabilidade >= limiar else RISCO_BAIXO

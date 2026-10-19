@@ -1,7 +1,32 @@
 {
   "nome": "risco-metabolico",
   "vertente": "diabetes",
-  "versao": null,
+  "versao": "1.0.0",
+  "release": "diabetes-v1.0.0",
+  "arquivo": "modelo-diabetes-1.0.0.pkl",
+  "sha256": "2c411582858217d3621d7fa157c05fe9a92701a3ed60a939439beb911b69067d",
+  "sha256_predicoes_ouro": "ea5a5ae5ed106716f9120cdcea77fd77c2849c2b3e26eddc6d0da0fcb13502bc",
+  "treinado_em": "2026-10-19T04:50:59+00:00",
+  "algoritmo": "XGBClassifier",
+  "random_state": 42,
+  "alvo": {
+    "coluna": "Diabetes",
+    "positivo": "Sim"
+  },
+  "entradas": [
+    "Faixa_Etaria",
+    "Sexo",
+    "IMC",
+    "Pressao_Alta",
+    "Colesterol_Alto",
+    "Fumou_100_Cigarros",
+    "Atividade_Fisica_30_Dias",
+    "Fruta_Diaria",
+    "Verdura_Diaria",
+    "Escolaridade"
+  ],
+  "n_features_entrada": 10,
+  "n_features_modelo": 10,
   "dataset": {
     "tabela_origem": "dados.registros_diabetes",
     "insumo_de_semeadura": "data/bruto/diabetes/cdc_diabetes_health_indicators.csv",
@@ -14,6 +39,76 @@
     "pyarrow": "26.0.0",
     "linhas": 253680,
     "colunas": 22
+  },
+  "split": {
+    "test_size": 0.2,
+    "stratify": true,
+    "random_state": 42,
+    "linhas_treino": 202944,
+    "linhas_teste": 50736,
+    "prevalencia_treino": 0.13933400346893723,
+    "prevalencia_teste": 0.13932907600126143
+  },
+  "validacao_cruzada": {
+    "n_splits": 5,
+    "shuffle": true,
+    "random_state": 42,
+    "roc_auc": 0.8001857588934433,
+    "roc_auc_dp": 0.002461291395629627,
+    "pr_auc": 0.38473200918321665,
+    "pr_auc_dp": 0.007435021976260941,
+    "brier": 0.1014128178358078
+  },
+  "hiperparametros": {
+    "n_estimators": 300,
+    "learning_rate": 0.05,
+    "max_depth": 3,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "tree_method": "hist",
+    "random_state": 42,
+    "n_jobs": 8
+  },
+  "desbalanceamento": "nenhum",
+  "calibracao": "nenhuma",
+  "limiar": {
+    "criterio": "maior limiar com recall >= 0.8 nas predições fora da dobra do treino",
+    "recall_alvo": 0.8,
+    "valor": 0.12554778158664703,
+    "fora_da_dobra": {
+      "recall": 0.8000141457721823,
+      "precisao": 0.270552778242878,
+      "especificidade": 0.650809826698804,
+      "encaminhados": 0.4120052822453485
+    }
+  },
+  "metricas_teste": {
+    "roc_auc": 0.7966152551099485,
+    "pr_auc": 0.37227138378839997,
+    "brier": 0.10226663781349053,
+    "brier_da_prevalencia": 0.11991648460617611,
+    "precisao_fixa": 0.3,
+    "recall_na_precisao_fixa": 0.7216013580421559,
+    "recall_no_limiar": 0.7945961239213467,
+    "precisao_no_limiar": 0.2686917005501076,
+    "especificidade_no_limiar": 0.6498958023221196,
+    "encaminhados_no_limiar": 0.41203484705140336
+  },
+  "ambiente": {
+    "python": "3.12.15",
+    "sistema": "Windows",
+    "scikit-learn": "1.9.1",
+    "xgboost": "3.4.1",
+    "numpy": "2.5.4",
+    "pandas": "2.3.3",
+    "pyarrow": "26.0.0",
+    "joblib": "1.6.0"
+  },
+  "dados_ouro": {
+    "entradas": "backend/tests/diabetes/dados_ouro/entradas.json",
+    "n": 24
   },
   "notebook_origem": "study/02_triagem_de_diabetes.ipynb"
 }

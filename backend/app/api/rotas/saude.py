@@ -56,14 +56,22 @@ def health(request: Request) -> Saude:
 def ready(request: Request) -> JSONResponse:
     """Prontidão para receber tráfego. O banco não entra: o produto abre inteiro sem ele."""
     artefato, agregados = _estado(request)
-    pronto = artefato and agregados
+    # As duas vertentes: sem o artefato de diabetes, `/diabetes/*` responderia 503. O corpo não
+    # ganha campo: `artefato_carregado` passa a valer pelos modelos das duas, e `motivo` diz qual.
+    diabetes = getattr(request.app.state, "registro_diabetes", None) is not None
+    pronto = artefato and diabetes and agregados
     motivo = None
     if not artefato:
         motivo = "artefato de modelo não carregado"
+    elif not diabetes:
+        motivo = "artefato de modelo da vertente diabetes não carregado"
     elif not agregados:
         motivo = "agregados do painel não carregados"
     corpo = Prontidao(
-        pronto=pronto, artefato_carregado=artefato, agregados_carregados=agregados, motivo=motivo
+        pronto=pronto,
+        artefato_carregado=artefato and diabetes,
+        agregados_carregados=agregados,
+        motivo=motivo,
     )
     return JSONResponse(
         status_code=status.HTTP_200_OK if pronto else status.HTTP_503_SERVICE_UNAVAILABLE,

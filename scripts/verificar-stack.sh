@@ -127,6 +127,12 @@ entrada=$(python3 -c 'import json;c=json.load(open("backend/tests/dados_ouro/ent
   python -c 'import json;c=json.load(open("backend/tests/dados_ouro/entradas.json", encoding="utf-8"))[0];print(json.dumps(c.get("entrada",c)))')
 predicao=$(curl -sS --max-time 20 -H 'Content-Type: application/json' -H 'X-Origem-Cliente: painel' -d "$entrada" "$BASE/api/v1/predicoes" 2>/dev/null || true)
 conferir "POST /api/v1/predicoes devolve as 7 probabilidades" contem "$(grep -o '"classe"' <<<"$predicao" | wc -l | tr -d ' ')" "^7$"
+# A vertente diabetes: o modelo dela (release diabetes-v<versao>) carregado e respondendo.
+conferir "/api/v1/diabetes/model/info com o limiar" contem "$(curl -sS --max-time 20 "$BASE/api/v1/diabetes/model/info" 2>/dev/null)" '"limiar":\{"criterio"'
+entrada_diabetes=$(python3 -c 'import json;print(json.dumps(json.load(open("backend/tests/diabetes/dados_ouro/entradas.json", encoding="utf-8"))[0]))' 2>/dev/null ||
+  python -c 'import json;print(json.dumps(json.load(open("backend/tests/diabetes/dados_ouro/entradas.json", encoding="utf-8"))[0]))')
+predicao_diabetes=$(curl -sS --max-time 20 -H 'Content-Type: application/json' -H 'X-Origem-Cliente: painel' -d "$entrada_diabetes" "$BASE/api/v1/diabetes/predicoes" 2>/dev/null || true)
+conferir "POST /api/v1/diabetes/predicoes devolve probabilidade e limiar" contem "$predicao_diabetes" '"probabilidade":[^,]+,"limiar":[^,]+,"risco_elevado":(true|false)'
 sleep 2
 conferir "a predição chegou ao log com origem painel" contem "$(docker compose exec -T banco sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atq -c "SELECT count(*) FROM operacao.log_predicao WHERE origem = '"'"'painel'"'"'"' 2>/dev/null || true)" "^[1-9]"
 

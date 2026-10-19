@@ -1,0 +1,122 @@
+[
+  {
+    "probabilidade": 0.47055,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.044303,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.24695,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.064992,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.359649,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.166651,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.037202,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.009998,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.622394,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.069406,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.293239,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.446965,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.053778,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.060153,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.027709,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.383581,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.030965,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.346763,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.069292,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.228176,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.070635,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  },
+  {
+    "probabilidade": 0.188,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.325261,
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
+  },
+  {
+    "probabilidade": 0.076101,
+    "risco_elevado": false,
+    "classificacao": "Risco baixo"
+  }
+]

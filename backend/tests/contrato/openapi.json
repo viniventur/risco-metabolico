@@ -211,6 +211,115 @@
         "title": "Dimensao",
         "type": "object"
       },
+      "EntradaDiabetes": {
+        "additionalProperties": false,
+        "description": "As dez respostas que o pipeline da vertente espera, com o domínio fechado de cada uma.",
+        "example": {
+          "Atividade_Fisica_30_Dias": "Sim",
+          "Colesterol_Alto": "Não",
+          "Escolaridade": 4,
+          "Faixa_Etaria": 5,
+          "Fruta_Diaria": "Sim",
+          "Fumou_100_Cigarros": "Não",
+          "IMC": 25.0,
+          "Pressao_Alta": "Não",
+          "Sexo": "Feminino",
+          "Verdura_Diaria": "Sim"
+        },
+        "properties": {
+          "Atividade_Fisica_30_Dias": {
+            "enum": [
+              "Não",
+              "Sim"
+            ],
+            "title": "Atividade Fisica 30 Dias",
+            "type": "string"
+          },
+          "Colesterol_Alto": {
+            "enum": [
+              "Não",
+              "Sim"
+            ],
+            "title": "Colesterol Alto",
+            "type": "string"
+          },
+          "Escolaridade": {
+            "description": "Maior série concluída: 1 = nunca estudou … 6 = superior",
+            "maximum": 6.0,
+            "minimum": 1.0,
+            "title": "Escolaridade",
+            "type": "integer"
+          },
+          "Faixa_Etaria": {
+            "description": "Faixa de 5 anos: 1 = 18 a 24 anos … 13 = 80 ou mais",
+            "maximum": 13.0,
+            "minimum": 1.0,
+            "title": "Faixa Etaria",
+            "type": "integer"
+          },
+          "Fruta_Diaria": {
+            "enum": [
+              "Não",
+              "Sim"
+            ],
+            "title": "Fruta Diaria",
+            "type": "string"
+          },
+          "Fumou_100_Cigarros": {
+            "enum": [
+              "Não",
+              "Sim"
+            ],
+            "title": "Fumou 100 Cigarros",
+            "type": "string"
+          },
+          "IMC": {
+            "description": "kg/m²; o modelo o arredonda ao inteiro, como a pesquisa",
+            "maximum": 100.0,
+            "minimum": 10.0,
+            "title": "Imc",
+            "type": "number"
+          },
+          "Pressao_Alta": {
+            "enum": [
+              "Não",
+              "Sim"
+            ],
+            "title": "Pressao Alta",
+            "type": "string"
+          },
+          "Sexo": {
+            "enum": [
+              "Feminino",
+              "Masculino"
+            ],
+            "title": "Sexo",
+            "type": "string"
+          },
+          "Verdura_Diaria": {
+            "enum": [
+              "Não",
+              "Sim"
+            ],
+            "title": "Verdura Diaria",
+            "type": "string"
+          }
+        },
+        "required": [
+          "Faixa_Etaria",
+          "Sexo",
+          "IMC",
+          "Pressao_Alta",
+          "Colesterol_Alto",
+          "Fumou_100_Cigarros",
+          "Atividade_Fisica_30_Dias",
+          "Fruta_Diaria",
+          "Verdura_Diaria",
+          "Escolaridade"
+        ],
+        "title": "EntradaDiabetes",
+        "type": "object"
+      },
       "EntradaRelatorio": {
         "additionalProperties": false,
         "description": "Corpo de `POST /predicoes/relatorio`: a entrada mais o nome opcional (só metadado).",
@@ -229,6 +338,26 @@
           "entrada"
         ],
         "title": "EntradaRelatorio",
+        "type": "object"
+      },
+      "EntradaRelatorioDiabetes": {
+        "additionalProperties": false,
+        "description": "Corpo de `POST /diabetes/predicoes/relatorio`: a entrada e o nome opcional (só metadado).",
+        "properties": {
+          "entrada": {
+            "$ref": "#/components/schemas/EntradaDiabetes"
+          },
+          "nome": {
+            "default": "",
+            "maxLength": 120,
+            "title": "Nome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entrada"
+        ],
+        "title": "EntradaRelatorioDiabetes",
         "type": "object"
       },
       "EntradaTriagem": {
@@ -768,6 +897,38 @@
         "title": "GrupoFormulario",
         "type": "object"
       },
+      "GrupoFormularioDiabetes": {
+        "description": "Os três agrupamentos do formulário: dados iniciais, diagnósticos recebidos e hábitos.",
+        "properties": {
+          "campos": {
+            "items": {
+              "$ref": "#/components/schemas/CampoFormulario"
+            },
+            "title": "Campos",
+            "type": "array"
+          },
+          "id": {
+            "enum": [
+              "dados-iniciais",
+              "saude",
+              "habitos"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "titulo": {
+            "title": "Titulo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "titulo",
+          "campos"
+        ],
+        "title": "GrupoFormularioDiabetes",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -986,6 +1147,125 @@
         "title": "InfoModelo",
         "type": "object"
       },
+      "InfoModeloDiabetes": {
+        "description": "`GET /diabetes/model/info`: o manifest da vertente normalizado — as métricas publicadas.",
+        "properties": {
+          "algoritmo": {
+            "title": "Algoritmo",
+            "type": "string"
+          },
+          "ambiente": {
+            "additionalProperties": true,
+            "title": "Ambiente",
+            "type": "object"
+          },
+          "aviso": {
+            "title": "Aviso",
+            "type": "string"
+          },
+          "calibracao": {
+            "title": "Calibracao",
+            "type": "string"
+          },
+          "desbalanceamento": {
+            "title": "Desbalanceamento",
+            "type": "string"
+          },
+          "entradas": {
+            "description": "As dez entradas, na ordem de feature_names_in_",
+            "items": {
+              "type": "string"
+            },
+            "title": "Entradas",
+            "type": "array"
+          },
+          "hiperparametros": {
+            "additionalProperties": true,
+            "title": "Hiperparametros",
+            "type": "object"
+          },
+          "limiar": {
+            "$ref": "#/components/schemas/LimiarDiabetes"
+          },
+          "metricas_teste": {
+            "$ref": "#/components/schemas/MetricasTesteDiabetes"
+          },
+          "n_features_entrada": {
+            "title": "N Features Entrada",
+            "type": "integer"
+          },
+          "n_features_modelo": {
+            "title": "N Features Modelo",
+            "type": "integer"
+          },
+          "nome": {
+            "title": "Nome",
+            "type": "string"
+          },
+          "notebook_origem": {
+            "title": "Notebook Origem",
+            "type": "string"
+          },
+          "release": {
+            "title": "Release",
+            "type": "string"
+          },
+          "sha256": {
+            "title": "Sha256",
+            "type": "string"
+          },
+          "split": {
+            "additionalProperties": true,
+            "title": "Split",
+            "type": "object"
+          },
+          "treinado_em": {
+            "title": "Treinado Em",
+            "type": "string"
+          },
+          "validacao_cruzada": {
+            "$ref": "#/components/schemas/ValidacaoCruzadaDiabetes"
+          },
+          "versao": {
+            "title": "Versao",
+            "type": "string"
+          },
+          "versao_dados": {
+            "title": "Versao Dados",
+            "type": "string"
+          },
+          "vertente": {
+            "const": "diabetes",
+            "title": "Vertente",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nome",
+          "vertente",
+          "versao",
+          "release",
+          "algoritmo",
+          "treinado_em",
+          "versao_dados",
+          "sha256",
+          "entradas",
+          "n_features_entrada",
+          "n_features_modelo",
+          "hiperparametros",
+          "desbalanceamento",
+          "calibracao",
+          "split",
+          "validacao_cruzada",
+          "limiar",
+          "metricas_teste",
+          "ambiente",
+          "notebook_origem",
+          "aviso"
+        ],
+        "title": "InfoModeloDiabetes",
+        "type": "object"
+      },
       "ItemImportancia": {
         "description": "Importância de uma feature de entrada (one-hot já somado).",
         "properties": {
@@ -1013,6 +1293,54 @@
           "importancia_pct"
         ],
         "title": "ItemImportancia",
+        "type": "object"
+      },
+      "LimiarDiabetes": {
+        "description": "O limiar de triagem: critério escrito, alvo de recall, valor e o ponto fora da dobra.",
+        "properties": {
+          "criterio": {
+            "title": "Criterio",
+            "type": "string"
+          },
+          "fora_da_dobra": {
+            "$ref": "#/components/schemas/PontoDeOperacaoDiabetes"
+          },
+          "recall_alvo": {
+            "title": "Recall Alvo",
+            "type": "number"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "number"
+          }
+        },
+        "required": [
+          "criterio",
+          "recall_alvo",
+          "valor",
+          "fora_da_dobra"
+        ],
+        "title": "LimiarDiabetes",
+        "type": "object"
+      },
+      "LoteDiabetes": {
+        "additionalProperties": false,
+        "description": "Corpo de `POST /diabetes/predicoes/lote`.",
+        "properties": {
+          "itens": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "minItems": 1,
+            "title": "Itens",
+            "type": "array"
+          }
+        },
+        "required": [
+          "itens"
+        ],
+        "title": "LoteDiabetes",
         "type": "object"
       },
       "LoteTriagem": {
@@ -1099,6 +1427,33 @@
         "title": "MetadadosFormulario",
         "type": "object"
       },
+      "MetadadosFormularioDiabetes": {
+        "description": "`GET /diabetes/metadata`: a espinha do formulário — o front monta os campos daqui.",
+        "properties": {
+          "aviso": {
+            "title": "Aviso",
+            "type": "string"
+          },
+          "grupos": {
+            "items": {
+              "$ref": "#/components/schemas/GrupoFormularioDiabetes"
+            },
+            "title": "Grupos",
+            "type": "array"
+          },
+          "versao_modelo": {
+            "title": "Versao Modelo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grupos",
+          "versao_modelo",
+          "aviso"
+        ],
+        "title": "MetadadosFormularioDiabetes",
+        "type": "object"
+      },
       "MetricasModelo": {
         "description": "As três métricas de teste do manifest — nunca escritas à mão.",
         "properties": {
@@ -1121,6 +1476,65 @@
           "recall_risco"
         ],
         "title": "MetricasModelo",
+        "type": "object"
+      },
+      "MetricasTesteDiabetes": {
+        "description": "A avaliação final, uma vez, no teste — do manifest, nunca escrita à mão.",
+        "properties": {
+          "brier": {
+            "title": "Brier",
+            "type": "number"
+          },
+          "brier_da_prevalencia": {
+            "title": "Brier Da Prevalencia",
+            "type": "number"
+          },
+          "encaminhados_no_limiar": {
+            "title": "Encaminhados No Limiar",
+            "type": "number"
+          },
+          "especificidade_no_limiar": {
+            "title": "Especificidade No Limiar",
+            "type": "number"
+          },
+          "pr_auc": {
+            "title": "Pr Auc",
+            "type": "number"
+          },
+          "precisao_fixa": {
+            "title": "Precisao Fixa",
+            "type": "number"
+          },
+          "precisao_no_limiar": {
+            "title": "Precisao No Limiar",
+            "type": "number"
+          },
+          "recall_na_precisao_fixa": {
+            "title": "Recall Na Precisao Fixa",
+            "type": "number"
+          },
+          "recall_no_limiar": {
+            "title": "Recall No Limiar",
+            "type": "number"
+          },
+          "roc_auc": {
+            "title": "Roc Auc",
+            "type": "number"
+          }
+        },
+        "required": [
+          "roc_auc",
+          "pr_auc",
+          "brier",
+          "brier_da_prevalencia",
+          "precisao_fixa",
+          "recall_na_precisao_fixa",
+          "recall_no_limiar",
+          "precisao_no_limiar",
+          "especificidade_no_limiar",
+          "encaminhados_no_limiar"
+        ],
+        "title": "MetricasTesteDiabetes",
         "type": "object"
       },
       "OpcaoCampo": {
@@ -1249,6 +1663,35 @@
           "nivel"
         ],
         "title": "Ponto",
+        "type": "object"
+      },
+      "PontoDeOperacaoDiabetes": {
+        "description": "Recall, precisão, especificidade e fração encaminhada num limiar.",
+        "properties": {
+          "encaminhados": {
+            "title": "Encaminhados",
+            "type": "number"
+          },
+          "especificidade": {
+            "title": "Especificidade",
+            "type": "number"
+          },
+          "precisao": {
+            "title": "Precisao",
+            "type": "number"
+          },
+          "recall": {
+            "title": "Recall",
+            "type": "number"
+          }
+        },
+        "required": [
+          "recall",
+          "precisao",
+          "especificidade",
+          "encaminhados"
+        ],
+        "title": "PontoDeOperacaoDiabetes",
         "type": "object"
       },
       "ProbabilidadeClasse": {
@@ -1396,6 +1839,74 @@
         "title": "RespostaDeriva",
         "type": "object"
       },
+      "RespostaDiabetes": {
+        "description": "Contrato de saída da triagem de diabetes: probabilidade, limiar, classificação e IMC.",
+        "properties": {
+          "classificacao": {
+            "enum": [
+              "Risco elevado",
+              "Risco baixo"
+            ],
+            "title": "Classificacao",
+            "type": "string"
+          },
+          "faixa_imc": {
+            "title": "Faixa Imc",
+            "type": "string"
+          },
+          "fora_do_dominio_treino": {
+            "description": "Campos cujo valor, como o modelo o vê, está fora da faixa observada na base",
+            "items": {
+              "type": "string"
+            },
+            "title": "Fora Do Dominio Treino",
+            "type": "array"
+          },
+          "imc": {
+            "title": "Imc",
+            "type": "number"
+          },
+          "latencia_ms": {
+            "title": "Latencia Ms",
+            "type": "number"
+          },
+          "limiar": {
+            "description": "Limiar de triagem do modelo servido; critério e valor em /diabetes/model/info",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Limiar",
+            "type": "number"
+          },
+          "probabilidade": {
+            "description": "Probabilidade estimada de a pessoa já ter ouvido de um profissional de saúde que tem diabetes, na escala da base (respondentes do BRFSS 2015): não é a prevalência na população",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Probabilidade",
+            "type": "number"
+          },
+          "risco_elevado": {
+            "description": "probabilidade >= limiar: a triagem sugere o exame de glicemia",
+            "title": "Risco Elevado",
+            "type": "boolean"
+          },
+          "versao_modelo": {
+            "title": "Versao Modelo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "probabilidade",
+          "limiar",
+          "risco_elevado",
+          "classificacao",
+          "imc",
+          "faixa_imc",
+          "versao_modelo",
+          "latencia_ms"
+        ],
+        "title": "RespostaDiabetes",
+        "type": "object"
+      },
       "RespostaLote": {
         "description": "`POST /predicoes/lote`: um item inválido volta em `falhas`; os outros são processados.",
         "properties": {
@@ -1434,6 +1945,46 @@
           "versao_modelo"
         ],
         "title": "RespostaLote",
+        "type": "object"
+      },
+      "RespostaLoteDiabetes": {
+        "description": "`POST /diabetes/predicoes/lote`: um item inválido volta em `falhas`; os outros seguem.",
+        "properties": {
+          "falhas": {
+            "items": {
+              "$ref": "#/components/schemas/FalhaLote"
+            },
+            "title": "Falhas",
+            "type": "array"
+          },
+          "resultados": {
+            "items": {
+              "$ref": "#/components/schemas/RespostaDiabetes"
+            },
+            "title": "Resultados",
+            "type": "array"
+          },
+          "sucesso": {
+            "title": "Sucesso",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          },
+          "versao_modelo": {
+            "title": "Versao Modelo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "total",
+          "sucesso",
+          "resultados",
+          "falhas",
+          "versao_modelo"
+        ],
+        "title": "RespostaLoteDiabetes",
         "type": "object"
       },
       "RespostaTriagem": {
@@ -1651,6 +2202,55 @@
         "title": "SimNao",
         "type": "string"
       },
+      "ValidacaoCruzadaDiabetes": {
+        "description": "As 5 dobras estratificadas do treino: média e desvio-padrão entre dobras.",
+        "properties": {
+          "brier": {
+            "title": "Brier",
+            "type": "number"
+          },
+          "n_splits": {
+            "title": "N Splits",
+            "type": "integer"
+          },
+          "pr_auc": {
+            "title": "Pr Auc",
+            "type": "number"
+          },
+          "pr_auc_dp": {
+            "title": "Pr Auc Dp",
+            "type": "number"
+          },
+          "random_state": {
+            "title": "Random State",
+            "type": "integer"
+          },
+          "roc_auc": {
+            "title": "Roc Auc",
+            "type": "number"
+          },
+          "roc_auc_dp": {
+            "title": "Roc Auc Dp",
+            "type": "number"
+          },
+          "shuffle": {
+            "title": "Shuffle",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "n_splits",
+          "shuffle",
+          "random_state",
+          "roc_auc",
+          "roc_auc_dp",
+          "pr_auc",
+          "pr_auc_dp",
+          "brier"
+        ],
+        "title": "ValidacaoCruzadaDiabetes",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -1701,6 +2301,295 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/diabetes/metadata": {
+      "get": {
+        "description": "O front monta o formulário a partir daqui; nenhuma regra de formulário mora no JSX.",
+        "operationId": "metadata_diabetes_api_v1_diabetes_metadata_get",
+        "parameters": [
+          {
+            "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+              "title": "Versao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetadadosFormularioDiabetes"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Formulário da triagem de diabetes: grupos, campos, tipos, faixas, opções e padrões",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/model/info": {
+      "get": {
+        "description": "Versão, release, hiperparâmetros, o limiar com o critério e as métricas do manifest.",
+        "operationId": "model_info_diabetes_api_v1_diabetes_model_info_get",
+        "parameters": [
+          {
+            "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+              "title": "Versao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoModeloDiabetes"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Manifest da vertente diabetes: versão, limiar, métricas de validação e de teste",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/predicoes": {
+      "post": {
+        "description": "Uma pessoa, dez respostas: probabilidade, limiar de triagem e classificação.",
+        "operationId": "prever_diabetes_api_v1_diabetes_predicoes_post",
+        "parameters": [
+          {
+            "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+              "title": "Versao"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaDiabetes"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaDiabetes"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Estima a probabilidade de diagnóstico de diabetes e a classifica pelo limiar",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/predicoes/lote": {
+      "post": {
+        "description": "Valida item a item dentro do laço: o inválido volta em `falhas` com o índice de origem.",
+        "operationId": "prever_lote_diabetes_api_v1_diabetes_predicoes_lote_post",
+        "parameters": [
+          {
+            "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+              "title": "Versao"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoteDiabetes"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaLoteDiabetes"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "413": {
+            "description": "Lote acima de LIMITE_LOTE"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Triagem de diabetes de vários indivíduos; um item inválido não derruba o lote",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/predicoes/relatorio": {
+      "post": {
+        "description": "HTML autocontido. O `nome` existe no HTML devolvido e em lugar nenhum além disso.",
+        "operationId": "gerar_relatorio_diabetes_api_v1_diabetes_predicoes_relatorio_post",
+        "parameters": [
+          {
+            "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+              "title": "Versao"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntradaRelatorioDiabetes"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/html": {}
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Gera o relatório HTML imprimível da triagem de diabetes",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
     "/api/v1/dimensoes": {
       "get": {
         "description": "Os slicers mostram TODAS as opções do domínio global, não só as sobreviventes ao filtro.",
@@ -2994,5 +3883,11 @@
         ]
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "description": "Triagem de diabetes: 10 respostas, probabilidade e limiar. Os dados exibidos são respostas reais e anonimizadas de uma pesquisa pública de saúde dos Estados Unidos (BRFSS 2015, CDC) e servem apenas para demonstração. Nenhum registro identifica uma pessoa. Esta ferramenta é de triagem e não substitui avaliação clínica.",
+      "name": "diabetes"
+    }
+  ]
 }

@@ -1,0 +1,61 @@
+{
+  "versao": "1.0.0",
+  "limiar": 0.12554778158664703,
+  "grupos": [
+    {
+      "grupo": "idade",
+      "valor": "18 a 44 anos",
+      "n": 10962,
+      "prevalencia": 0.04187192118226601,
+      "probabilidade_media": 0.0403648728872098,
+      "roc_auc": 0.8223138652987827,
+      "recall": 0.41612200435729846,
+      "precisao": 0.2369727047146402,
+      "encaminhados": 0.0735267286991425
+    },
+    {
+      "grupo": "idade",
+      "valor": "45 a 64 anos",
+      "n": 21855,
+      "prevalencia": 0.13452299245024021,
+      "probabilidade_media": 0.13421503244448574,
+      "roc_auc": 0.7908569216743001,
+      "recall": 0.7540816326530613,
+      "precisao": 0.2679154078549849,
+      "encaminhados": 0.3786318920155571
+    },
+    {
+      "grupo": "idade",
+      "valor": "65 anos ou mais",
+      "n": 17919,
+      "prevalencia": 0.20481053630224902,
+      "probabilidade_media": 0.20690689935173828,
+      "roc_auc": 0.7236898789015835,
+      "recall": 0.8743869209809264,
+      "precisao": 0.27139715832205685,
+      "encaminhados": 0.6598582510184721
+    },
+    {
+      "grupo": "sexo",
+      "valor": "Feminino",
+      "n": 28531,
+      "prevalencia": 0.12915775822789247,
+      "probabilidade_media": 0.13002908807551616,
+      "roc_auc": 0.8095469339434853,
+      "recall": 0.7839891451831751,
+      "precisao": 0.26947113142430745,
+      "encaminhados": 0.37576670989450073
+    },
+    {
+      "grupo": "sexo",
+      "valor": "Masculino",
+      "n": 22205,
+      "prevalencia": 0.15239810853411395,
+      "probabilidade_media": 0.1519231744321133,
+      "roc_auc": 0.7787671754665674,
+      "recall": 0.806146572104019,
+      "precisao": 0.2678711704634721,
+      "encaminhados": 0.45863544246791266
+    }
+  ]
+}

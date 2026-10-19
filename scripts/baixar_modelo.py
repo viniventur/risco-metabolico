@@ -3,8 +3,9 @@ o sha256 do manifest (ADR 0004).
 
 Só biblioteca padrão: roda dentro da imagem `python:3.12-slim`, sem PowerShell e sem `uv`.
 Para cada arquivo: (1) se `<destino>/<arquivo>` já existe e o sha256 bate, não baixa nada;
-(2) senão, baixa o asset do release `v<versao>` do repositório GitHub e confere o sha256 antes de
-mover para o lugar. Hash divergente é erro, nunca aviso.
+(2) senão, baixa o asset do release do repositório GitHub e confere o sha256 antes de mover para o
+lugar. Hash divergente é erro, nunca aviso. O release é o `release` do manifest (o da vertente
+diabetes diz `diabetes-v<versao>`); sem o campo, `v<versao>` — o da vertente de obesidade.
 
 O snapshot (`dataset.snapshot` e `dataset.sha256_snapshot` do manifest) só entra com
 `--snapshot-destino`: a imagem publicada precisa dele para derivar `base_painel.parquet` sem banco
@@ -13,6 +14,7 @@ O snapshot (`dataset.snapshot` e `dataset.sha256_snapshot` do manifest) só entr
 
 Uso: python scripts/baixar_modelo.py --manifesto artifacts/manifest.json --destino models
      [--snapshot-destino data/processado] [--repo dono/repositorio] [--url https://...]
+     python scripts/baixar_modelo.py --manifesto artifacts/diabetes/manifest.json --destino models
 """
 
 from __future__ import annotations
@@ -91,7 +93,8 @@ def main(argv: list[str] | None = None) -> int:
     if not arquivo or not esperado or not versao:
         print("FALHA: manifest sem arquivo/sha256/versao — o modelo ainda não foi treinado")
         return 1
-    base = f"https://github.com/{args.repo}/releases/download/v{versao}"
+    tag = manifest.get("release") or f"v{versao}"
+    base = f"https://github.com/{args.repo}/releases/download/{tag}"
     codigo = garantir(arquivo, esperado, args.url or f"{base}/{arquivo}", args.destino)
     if codigo != 0 or args.snapshot_destino is None:
         return codigo

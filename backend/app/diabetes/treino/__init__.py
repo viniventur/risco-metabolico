@@ -1,1 +1,1 @@
-"""CLI de treino da vertente diabetes: o snapshot congelado de `dados.registros_diabetes`."""
+"""CLI de treino da vertente diabetes: o snapshot congelado, o treino e a verificação do modelo."""

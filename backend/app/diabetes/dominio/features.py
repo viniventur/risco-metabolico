@@ -95,6 +95,23 @@ TIPOS_SQL: dict[str, tuple[str, str]] = {
 TIPOS_SQL = {c: TIPOS_SQL[c] for c in COLUNAS_COM_ALVO}
 DTYPES_SNAPSHOT: dict[str, str] = {c: dtype for c, (_, dtype) in TIPOS_SQL.items()}
 
+# 5. As dez entradas do modelo (decisão D2; notebook 02, célula 14): o que uma pessoa sabe responder
+#    ANTES de qualquer diagnóstico. A ORDEM é a do notebook, e é a de `feature_names_in_` do
+#    artefato, do contrato da API e do log de predição. As outras onze variáveis ficam no banco e no
+#    painel, como dado descritivo.
+ENTRADAS: list[str] = [
+    "Faixa_Etaria",
+    "Sexo",
+    "IMC",
+    "Pressao_Alta",
+    "Colesterol_Alto",
+    "Fumou_100_Cigarros",
+    "Atividade_Fisica_30_Dias",
+    "Fruta_Diaria",
+    "Verdura_Diaria",
+    "Escolaridade",
+]
+
 
 def coluna_banco(nome: str) -> str:
     """Nome da coluna no Postgres: `snake_case` minúsculo, sem aspas (`Teve_AVC` -> `teve_avc`)."""

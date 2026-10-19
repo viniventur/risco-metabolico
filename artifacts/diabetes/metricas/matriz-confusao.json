@@ -1,0 +1,22 @@
+{
+  "versao": "1.0.0",
+  "limiar": 0.12554778158664703,
+  "linhas": [
+    "real: sem diabetes",
+    "real: com diabetes"
+  ],
+  "colunas": [
+    "não encaminhado",
+    "encaminhado"
+  ],
+  "matriz": [
+    [
+      28379,
+      15288
+    ],
+    [
+      1452,
+      5617
+    ]
+  ]
+}

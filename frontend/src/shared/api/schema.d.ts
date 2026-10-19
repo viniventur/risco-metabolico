@@ -4,6 +4,106 @@
  */
 
 export interface paths {
+    "/api/v1/diabetes/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Formulário da triagem de diabetes: grupos, campos, tipos, faixas, opções e padrões
+         * @description O front monta o formulário a partir daqui; nenhuma regra de formulário mora no JSX.
+         */
+        get: operations["metadata_diabetes_api_v1_diabetes_metadata_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/model/info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Manifest da vertente diabetes: versão, limiar, métricas de validação e de teste
+         * @description Versão, release, hiperparâmetros, o limiar com o critério e as métricas do manifest.
+         */
+        get: operations["model_info_diabetes_api_v1_diabetes_model_info_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/predicoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Estima a probabilidade de diagnóstico de diabetes e a classifica pelo limiar
+         * @description Uma pessoa, dez respostas: probabilidade, limiar de triagem e classificação.
+         */
+        post: operations["prever_diabetes_api_v1_diabetes_predicoes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/predicoes/lote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Triagem de diabetes de vários indivíduos; um item inválido não derruba o lote
+         * @description Valida item a item dentro do laço: o inválido volta em `falhas` com o índice de origem.
+         */
+        post: operations["prever_lote_diabetes_api_v1_diabetes_predicoes_lote_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/predicoes/relatorio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Gera o relatório HTML imprimível da triagem de diabetes
+         * @description HTML autocontido. O `nome` existe no HTML devolvido e em lugar nenhum além disso.
+         */
+        post: operations["gerar_relatorio_diabetes_api_v1_diabetes_predicoes_relatorio_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dimensoes": {
         parameters: {
             query?: never;
@@ -405,11 +505,91 @@ export interface components {
             tipo: "texto" | "inteiro";
         };
         /**
+         * EntradaDiabetes
+         * @description As dez respostas que o pipeline da vertente espera, com o domínio fechado de cada uma.
+         * @example {
+         *       "Atividade_Fisica_30_Dias": "Sim",
+         *       "Colesterol_Alto": "Não",
+         *       "Escolaridade": 4,
+         *       "Faixa_Etaria": 5,
+         *       "Fruta_Diaria": "Sim",
+         *       "Fumou_100_Cigarros": "Não",
+         *       "IMC": 25,
+         *       "Pressao_Alta": "Não",
+         *       "Sexo": "Feminino",
+         *       "Verdura_Diaria": "Sim"
+         *     }
+         */
+        EntradaDiabetes: {
+            /**
+             * Atividade Fisica 30 Dias
+             * @enum {string}
+             */
+            Atividade_Fisica_30_Dias: "Não" | "Sim";
+            /**
+             * Colesterol Alto
+             * @enum {string}
+             */
+            Colesterol_Alto: "Não" | "Sim";
+            /**
+             * Escolaridade
+             * @description Maior série concluída: 1 = nunca estudou … 6 = superior
+             */
+            Escolaridade: number;
+            /**
+             * Faixa Etaria
+             * @description Faixa de 5 anos: 1 = 18 a 24 anos … 13 = 80 ou mais
+             */
+            Faixa_Etaria: number;
+            /**
+             * Fruta Diaria
+             * @enum {string}
+             */
+            Fruta_Diaria: "Não" | "Sim";
+            /**
+             * Fumou 100 Cigarros
+             * @enum {string}
+             */
+            Fumou_100_Cigarros: "Não" | "Sim";
+            /**
+             * Imc
+             * @description kg/m²; o modelo o arredonda ao inteiro, como a pesquisa
+             */
+            IMC: number;
+            /**
+             * Pressao Alta
+             * @enum {string}
+             */
+            Pressao_Alta: "Não" | "Sim";
+            /**
+             * Sexo
+             * @enum {string}
+             */
+            Sexo: "Feminino" | "Masculino";
+            /**
+             * Verdura Diaria
+             * @enum {string}
+             */
+            Verdura_Diaria: "Não" | "Sim";
+        };
+        /**
          * EntradaRelatorio
          * @description Corpo de `POST /predicoes/relatorio`: a entrada mais o nome opcional (só metadado).
          */
         EntradaRelatorio: {
             entrada: components["schemas"]["EntradaTriagem"];
+            /**
+             * Nome
+             * @default
+             */
+            nome: string;
+        };
+        /**
+         * EntradaRelatorioDiabetes
+         * @description Corpo de `POST /diabetes/predicoes/relatorio`: a entrada e o nome opcional (só metadado).
+         */
+        EntradaRelatorioDiabetes: {
+            entrada: components["schemas"]["EntradaDiabetes"];
             /**
              * Nome
              * @default
@@ -607,6 +787,21 @@ export interface components {
             /** Titulo */
             titulo: string;
         };
+        /**
+         * GrupoFormularioDiabetes
+         * @description Os três agrupamentos do formulário: dados iniciais, diagnósticos recebidos e hábitos.
+         */
+        GrupoFormularioDiabetes: {
+            /** Campos */
+            campos: components["schemas"]["CampoFormulario"][];
+            /**
+             * Id
+             * @enum {string}
+             */
+            id: "dados-iniciais" | "saude" | "habitos";
+            /** Titulo */
+            titulo: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -708,6 +903,63 @@ export interface components {
             versao_dados: string;
         };
         /**
+         * InfoModeloDiabetes
+         * @description `GET /diabetes/model/info`: o manifest da vertente normalizado — as métricas publicadas.
+         */
+        InfoModeloDiabetes: {
+            /** Algoritmo */
+            algoritmo: string;
+            /** Ambiente */
+            ambiente: {
+                [key: string]: unknown;
+            };
+            /** Aviso */
+            aviso: string;
+            /** Calibracao */
+            calibracao: string;
+            /** Desbalanceamento */
+            desbalanceamento: string;
+            /**
+             * Entradas
+             * @description As dez entradas, na ordem de feature_names_in_
+             */
+            entradas: string[];
+            /** Hiperparametros */
+            hiperparametros: {
+                [key: string]: unknown;
+            };
+            limiar: components["schemas"]["LimiarDiabetes"];
+            metricas_teste: components["schemas"]["MetricasTesteDiabetes"];
+            /** N Features Entrada */
+            n_features_entrada: number;
+            /** N Features Modelo */
+            n_features_modelo: number;
+            /** Nome */
+            nome: string;
+            /** Notebook Origem */
+            notebook_origem: string;
+            /** Release */
+            release: string;
+            /** Sha256 */
+            sha256: string;
+            /** Split */
+            split: {
+                [key: string]: unknown;
+            };
+            /** Treinado Em */
+            treinado_em: string;
+            validacao_cruzada: components["schemas"]["ValidacaoCruzadaDiabetes"];
+            /** Versao */
+            versao: string;
+            /** Versao Dados */
+            versao_dados: string;
+            /**
+             * Vertente
+             * @constant
+             */
+            vertente: "diabetes";
+        };
+        /**
          * ItemImportancia
          * @description Importância de uma feature de entrada (one-hot já somado).
          */
@@ -720,6 +972,29 @@ export interface components {
             importancia_pct: number;
             /** Rotulo */
             rotulo: string;
+        };
+        /**
+         * LimiarDiabetes
+         * @description O limiar de triagem: critério escrito, alvo de recall, valor e o ponto fora da dobra.
+         */
+        LimiarDiabetes: {
+            /** Criterio */
+            criterio: string;
+            fora_da_dobra: components["schemas"]["PontoDeOperacaoDiabetes"];
+            /** Recall Alvo */
+            recall_alvo: number;
+            /** Valor */
+            valor: number;
+        };
+        /**
+         * LoteDiabetes
+         * @description Corpo de `POST /diabetes/predicoes/lote`.
+         */
+        LoteDiabetes: {
+            /** Itens */
+            itens: {
+                [key: string]: unknown;
+            }[];
         };
         /**
          * LoteTriagem
@@ -763,6 +1038,18 @@ export interface components {
             versao_modelo: string;
         };
         /**
+         * MetadadosFormularioDiabetes
+         * @description `GET /diabetes/metadata`: a espinha do formulário — o front monta os campos daqui.
+         */
+        MetadadosFormularioDiabetes: {
+            /** Aviso */
+            aviso: string;
+            /** Grupos */
+            grupos: components["schemas"]["GrupoFormularioDiabetes"][];
+            /** Versao Modelo */
+            versao_modelo: string;
+        };
+        /**
          * MetricasModelo
          * @description As três métricas de teste do manifest — nunca escritas à mão.
          */
@@ -773,6 +1060,32 @@ export interface components {
             f1_macro: number;
             /** Recall Risco */
             recall_risco: number;
+        };
+        /**
+         * MetricasTesteDiabetes
+         * @description A avaliação final, uma vez, no teste — do manifest, nunca escrita à mão.
+         */
+        MetricasTesteDiabetes: {
+            /** Brier */
+            brier: number;
+            /** Brier Da Prevalencia */
+            brier_da_prevalencia: number;
+            /** Encaminhados No Limiar */
+            encaminhados_no_limiar: number;
+            /** Especificidade No Limiar */
+            especificidade_no_limiar: number;
+            /** Pr Auc */
+            pr_auc: number;
+            /** Precisao Fixa */
+            precisao_fixa: number;
+            /** Precisao No Limiar */
+            precisao_no_limiar: number;
+            /** Recall Na Precisao Fixa */
+            recall_na_precisao_fixa: number;
+            /** Recall No Limiar */
+            recall_no_limiar: number;
+            /** Roc Auc */
+            roc_auc: number;
         };
         /**
          * OpcaoCampo
@@ -829,6 +1142,20 @@ export interface components {
             nivel: string;
             /** Peso */
             peso: number;
+        };
+        /**
+         * PontoDeOperacaoDiabetes
+         * @description Recall, precisão, especificidade e fração encaminhada num limiar.
+         */
+        PontoDeOperacaoDiabetes: {
+            /** Encaminhados */
+            encaminhados: number;
+            /** Especificidade */
+            especificidade: number;
+            /** Precisao */
+            precisao: number;
+            /** Recall */
+            recall: number;
         };
         /**
          * ProbabilidadeClasse
@@ -890,6 +1217,45 @@ export interface components {
             versao_modelo: string;
         };
         /**
+         * RespostaDiabetes
+         * @description Contrato de saída da triagem de diabetes: probabilidade, limiar, classificação e IMC.
+         */
+        RespostaDiabetes: {
+            /**
+             * Classificacao
+             * @enum {string}
+             */
+            classificacao: "Risco elevado" | "Risco baixo";
+            /** Faixa Imc */
+            faixa_imc: string;
+            /**
+             * Fora Do Dominio Treino
+             * @description Campos cujo valor, como o modelo o vê, está fora da faixa observada na base
+             */
+            fora_do_dominio_treino?: string[];
+            /** Imc */
+            imc: number;
+            /** Latencia Ms */
+            latencia_ms: number;
+            /**
+             * Limiar
+             * @description Limiar de triagem do modelo servido; critério e valor em /diabetes/model/info
+             */
+            limiar: number;
+            /**
+             * Probabilidade
+             * @description Probabilidade estimada de a pessoa já ter ouvido de um profissional de saúde que tem diabetes, na escala da base (respondentes do BRFSS 2015): não é a prevalência na população
+             */
+            probabilidade: number;
+            /**
+             * Risco Elevado
+             * @description probabilidade >= limiar: a triagem sugere o exame de glicemia
+             */
+            risco_elevado: boolean;
+            /** Versao Modelo */
+            versao_modelo: string;
+        };
+        /**
          * RespostaLote
          * @description `POST /predicoes/lote`: um item inválido volta em `falhas`; os outros são processados.
          */
@@ -898,6 +1264,22 @@ export interface components {
             falhas: components["schemas"]["FalhaLote"][];
             /** Resultados */
             resultados: components["schemas"]["RespostaTriagem"][];
+            /** Sucesso */
+            sucesso: number;
+            /** Total */
+            total: number;
+            /** Versao Modelo */
+            versao_modelo: string;
+        };
+        /**
+         * RespostaLoteDiabetes
+         * @description `POST /diabetes/predicoes/lote`: um item inválido volta em `falhas`; os outros seguem.
+         */
+        RespostaLoteDiabetes: {
+            /** Falhas */
+            falhas: components["schemas"]["FalhaLote"][];
+            /** Resultados */
+            resultados: components["schemas"]["RespostaDiabetes"][];
             /** Sucesso */
             sucesso: number;
             /** Total */
@@ -998,6 +1380,28 @@ export interface components {
          * @enum {string}
          */
         SimNao: "Sim" | "Não";
+        /**
+         * ValidacaoCruzadaDiabetes
+         * @description As 5 dobras estratificadas do treino: média e desvio-padrão entre dobras.
+         */
+        ValidacaoCruzadaDiabetes: {
+            /** Brier */
+            brier: number;
+            /** N Splits */
+            n_splits: number;
+            /** Pr Auc */
+            pr_auc: number;
+            /** Pr Auc Dp */
+            pr_auc_dp: number;
+            /** Random State */
+            random_state: number;
+            /** Roc Auc */
+            roc_auc: number;
+            /** Roc Auc Dp */
+            roc_auc_dp: number;
+            /** Shuffle */
+            shuffle: boolean;
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -1020,6 +1424,185 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    metadata_diabetes_api_v1_diabetes_metadata_get: {
+        parameters: {
+            query?: {
+                /** @description Versão do modelo de diabetes; padrão: a do manifest da vertente */
+                versao?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetadadosFormularioDiabetes"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    model_info_diabetes_api_v1_diabetes_model_info_get: {
+        parameters: {
+            query?: {
+                /** @description Versão do modelo de diabetes; padrão: a do manifest da vertente */
+                versao?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InfoModeloDiabetes"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    prever_diabetes_api_v1_diabetes_predicoes_post: {
+        parameters: {
+            query?: {
+                /** @description Versão do modelo de diabetes; padrão: a do manifest da vertente */
+                versao?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntradaDiabetes"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespostaDiabetes"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    prever_lote_diabetes_api_v1_diabetes_predicoes_lote_post: {
+        parameters: {
+            query?: {
+                /** @description Versão do modelo de diabetes; padrão: a do manifest da vertente */
+                versao?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoteDiabetes"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespostaLoteDiabetes"];
+                };
+            };
+            /** @description Lote acima de LIMITE_LOTE */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gerar_relatorio_diabetes_api_v1_diabetes_predicoes_relatorio_post: {
+        parameters: {
+            query?: {
+                /** @description Versão do modelo de diabetes; padrão: a do manifest da vertente */
+                versao?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntradaRelatorioDiabetes"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     dimensoes_api_v1_dimensoes_get: {
         parameters: {
             query?: never;
