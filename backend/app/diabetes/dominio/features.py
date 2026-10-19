@@ -9,6 +9,7 @@ predição, e o mesmo nome com sentidos diferentes misturaria as duas na deriva.
 
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
 
 # 1. Renomeação, na ordem do CSV. A coluna `ID` (a posição da linha) fica de fora: vira
@@ -117,3 +118,16 @@ def preparar_base(df: pd.DataFrame) -> pd.DataFrame:
             df[coluna] = df[coluna].map(mapeamento)
     tipos = {c: d for c, d in DTYPES_SNAPSHOT.items() if c in df.columns and d != "object"}
     return df.astype(tipos)
+
+
+def arredondar_imc(df: pd.DataFrame) -> pd.DataFrame:
+    """Arredonda o IMC ao inteiro como a limpeza da origem: `round` do numpy, que empata no par.
+
+    Na base o IMC já é inteiro e o passo não muda nada; em serviço a API recebe o IMC com casas
+    decimais (calculado de peso e altura) e este é o mesmo tratamento que a pessoa teria recebido
+    na pesquisa — 26,5 vira 26 e 27,5 vira 28. Transformador NOMEADO e IMPORTÁVEL: entra no
+    pipeline como `FunctionTransformer(arredondar_imc)`, serializável com joblib.
+    """
+    df = df.copy()
+    df["IMC"] = np.round(df["IMC"].astype("float64"))
+    return df

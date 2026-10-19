@@ -6,5 +6,13 @@
   "n_figuras": 3,
   "slug": "comparacao-de-modelos",
   "titulo": "Comparação de modelos para previsão de obesidade"
+ },
+ {
+  "arquivo_origem": "study/02_triagem_de_diabetes.ipynb",
+  "atualizado_em": "2026-10-19T03:57:32.817643Z",
+  "n_celulas": 40,
+  "n_figuras": 8,
+  "slug": "triagem-de-diabetes",
+  "titulo": "Triagem de diabetes: modelos, calibração e limiar"
  }
 ]

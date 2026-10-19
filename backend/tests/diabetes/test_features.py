@@ -87,6 +87,16 @@ def test_codigo_fora_do_dominio_vira_nulo_sem_sumir() -> None:
     assert len(preparado) == 3
 
 
+def test_arredondar_imc_empata_no_par_como_a_limpeza_da_origem(base: pd.DataFrame) -> None:
+    entrada = pd.DataFrame({"IMC": [26.5, 27.5, 26.49, 26.51, 30.0], "Sexo": ["Feminino"] * 5})
+    saida = features.arredondar_imc(entrada)
+    assert saida["IMC"].tolist() == [26.0, 28.0, 26.0, 27.0, 30.0]
+    assert str(saida["IMC"].dtype) == "float64"
+    assert saida["Sexo"].tolist() == entrada["Sexo"].tolist() and entrada["IMC"].iloc[0] == 26.5
+    # Na base o passo é neutro: o IMC do arquivo já é inteiro.
+    pd.testing.assert_frame_equal(features.arredondar_imc(base.head(1000)), base.head(1000))
+
+
 def test_rotulos_cobrem_as_escalas() -> None:
     for coluna, rotulos in regras.ROTULOS_ESCALA.items():
         assert sorted(rotulos) == regras.DOMINIOS[coluna], coluna

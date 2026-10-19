@@ -1,6 +1,6 @@
-# `/study` — o notebook de estudo e o mapa para o backend
+# `/study` — os notebooks de estudo e o mapa para o backend
 
-Um único notebook: `01_comparacao_de_modelos.ipynb` (40 células), adaptado do notebook legado com o **mínimo** de mudanças fora dos cálculos: textos institucionais, caminhos, imports que faltavam, o A/B explícito de *binning*, a correção de contrato do encoder (`handle_unknown='error'` + `categories=`), a saída da persistência e a prosa sem número literal.
+Dois notebooks, um por vertente: `01_comparacao_de_modelos.ipynb` (obesidade, 40 células) e `02_triagem_de_diabetes.ipynb` (diabetes, descrito [no fim deste arquivo](#o-notebook-02--vertente-diabetes)). O 01 foi adaptado do notebook legado com o **mínimo** de mudanças fora dos cálculos: textos institucionais, caminhos, imports que faltavam, o A/B explícito de *binning*, a correção de contrato do encoder (`handle_unknown='error'` + `categories=`), a saída da persistência e a prosa sem número literal.
 
 > Os dados exibidos são fictícios e servem apenas para demonstração. Nenhum registro corresponde a uma pessoa real. Esta ferramenta é de triagem e não substitui avaliação clínica.
 
@@ -55,3 +55,31 @@ As 5 escalas ordinais têm 3, 4, 3, 4 e 3 valores inteiros. `select_dtypes` sobr
 ## Métricas do legado
 
 Acurácia 0,9622, F1-macro 0,9610 e recall de risco 0,9936 pertencem ao artefato antigo (pipeline sem binning efetivo e sem IMC) e ficam documentadas em `docs/auditoria-do-legado.md`. Depois do retreino elas mudam; nenhuma métrica é escrita à mão em lugar nenhum do repositório.
+
+## O notebook 02 — vertente diabetes
+
+`02_triagem_de_diabetes.ipynb` (40 células) estuda a segunda vertente: a probabilidade de uma pessoa já ter ouvido de um profissional de saúde que tem diabetes, a partir de dez respostas que ela sabe **antes** de qualquer diagnóstico. Escrito do zero para esta base, com as mesmas regras do 01: lê o CSV diretamente (`../data/bruto/diabetes/cdc_diabetes_health_indicators.csv`), não grava artefato nenhum e a prosa não carrega número medido — todo número sai das saídas, que o *Run All* regenera.
+
+> Os dados exibidos são respostas reais e anonimizadas de uma pesquisa pública de saúde dos Estados Unidos (BRFSS 2015, CDC) e servem apenas para demonstração. Nenhum registro identifica uma pessoa. Esta ferramenta é de triagem e não substitui avaliação clínica.
+
+```powershell
+# da raiz do repositório; os extras `estudo` (jupyter, nbconvert, gráficos) e `treino` (LightGBM)
+uv run --project backend --extra estudo --extra treino jupyter nbconvert --to notebook --execute --inplace study\02_triagem_de_diabetes.ipynb
+python scripts\higiene-notebook.py study\02_triagem_de_diabetes.ipynb
+uv run --project backend python tools\nb2json.py --root . --out frontend\public\study
+```
+
+O que ele decide, nesta ordem e com o critério escrito **antes** de cada medição: as entradas (o custo de cada grupo excluído), o modelo (três baselines contra XGBoost e LightGBM, pela PR-AUC da validação cruzada do treino), o tratamento do desbalanceamento (nada, peso de classe ou SMOTE), a calibração e o limiar de triagem (o maior com recall ≥ 0,80 fora da dobra). O teste é tocado **uma vez**, na avaliação final, já com tudo decidido.
+
+### Mapa célula → função do backend
+
+| Célula | Conteúdo | Onde vive agora |
+|---|---|---|
+| 2 | leitura do CSV, `colunas_map` e `traducoes` | `backend/app/diabetes/dominio/features.py::preparar_base` — o backend lê o snapshot congelado, nunca o CSV |
+| 3 | `arredondar_imc` e a célula de paridade | `backend/app/diabetes/dominio/features.py::arredondar_imc`; a célula prova por `assert_frame_equal` que as duas preparações e os dois arredondamentos são idênticos |
+| 14 | `ENTRADAS`, o split e as dobras | o pipeline de treino da vertente (F3) |
+| 15 | `preprocessador`, `montar`, `xgb`/`lgbm` | o pipeline de treino da vertente (F3), com os passos nomeados `imc`, `colunas` e `modelo` |
+| 29 | `limiar_para_recall` e `ponto_de_operacao` | a avaliação do CLI de treino da vertente (F3) |
+| 38 | `CONGELADO` | o contrato dos números do CLI: entradas, split, algoritmo, hiperparâmetros, desbalanceamento, calibração e o critério do limiar |
+
+As métricas publicadas da vertente não são as deste notebook: são as do manifest (`artifacts/diabetes/manifest.json`), que o CLI escreve ao treinar sobre o snapshot congelado do banco.
