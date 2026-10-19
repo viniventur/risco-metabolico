@@ -19,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.rotas import metadados, modelo, monitoramento, painel, predicoes, registros, saude
 from app.config import CONFIG
 from app.diabetes.api import roteador as roteador_diabetes
+from app.diabetes.dominio.agregados import BasePainelDiabetes
 from app.diabetes.dominio.relatorio import FRASE_DADOS_REAIS
 from app.diabetes.nucleo.artefato import RegistroDiabetes
 from app.dominio.agregados import BasePainel
@@ -65,6 +66,16 @@ def carregar_base_painel() -> BasePainel | None:
         return None
 
 
+def carregar_base_painel_diabetes() -> BasePainelDiabetes | None:
+    """A base do painel da vertente diabetes, de DADOS_DIR/diabetes; ausente, 503 e `/ready` 503."""
+    caminho = CONFIG.dados_dir / "diabetes" / "base_painel.parquet"
+    try:
+        return BasePainelDiabetes.carregar(caminho)
+    except (OSError, ValueError) as erro:
+        log.error("base do painel da vertente diabetes não carregada (%s): %s", caminho.name, erro)
+        return None
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Carrega o que o serviço precisa antes de aceitar requisições; nenhuma espera por banco.
@@ -76,6 +87,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.registro = carregar_registro()
     app.state.registro_diabetes = carregar_registro_diabetes()
     app.state.agregados = carregar_base_painel()  # base do painel em memória; nunca o banco
+    app.state.agregados_diabetes = carregar_base_painel_diabetes()  # a da vertente, idem
     banco = Banco()
     await banco.abrir()  # não abre conexão: min_size=0
     app.state.banco = banco

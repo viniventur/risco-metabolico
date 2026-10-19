@@ -91,6 +91,91 @@
         "title": "Agregado",
         "type": "object"
       },
+      "AgregadoDiabetes": {
+        "description": "`GET /diabetes/painel/por-categoria`: tabela longa, uma medida por linha, domínio inteiro.",
+        "properties": {
+          "amostra_minima": {
+            "description": "abaixo deste n a prevalência do grupo é suprimida",
+            "title": "Amostra Minima",
+            "type": "integer"
+          },
+          "campo": {
+            "title": "Campo",
+            "type": "string"
+          },
+          "campos": {
+            "description": "rótulos do campo e da série, e de cada valor do domínio",
+            "items": {
+              "$ref": "#/components/schemas/CampoPainelDiabetes"
+            },
+            "title": "Campos",
+            "type": "array"
+          },
+          "dimensoes": {
+            "items": {
+              "$ref": "#/components/schemas/Dimensao"
+            },
+            "title": "Dimensoes",
+            "type": "array"
+          },
+          "linhas": {
+            "description": "{ordem, <dimensões como string>, medida, valor, n, suprimido}; medidas: contagem, pct (do recorte), n_diabetes e prevalencia (% com diabetes no grupo)",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Linhas",
+            "type": "array"
+          },
+          "medidas": {
+            "items": {
+              "$ref": "#/components/schemas/Medida"
+            },
+            "title": "Medidas",
+            "type": "array"
+          },
+          "recorte": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Recorte",
+            "type": "object"
+          },
+          "serie": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serie"
+          },
+          "total_filtrado": {
+            "title": "Total Filtrado",
+            "type": "integer"
+          },
+          "total_global": {
+            "title": "Total Global",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "campo",
+          "dimensoes",
+          "medidas",
+          "amostra_minima",
+          "total_filtrado",
+          "total_global",
+          "recorte",
+          "campos",
+          "linhas"
+        ],
+        "title": "AgregadoDiabetes",
+        "type": "object"
+      },
       "CampoFormulario": {
         "additionalProperties": false,
         "description": "Um campo do formulário de triagem; `nome` é a CHAVE do JSON de `EntradaTriagem`.",
@@ -186,6 +271,33 @@
           "tipo"
         ],
         "title": "CampoFormulario",
+        "type": "object"
+      },
+      "CampoPainelDiabetes": {
+        "description": "Um campo do painel: o rótulo dele e o de cada valor, na ordem de exibição.",
+        "properties": {
+          "campo": {
+            "title": "Campo",
+            "type": "string"
+          },
+          "rotulo": {
+            "title": "Rotulo",
+            "type": "string"
+          },
+          "valores": {
+            "items": {
+              "$ref": "#/components/schemas/ValorRotuladoDiabetes"
+            },
+            "title": "Valores",
+            "type": "array"
+          }
+        },
+        "required": [
+          "campo",
+          "rotulo",
+          "valores"
+        ],
+        "title": "CampoPainelDiabetes",
         "type": "object"
       },
       "Dimensao": {
@@ -778,6 +890,74 @@
           "mensagem"
         ],
         "title": "FalhaLote",
+        "type": "object"
+      },
+      "FatoresDiabetes": {
+        "description": "`GET /diabetes/painel/fatores`: as 16 variáveis categóricas × resposta, numa tabela longa.",
+        "properties": {
+          "amostra_minima": {
+            "title": "Amostra Minima",
+            "type": "integer"
+          },
+          "campos": {
+            "description": "os 16 fatores, na ordem do gráfico, com o rótulo de cada resposta",
+            "items": {
+              "$ref": "#/components/schemas/CampoPainelDiabetes"
+            },
+            "title": "Campos",
+            "type": "array"
+          },
+          "dimensoes": {
+            "items": {
+              "$ref": "#/components/schemas/Dimensao"
+            },
+            "title": "Dimensoes",
+            "type": "array"
+          },
+          "linhas": {
+            "description": "{ordem, fator, resposta, medida, valor, n, suprimido}",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Linhas",
+            "type": "array"
+          },
+          "medidas": {
+            "items": {
+              "$ref": "#/components/schemas/Medida"
+            },
+            "title": "Medidas",
+            "type": "array"
+          },
+          "recorte": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Recorte",
+            "type": "object"
+          },
+          "total_filtrado": {
+            "title": "Total Filtrado",
+            "type": "integer"
+          },
+          "total_global": {
+            "title": "Total Global",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "dimensoes",
+          "medidas",
+          "amostra_minima",
+          "total_filtrado",
+          "total_global",
+          "recorte",
+          "campos",
+          "linhas"
+        ],
+        "title": "FatoresDiabetes",
         "type": "object"
       },
       "Frequencia": {
@@ -1636,6 +1816,48 @@
         "title": "PaginaRegistros",
         "type": "object"
       },
+      "PaginaRegistrosDiabetes": {
+        "description": "`GET /diabetes/registros`: página ordenada do recorte, com as 23 colunas e o `id`.",
+        "properties": {
+          "linhas": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Linhas",
+            "type": "array"
+          },
+          "pagina": {
+            "title": "Pagina",
+            "type": "integer"
+          },
+          "recorte": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Recorte",
+            "type": "object"
+          },
+          "tamanho": {
+            "title": "Tamanho",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total",
+          "pagina",
+          "tamanho",
+          "linhas",
+          "recorte"
+        ],
+        "title": "PaginaRegistrosDiabetes",
+        "type": "object"
+      },
       "Ponto": {
         "description": "Um registro da nuvem altura × peso.",
         "properties": {
@@ -2129,6 +2351,82 @@
         "title": "Resumo",
         "type": "object"
       },
+      "ResumoDiabetes": {
+        "description": "`GET /diabetes/painel/resumo`: o recorte contra a base inteira.",
+        "properties": {
+          "imc_medio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Imc Medio"
+          },
+          "n_diabetes": {
+            "title": "N Diabetes",
+            "type": "integer"
+          },
+          "n_diabetes_global": {
+            "title": "N Diabetes Global",
+            "type": "integer"
+          },
+          "prevalencia": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "% com diabetes no recorte (0 a 100), na escala da base: não é a da população",
+            "title": "Prevalencia"
+          },
+          "prevalencia_global": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "% com diabetes na base inteira (0 a 100)",
+            "title": "Prevalencia Global"
+          },
+          "recorte": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "title": "Recorte",
+            "type": "object"
+          },
+          "total_global": {
+            "title": "Total Global",
+            "type": "integer"
+          },
+          "total_registros": {
+            "title": "Total Registros",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_registros",
+          "n_diabetes",
+          "prevalencia",
+          "imc_medio",
+          "total_global",
+          "n_diabetes_global",
+          "prevalencia_global",
+          "recorte"
+        ],
+        "title": "ResumoDiabetes",
+        "type": "object"
+      },
       "Saude": {
         "description": "Resposta de `GET /health` — sempre 200; o banco não é requisito de vivacidade.",
         "properties": {
@@ -2290,6 +2588,25 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "ValorRotuladoDiabetes": {
+        "description": "Um valor do domínio de um campo, com o rótulo de exibição.",
+        "properties": {
+          "rotulo": {
+            "title": "Rotulo",
+            "type": "string"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "valor",
+          "rotulo"
+        ],
+        "title": "ValorRotuladoDiabetes",
+        "type": "object"
       }
     }
   },
@@ -2301,6 +2618,35 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/v1/diabetes/dimensoes": {
+      "get": {
+        "description": "Os filtros mostram TODAS as opções do domínio, não só as que sobrevivem ao recorte.",
+        "operationId": "dimensoes_diabetes_api_v1_diabetes_dimensoes_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "items": {
+                      "$ref": "#/components/schemas/OpcaoDimensao"
+                    },
+                    "type": "array"
+                  },
+                  "title": "Response Dimensoes Diabetes Api V1 Diabetes Dimensoes Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Valores dos 6 filtros da vertente diabetes, com rótulo e contagem na base inteira",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
     "/api/v1/diabetes/metadata": {
       "get": {
         "description": "O front monta o formulário a partir daqui; nenhuma regra de formulário mora no JSX.",
@@ -2400,6 +2746,453 @@
           }
         },
         "summary": "Manifest da vertente diabetes: versão, limiar, métricas de validação e de teste",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/monitoramento/deriva": {
+      "get": {
+        "description": "Uma requisição, três consultas, `Cache-Control: public, max-age=300`.",
+        "operationId": "deriva_diabetes_api_v1_diabetes_monitoramento_deriva_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "janela_dias",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 365,
+              "minimum": 1,
+              "title": "Janela Dias",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "restringe `faixas` a uma entrada",
+            "in": "query",
+            "name": "feature",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "restringe `faixas` a uma entrada",
+              "title": "Feature"
+            }
+          },
+          {
+            "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+            "in": "query",
+            "name": "versao",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Versão do modelo de diabetes; padrão: a do manifest da vertente",
+              "title": "Versao"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaDeriva"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "A entrada real da triagem de diabetes se parece com a base? PSI por entrada; 200 mesmo com o banco fora",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/painel/fatores": {
+      "get": {
+        "description": "O gráfico de fatores numa requisição só, com os rótulos de cada resposta.\n\nAs 13 variáveis de sim ou não, a saúde geral, a escolaridade e a renda.",
+        "operationId": "fatores_diabetes_api_v1_diabetes_painel_fatores_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sexo",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Sexo",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_etaria",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Etaria",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_imc",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Imc",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pressao_alta",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Pressao Alta",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "colesterol_alto",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Colesterol Alto",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "atividade_fisica_30_dias",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Atividade Fisica 30 Dias",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FatoresDiabetes"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "A fração com diabetes em cada resposta das 16 variáveis categóricas da base",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/painel/por-categoria": {
+      "get": {
+        "description": "Domínio completo, dimensão sempre string e prevalência suprimida abaixo do n mínimo.\n\nA Visão Geral pede a prevalência por idade (`faixa_etaria`), por faixa de IMC (`faixa_imc`) e\na pirâmide (`faixa_etaria` com `serie=sexo`).",
+        "operationId": "por_categoria_diabetes_api_v1_diabetes_painel_por_categoria_get",
+        "parameters": [
+          {
+            "description": "diabetes | pressao_alta | colesterol_alto | exame_colesterol_5_anos | fumou_100_cigarros | teve_avc | doenca_coronariana_ou_infarto | atividade_fisica_30_dias | fruta_diaria | verdura_diaria | consumo_pesado_alcool | cobertura_saude | deixou_medico_por_custo | saude_geral | dias_saude_mental_ruim | dias_saude_fisica_ruim | dificuldade_caminhar | sexo | faixa_etaria | escolaridade | faixa_renda | faixa_imc",
+            "in": "query",
+            "name": "campo",
+            "required": true,
+            "schema": {
+              "description": "diabetes | pressao_alta | colesterol_alto | exame_colesterol_5_anos | fumou_100_cigarros | teve_avc | doenca_coronariana_ou_infarto | atividade_fisica_30_dias | fruta_diaria | verdura_diaria | consumo_pesado_alcool | cobertura_saude | deixou_medico_por_custo | saude_geral | dias_saude_mental_ruim | dias_saude_fisica_ruim | dificuldade_caminhar | sexo | faixa_etaria | escolaridade | faixa_renda | faixa_imc",
+              "title": "Campo",
+              "type": "string"
+            }
+          },
+          {
+            "description": "segunda dimensão, ex.: sexo",
+            "in": "query",
+            "name": "serie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "segunda dimensão, ex.: sexo",
+              "title": "Serie"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sexo",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Sexo",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_etaria",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Etaria",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_imc",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Imc",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pressao_alta",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Pressao Alta",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "colesterol_alto",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Colesterol Alto",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "atividade_fisica_30_dias",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Atividade Fisica 30 Dias",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgregadoDiabetes"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Tabela longa por categoria (e série opcional): contagem, % e prevalência de diabetes",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/painel/resumo": {
+      "get": {
+        "description": "O % com diabetes do recorte e o da base, para o KPI dizer a diferença.",
+        "operationId": "resumo_diabetes_api_v1_diabetes_painel_resumo_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sexo",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Sexo",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_etaria",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Etaria",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_imc",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Imc",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pressao_alta",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Pressao Alta",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "colesterol_alto",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Colesterol Alto",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "atividade_fisica_30_dias",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Atividade Fisica 30 Dias",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumoDiabetes"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "KPIs do recorte: respostas, com diabetes e a prevalência, contra a base inteira",
         "tags": [
           "diabetes"
         ]
@@ -2585,6 +3378,275 @@
           }
         },
         "summary": "Gera o relatório HTML imprimível da triagem de diabetes",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/registros": {
+      "get": {
+        "description": "Ordenação e paginação no servidor; `linha_origem` desempata para a ordem ser estável.",
+        "operationId": "registros_diabetes_api_v1_diabetes_registros_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sexo",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Sexo",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_etaria",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Etaria",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_imc",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Imc",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pressao_alta",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Pressao Alta",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "colesterol_alto",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Colesterol Alto",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "atividade_fisica_30_dias",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Atividade Fisica 30 Dias",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pagina",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Pagina",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tamanho",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Tamanho",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "uma de ['Diabetes', 'Pressao_Alta', 'Colesterol_Alto', 'Exame_Colesterol_5_Anos', 'IMC', 'Faixa_IMC', 'Fumou_100_Cigarros', 'Teve_AVC', 'Doenca_Coronariana_Ou_Infarto', 'Atividade_Fisica_30_Dias', 'Fruta_Diaria', 'Verdura_Diaria', 'Consumo_Pesado_Alcool', 'Cobertura_Saude', 'Deixou_Medico_Por_Custo', 'Saude_Geral', 'Dias_Saude_Mental_Ruim', 'Dias_Saude_Fisica_Ruim', 'Dificuldade_Caminhar', 'Sexo', 'Faixa_Etaria', 'Escolaridade', 'Faixa_Renda']",
+            "in": "query",
+            "name": "ordenar_por",
+            "required": false,
+            "schema": {
+              "default": "IMC",
+              "description": "uma de ['Diabetes', 'Pressao_Alta', 'Colesterol_Alto', 'Exame_Colesterol_5_Anos', 'IMC', 'Faixa_IMC', 'Fumou_100_Cigarros', 'Teve_AVC', 'Doenca_Coronariana_Ou_Infarto', 'Atividade_Fisica_30_Dias', 'Fruta_Diaria', 'Verdura_Diaria', 'Consumo_Pesado_Alcool', 'Cobertura_Saude', 'Deixou_Medico_Por_Custo', 'Saude_Geral', 'Dias_Saude_Mental_Ruim', 'Dias_Saude_Fisica_Ruim', 'Dificuldade_Caminhar', 'Sexo', 'Faixa_Etaria', 'Escolaridade', 'Faixa_Renda']",
+              "title": "Ordenar Por",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "direcao",
+            "required": false,
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "title": "Direcao",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaRegistrosDiabetes"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Página ordenada do recorte da base de diabetes, 23 colunas",
+        "tags": [
+          "diabetes"
+        ]
+      }
+    },
+    "/api/v1/diabetes/registros/exportar": {
+      "get": {
+        "description": "`text/csv` com `Content-Disposition`, na ordem de `linha_origem`, gerado bloco a bloco.",
+        "operationId": "exportar_diabetes_api_v1_diabetes_registros_exportar_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sexo",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Sexo",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_etaria",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Etaria",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "faixa_imc",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Faixa Imc",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "pressao_alta",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Pressao Alta",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "colesterol_alto",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Colesterol Alto",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "atividade_fisica_30_dias",
+            "required": false,
+            "schema": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Atividade Fisica 30 Dias",
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/csv": {}
+            },
+            "description": "CSV UTF-8, 23 colunas"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "O recorte inteiro da base de diabetes em CSV, em streaming e sem teto",
         "tags": [
           "diabetes"
         ]

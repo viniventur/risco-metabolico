@@ -4,6 +4,26 @@
  */
 
 export interface paths {
+    "/api/v1/diabetes/dimensoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Valores dos 6 filtros da vertente diabetes, com rótulo e contagem na base inteira
+         * @description Os filtros mostram TODAS as opções do domínio, não só as que sobrevivem ao recorte.
+         */
+        get: operations["dimensoes_diabetes_api_v1_diabetes_dimensoes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/diabetes/metadata": {
         parameters: {
             query?: never;
@@ -36,6 +56,91 @@ export interface paths {
          * @description Versão, release, hiperparâmetros, o limiar com o critério e as métricas do manifest.
          */
         get: operations["model_info_diabetes_api_v1_diabetes_model_info_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/monitoramento/deriva": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A entrada real da triagem de diabetes se parece com a base? PSI por entrada; 200 mesmo com o banco fora
+         * @description Uma requisição, três consultas, `Cache-Control: public, max-age=300`.
+         */
+        get: operations["deriva_diabetes_api_v1_diabetes_monitoramento_deriva_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/painel/fatores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A fração com diabetes em cada resposta das 16 variáveis categóricas da base
+         * @description O gráfico de fatores numa requisição só, com os rótulos de cada resposta.
+         *
+         *     As 13 variáveis de sim ou não, a saúde geral, a escolaridade e a renda.
+         */
+        get: operations["fatores_diabetes_api_v1_diabetes_painel_fatores_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/painel/por-categoria": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Tabela longa por categoria (e série opcional): contagem, % e prevalência de diabetes
+         * @description Domínio completo, dimensão sempre string e prevalência suprimida abaixo do n mínimo.
+         *
+         *     A Visão Geral pede a prevalência por idade (`faixa_etaria`), por faixa de IMC (`faixa_imc`) e
+         *     a pirâmide (`faixa_etaria` com `serie=sexo`).
+         */
+        get: operations["por_categoria_diabetes_api_v1_diabetes_painel_por_categoria_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/painel/resumo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * KPIs do recorte: respostas, com diabetes e a prevalência, contra a base inteira
+         * @description O % com diabetes do recorte e o da base, para o KPI dizer a diferença.
+         */
+        get: operations["resumo_diabetes_api_v1_diabetes_painel_resumo_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -98,6 +203,46 @@ export interface paths {
          * @description HTML autocontido. O `nome` existe no HTML devolvido e em lugar nenhum além disso.
          */
         post: operations["gerar_relatorio_diabetes_api_v1_diabetes_predicoes_relatorio_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/registros": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Página ordenada do recorte da base de diabetes, 23 colunas
+         * @description Ordenação e paginação no servidor; `linha_origem` desempata para a ordem ser estável.
+         */
+        get: operations["registros_diabetes_api_v1_diabetes_registros_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/diabetes/registros/exportar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * O recorte inteiro da base de diabetes em CSV, em streaming e sem teto
+         * @description `text/csv` com `Content-Disposition`, na ordem de `linha_origem`, gerado bloco a bloco.
+         */
+        get: operations["exportar_diabetes_api_v1_diabetes_registros_exportar_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -465,6 +610,45 @@ export interface components {
             total_global: number;
         };
         /**
+         * AgregadoDiabetes
+         * @description `GET /diabetes/painel/por-categoria`: tabela longa, uma medida por linha, domínio inteiro.
+         */
+        AgregadoDiabetes: {
+            /**
+             * Amostra Minima
+             * @description abaixo deste n a prevalência do grupo é suprimida
+             */
+            amostra_minima: number;
+            /** Campo */
+            campo: string;
+            /**
+             * Campos
+             * @description rótulos do campo e da série, e de cada valor do domínio
+             */
+            campos: components["schemas"]["CampoPainelDiabetes"][];
+            /** Dimensoes */
+            dimensoes: components["schemas"]["Dimensao"][];
+            /**
+             * Linhas
+             * @description {ordem, <dimensões como string>, medida, valor, n, suprimido}; medidas: contagem, pct (do recorte), n_diabetes e prevalencia (% com diabetes no grupo)
+             */
+            linhas: {
+                [key: string]: unknown;
+            }[];
+            /** Medidas */
+            medidas: components["schemas"]["Medida"][];
+            /** Recorte */
+            recorte: {
+                [key: string]: unknown[];
+            };
+            /** Serie */
+            serie?: string | null;
+            /** Total Filtrado */
+            total_filtrado: number;
+            /** Total Global */
+            total_global: number;
+        };
+        /**
          * CampoFormulario
          * @description Um campo do formulário de triagem; `nome` é a CHAVE do JSON de `EntradaTriagem`.
          */
@@ -490,6 +674,18 @@ export interface components {
              * @enum {string}
              */
             tipo: "numero" | "selecao";
+        };
+        /**
+         * CampoPainelDiabetes
+         * @description Um campo do painel: o rótulo dele e o de cada valor, na ordem de exibição.
+         */
+        CampoPainelDiabetes: {
+            /** Campo */
+            campo: string;
+            /** Rotulo */
+            rotulo: string;
+            /** Valores */
+            valores: components["schemas"]["ValorRotuladoDiabetes"][];
         };
         /**
          * Dimensao
@@ -739,6 +935,38 @@ export interface components {
             indice: number;
             /** Mensagem */
             mensagem: string;
+        };
+        /**
+         * FatoresDiabetes
+         * @description `GET /diabetes/painel/fatores`: as 16 variáveis categóricas × resposta, numa tabela longa.
+         */
+        FatoresDiabetes: {
+            /** Amostra Minima */
+            amostra_minima: number;
+            /**
+             * Campos
+             * @description os 16 fatores, na ordem do gráfico, com o rótulo de cada resposta
+             */
+            campos: components["schemas"]["CampoPainelDiabetes"][];
+            /** Dimensoes */
+            dimensoes: components["schemas"]["Dimensao"][];
+            /**
+             * Linhas
+             * @description {ordem, fator, resposta, medida, valor, n, suprimido}
+             */
+            linhas: {
+                [key: string]: unknown;
+            }[];
+            /** Medidas */
+            medidas: components["schemas"]["Medida"][];
+            /** Recorte */
+            recorte: {
+                [key: string]: unknown[];
+            };
+            /** Total Filtrado */
+            total_filtrado: number;
+            /** Total Global */
+            total_global: number;
         };
         /**
          * Frequencia
@@ -1130,6 +1358,26 @@ export interface components {
             total: number;
         };
         /**
+         * PaginaRegistrosDiabetes
+         * @description `GET /diabetes/registros`: página ordenada do recorte, com as 23 colunas e o `id`.
+         */
+        PaginaRegistrosDiabetes: {
+            /** Linhas */
+            linhas: {
+                [key: string]: unknown;
+            }[];
+            /** Pagina */
+            pagina: number;
+            /** Recorte */
+            recorte: {
+                [key: string]: unknown[];
+            };
+            /** Tamanho */
+            tamanho: number;
+            /** Total */
+            total: number;
+        };
+        /**
          * Ponto
          * @description Um registro da nuvem altura × peso.
          */
@@ -1343,6 +1591,36 @@ export interface components {
             total_registros: number;
         };
         /**
+         * ResumoDiabetes
+         * @description `GET /diabetes/painel/resumo`: o recorte contra a base inteira.
+         */
+        ResumoDiabetes: {
+            /** Imc Medio */
+            imc_medio: number | null;
+            /** N Diabetes */
+            n_diabetes: number;
+            /** N Diabetes Global */
+            n_diabetes_global: number;
+            /**
+             * Prevalencia
+             * @description % com diabetes no recorte (0 a 100), na escala da base: não é a da população
+             */
+            prevalencia: number | null;
+            /**
+             * Prevalencia Global
+             * @description % com diabetes na base inteira (0 a 100)
+             */
+            prevalencia_global: number | null;
+            /** Recorte */
+            recorte: {
+                [key: string]: unknown[];
+            };
+            /** Total Global */
+            total_global: number;
+            /** Total Registros */
+            total_registros: number;
+        };
+        /**
          * Saude
          * @description Resposta de `GET /health` — sempre 200; o banco não é requisito de vivacidade.
          */
@@ -1415,6 +1693,16 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /**
+         * ValorRotuladoDiabetes
+         * @description Um valor do domínio de um campo, com o rótulo de exibição.
+         */
+        ValorRotuladoDiabetes: {
+            /** Rotulo */
+            rotulo: string;
+            /** Valor */
+            valor: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -1424,6 +1712,28 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    dimensoes_diabetes_api_v1_diabetes_dimensoes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: components["schemas"]["OpcaoDimensao"][];
+                    };
+                };
+            };
+        };
+    };
     metadata_diabetes_api_v1_diabetes_metadata_get: {
         parameters: {
             query?: {
@@ -1475,6 +1785,153 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InfoModeloDiabetes"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    deriva_diabetes_api_v1_diabetes_monitoramento_deriva_get: {
+        parameters: {
+            query?: {
+                janela_dias?: number;
+                /** @description restringe `faixas` a uma entrada */
+                feature?: string | null;
+                /** @description Versão do modelo de diabetes; padrão: a do manifest da vertente */
+                versao?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespostaDeriva"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatores_diabetes_api_v1_diabetes_painel_fatores_get: {
+        parameters: {
+            query?: {
+                sexo?: string[];
+                faixa_etaria?: string[];
+                faixa_imc?: string[];
+                pressao_alta?: string[];
+                colesterol_alto?: string[];
+                atividade_fisica_30_dias?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FatoresDiabetes"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    por_categoria_diabetes_api_v1_diabetes_painel_por_categoria_get: {
+        parameters: {
+            query: {
+                /** @description diabetes | pressao_alta | colesterol_alto | exame_colesterol_5_anos | fumou_100_cigarros | teve_avc | doenca_coronariana_ou_infarto | atividade_fisica_30_dias | fruta_diaria | verdura_diaria | consumo_pesado_alcool | cobertura_saude | deixou_medico_por_custo | saude_geral | dias_saude_mental_ruim | dias_saude_fisica_ruim | dificuldade_caminhar | sexo | faixa_etaria | escolaridade | faixa_renda | faixa_imc */
+                campo: string;
+                /** @description segunda dimensão, ex.: sexo */
+                serie?: string | null;
+                sexo?: string[];
+                faixa_etaria?: string[];
+                faixa_imc?: string[];
+                pressao_alta?: string[];
+                colesterol_alto?: string[];
+                atividade_fisica_30_dias?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgregadoDiabetes"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resumo_diabetes_api_v1_diabetes_painel_resumo_get: {
+        parameters: {
+            query?: {
+                sexo?: string[];
+                faixa_etaria?: string[];
+                faixa_imc?: string[];
+                pressao_alta?: string[];
+                colesterol_alto?: string[];
+                atividade_fisica_30_dias?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumoDiabetes"];
                 };
             };
             /** @description Validation Error */
@@ -1590,6 +2047,83 @@ export interface operations {
                 };
                 content: {
                     "text/html": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    registros_diabetes_api_v1_diabetes_registros_get: {
+        parameters: {
+            query?: {
+                sexo?: string[];
+                faixa_etaria?: string[];
+                faixa_imc?: string[];
+                pressao_alta?: string[];
+                colesterol_alto?: string[];
+                atividade_fisica_30_dias?: string[];
+                pagina?: number;
+                tamanho?: number;
+                /** @description uma de ['Diabetes', 'Pressao_Alta', 'Colesterol_Alto', 'Exame_Colesterol_5_Anos', 'IMC', 'Faixa_IMC', 'Fumou_100_Cigarros', 'Teve_AVC', 'Doenca_Coronariana_Ou_Infarto', 'Atividade_Fisica_30_Dias', 'Fruta_Diaria', 'Verdura_Diaria', 'Consumo_Pesado_Alcool', 'Cobertura_Saude', 'Deixou_Medico_Por_Custo', 'Saude_Geral', 'Dias_Saude_Mental_Ruim', 'Dias_Saude_Fisica_Ruim', 'Dificuldade_Caminhar', 'Sexo', 'Faixa_Etaria', 'Escolaridade', 'Faixa_Renda'] */
+                ordenar_por?: string;
+                direcao?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaRegistrosDiabetes"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    exportar_diabetes_api_v1_diabetes_registros_exportar_get: {
+        parameters: {
+            query?: {
+                sexo?: string[];
+                faixa_etaria?: string[];
+                faixa_imc?: string[];
+                pressao_alta?: string[];
+                colesterol_alto?: string[];
+                atividade_fisica_30_dias?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description CSV UTF-8, 23 colunas */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": unknown;
                 };
             };
             /** @description Validation Error */

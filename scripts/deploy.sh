@@ -18,8 +18,9 @@
 #   2. baixa as imagens com a autorização temporária, que não fica gravada em lugar nenhum
 #   3. tira os arquivos do pacote de deploy; se este script mudou, troca a si mesmo e recomeça
 #   4. guarda a versão atual, grava o .env novo, sobe o banco, reaplica schema.sql, grants.sql e o
-#      papel da API, acerta a senha do dono, semeia a base (idempotente) e carrega a referência de
-#      deriva — os MESMOS arquivos e comandos do compose local (plano, §11.2)
+#      papel da API, acerta a senha do dono, semeia as duas bases (idempotente) e carrega as
+#      referências de deriva das duas vertentes — os MESMOS arquivos e comandos do compose local
+#      (plano, §11.2)
 #   5. sobe o resto, espera tudo ficar saudável e confere /api/v1/health e /api/v1/ready pelo nginx
 #   6. se algo falhar, volta para a versão anterior (com os arquivos e as imagens que já estão aqui)
 #
@@ -202,8 +203,9 @@ gravar_env() {
 #   * schema.sql e grants.sql rodam de novo (idempotentes): tabela nova entra no banco que já existe
 #   * o papel da API é refeito com a senha e as permissões do .env
 #   * o dono do banco passa a usar a senha do .env (o Postgres só lê o ambiente ao criar o volume)
-#   * a base é semeada (idempotente por sha256: com o mesmo CSV não escreve nada) e a referência de
-#     deriva é carregada — pela imagem da API, com o DONO do banco, sem subir a API
+#   * as bases são semeadas (idempotente por sha256: com o mesmo CSV não escreve nada) e as
+#     referências de deriva das duas vertentes são carregadas — pela imagem da API, com o DONO do
+#     banco, sem subir a API
 # Os arquivos são os da própria imagem do banco (database/Dockerfile), na versão que está subindo.
 preparar_banco() {
   # Sem os avisos "já existe, pulando" a cada deploy; erros continuam aparecendo.
@@ -229,6 +231,9 @@ SQL
     --arquivo /app/data/bruto/diabetes/cdc_diabetes_health_indicators.csv || return 1
   docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
     python -m app.treino.distribuicao --carregar >/dev/null || return 1
+  # A referência de deriva da vertente diabetes, nas tabelas dela (operacao.diabetes_*).
+  docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
+    python -m app.diabetes.treino.distribuicao --carregar >/dev/null || return 1
 }
 
 conferir_health() {
@@ -248,7 +253,7 @@ conferir_health() {
 subir() {
   passo "Banco de dados"
   docker compose up -d --wait --wait-timeout 180 banco || return 1
-  passo "Schema, papel da API, senhas, seed e referência de deriva"
+  passo "Schema, papel da API, senhas, seed e referências de deriva"
   preparar_banco || return 1
   passo "Subindo os serviços"
   docker compose up -d --remove-orphans --wait --wait-timeout 300 || return 1

@@ -176,6 +176,39 @@ CREATE TABLE IF NOT EXISTS operacao.distribuicao_treino_faixa (
     PRIMARY KEY (feature, faixa_idx)
 );
 
+-- ====== referências de deriva da vertente diabetes (operacao.diabetes_*) ======
+-- As mesmas três tabelas, com nomes próprios: a carga de uma vertente (TRUNCATE + INSERT) nunca
+-- apaga a referência da outra, e a versão anterior da API continua lendo as dela. As consultas de
+-- sql/diabetes/deriva/ leem estas. Materializadas de artifacts/diabetes/distribuicao_treino.json
+-- por `python -m app.diabetes.treino.distribuicao --carregar`.
+CREATE TABLE IF NOT EXISTS operacao.diabetes_feature_catalogo (
+    feature text     PRIMARY KEY,
+    tipo    text     NOT NULL CHECK (tipo IN ('numerica', 'categorica')),
+    ordem   smallint NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS operacao.diabetes_distribuicao_treino_numerica (
+    feature  text   PRIMARY KEY REFERENCES operacao.diabetes_feature_catalogo (feature),
+    n_treino bigint NOT NULL,
+    media    double precision,
+    desvio   double precision,
+    p50      double precision,
+    minimo   double precision,
+    maximo   double precision
+);
+
+CREATE TABLE IF NOT EXISTS operacao.diabetes_distribuicao_treino_faixa (
+    feature          text   NOT NULL REFERENCES operacao.diabetes_feature_catalogo (feature),
+    faixa_idx        int    NOT NULL,
+    tipo             text   NOT NULL,
+    faixa_rotulo     text,
+    limite_inf       double precision,
+    limite_sup       double precision,
+    n_treino         bigint NOT NULL,
+    proporcao_treino double precision NOT NULL,
+    PRIMARY KEY (feature, faixa_idx)
+);
+
 -- ============ operacao.log_predicao ============
 -- Append-only. NENHUMA FK para snapshot_treino, de propósito: uma FK faria a gravação falhar
 -- quando o modelo servido não tivesse linha de snapshot, e um log que falha não pode existir num
@@ -186,8 +219,9 @@ CREATE TABLE IF NOT EXISTS operacao.log_predicao (
     rota            text        NOT NULL,
     origem          text        NOT NULL,
     id_correlacao   uuid        NOT NULL,   -- um lote de N itens gera N linhas com o mesmo id
-    entrada         jsonb       NOT NULL,   -- SÓ as 16 features, por allowlist (§6.8)
-    saida           jsonb       NOT NULL,   -- RespostaTriagem serializada
+    entrada         jsonb       NOT NULL,   -- SÓ as entradas do modelo, por allowlist (§6.8): as
+                                            -- 16 da obesidade ou as 10 da diabetes (rota /diabetes/...)
+    saida           jsonb       NOT NULL,   -- a resposta da predição serializada
     rotulo_saida    text        NOT NULL,   -- classe_prevista, projetada para não abrir JSONB
     risco_acumulado double precision,
     versao_modelo   text        NOT NULL,
@@ -218,6 +252,10 @@ CREATE INDEX IF NOT EXISTS log_entrada_idx
 -- O log já classificado nas faixas de operacao.distribuicao_treino_faixa. Existe para que a
 -- consolidação de §6.8.6 e a consulta 02 usem literalmente a MESMA classificação — duas
 -- classificações divergem em uma semana.
+-- Só as linhas da vertente de obesidade: as da vertente diabetes (rota /diabetes/...) não têm as
+-- chaves destas features e cairiam, pelo IS NOT DISTINCT FROM, nas faixas NULL ("chave ausente")
+-- das 13 categóricas. Elas têm a classificação delas, em operacao.diabetes_v_deriva_faixa. Para
+-- toda linha que não é da vertente diabetes, o resultado é o de antes do filtro, linha a linha.
 CREATE OR REPLACE VIEW operacao.v_deriva_faixa AS
 SELECT l.criado_em, f.feature, f.faixa_idx
 FROM operacao.log_predicao AS l
@@ -231,11 +269,43 @@ INNER JOIN operacao.distribuicao_treino_faixa AS f
             ELSE
                 l.entrada ->> f.feature IS NOT DISTINCT FROM f.faixa_rotulo
         END
-    );
+    )
+WHERE l.rota NOT LIKE '/diabetes/%';
+
+-- ============ operacao.diabetes_v_deriva_faixa ============
+-- O log da vertente diabetes (rota /diabetes/...) classificado nas faixas de
+-- operacao.diabetes_distribuicao_treino_faixa, com a MESMA classificação do bloco compartilhado de
+-- sql/diabetes/deriva/02 e 03: o valor numérico ARREDONDADO ao inteiro (o IMC que o modelo vê; o
+-- round de double precision desempata no par, como o do numpy), o rótulo exato nas categóricas e a
+-- faixa NULL para chave ausente.
+CREATE OR REPLACE VIEW operacao.diabetes_v_deriva_faixa AS
+SELECT l.criado_em, f.feature, f.faixa_idx
+FROM operacao.log_predicao AS l
+INNER JOIN operacao.diabetes_distribuicao_treino_faixa AS f
+    ON (
+        CASE
+            WHEN f.tipo = 'numerica' THEN
+                jsonb_typeof(l.entrada -> f.feature) = 'number'
+                AND round((l.entrada -> f.feature)::text::double precision) >= f.limite_inf
+                AND round((l.entrada -> f.feature)::text::double precision) < f.limite_sup
+            ELSE
+                l.entrada ->> f.feature IS NOT DISTINCT FROM f.faixa_rotulo
+        END
+    )
+WHERE l.rota LIKE '/diabetes/%';
 
 -- ============ operacao.deriva_diaria + operacao.manutencao_log (§6.8.6) ============
 -- Série histórica consolidada por dia e faixa: sobrevive à retenção do log bruto.
 CREATE TABLE IF NOT EXISTS operacao.deriva_diaria (
+    dia       date   NOT NULL,
+    feature   text   NOT NULL,
+    faixa_idx int    NOT NULL,
+    n         bigint NOT NULL,
+    PRIMARY KEY (dia, feature, faixa_idx)
+);
+
+-- A série da vertente diabetes, ao lado: as faixas são as de operacao.diabetes_distribuicao_treino_faixa.
+CREATE TABLE IF NOT EXISTS operacao.diabetes_deriva_diaria (
     dia       date   NOT NULL,
     feature   text   NOT NULL,
     faixa_idx int    NOT NULL,
@@ -259,6 +329,17 @@ BEGIN
     GROUP BY 1, 2, 3
     ON CONFLICT (dia, feature, faixa_idx) DO UPDATE SET n = EXCLUDED.n;
     GET DIAGNOSTICS consolidadas = ROW_COUNT;
+
+    -- 1b. A vertente diabetes, na série dela e com a classificação dela. `consolidadas` soma as
+    --     duas: sem linha da vertente diabetes no log, a função faz e relata o mesmo que antes.
+    INSERT INTO operacao.diabetes_deriva_diaria (dia, feature, faixa_idx, n)
+    SELECT criado_em::date, feature, faixa_idx, count(*)
+    FROM operacao.diabetes_v_deriva_faixa
+    WHERE criado_em::date < v_corte
+    GROUP BY 1, 2, 3
+    ON CONFLICT (dia, feature, faixa_idx) DO UPDATE SET n = EXCLUDED.n;
+    GET DIAGNOSTICS v_extra = ROW_COUNT;
+    consolidadas := consolidadas + v_extra;
 
     -- 2. Apaga por idade.
     DELETE FROM operacao.log_predicao WHERE criado_em::date < v_corte;

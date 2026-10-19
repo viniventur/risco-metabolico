@@ -59,7 +59,9 @@ def ready(request: Request) -> JSONResponse:
     # As duas vertentes: sem o artefato de diabetes, `/diabetes/*` responderia 503. O corpo não
     # ganha campo: `artefato_carregado` passa a valer pelos modelos das duas, e `motivo` diz qual.
     diabetes = getattr(request.app.state, "registro_diabetes", None) is not None
-    pronto = artefato and diabetes and agregados
+    # O mesmo para a base do painel: `agregados_carregados` vale pelas duas bases.
+    agregados_diabetes = getattr(request.app.state, "agregados_diabetes", None) is not None
+    pronto = artefato and diabetes and agregados and agregados_diabetes
     motivo = None
     if not artefato:
         motivo = "artefato de modelo não carregado"
@@ -67,10 +69,12 @@ def ready(request: Request) -> JSONResponse:
         motivo = "artefato de modelo da vertente diabetes não carregado"
     elif not agregados:
         motivo = "agregados do painel não carregados"
+    elif not agregados_diabetes:
+        motivo = "base do painel da vertente diabetes não carregada"
     corpo = Prontidao(
         pronto=pronto,
         artefato_carregado=artefato and diabetes,
-        agregados_carregados=agregados,
+        agregados_carregados=agregados and agregados_diabetes,
         motivo=motivo,
     )
     return JSONResponse(

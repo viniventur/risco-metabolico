@@ -12,11 +12,13 @@ backend/.mypy_cache/
 **/*.pyc
 # data/bruto/ (as duas bases, cada uma com o seu CSV e o seu FONTE.md) ENTRA: o seed das duas roda
 # a partir da imagem da API na VPS.
-# data/processado/: só o snapshot congelado entra (o estágio `modelo` o usa se presente, senão
-# baixa do release); base_painel.parquet é derivado dentro da imagem e _estudo_* fica de fora.
+# data/processado/: só os snapshots congelados entram, o de cada vertente (o estágio `modelo` os usa
+# se presentes, senão baixa do release); base_painel.parquet é derivado dentro da imagem e _estudo_*
+# fica de fora.
 data/processado/*
 !data/processado/.gitkeep
 !data/processado/snapshot-*.parquet
+!data/processado/diabetes/snapshot-*.parquet
 study/
 frontend/
 docs/

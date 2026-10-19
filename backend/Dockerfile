@@ -23,8 +23,9 @@ RUN uv sync --frozen --no-dev --no-editable --extra operacao
 # arquivo se ele já estiver no contexto (models/ e data/processado/ estão fora do git mas presentes
 # localmente) e, senão, baixa o asset do release do manifest e confere o sha256 (ADR 0004). Os
 # .gitkeep garantem que as duas pastas existam no contexto mesmo vazias (CI). A vertente diabetes
-# tem manifest e release próprios (diabetes-v<versao>): o modelo dela vem num RUN à parte, que não
-# invalida a camada da obesidade.
+# tem manifest e release próprios (diabetes-v<versao>): o modelo e o snapshot dela vêm num RUN à
+# parte, que não invalida a camada da obesidade, e o snapshot vai para a pasta dela
+# (data/processado/diabetes/, a mesma de `python -m app.diabetes.treino snapshot`).
 FROM python:3.12-slim AS modelo
 ARG REPO_GITHUB=viniventur/risco-metabolico
 WORKDIR /app
@@ -36,7 +37,7 @@ RUN python scripts/baixar_modelo.py --manifesto artifacts/manifest.json --destin
         --snapshot-destino data/processado --repo "$REPO_GITHUB"
 COPY artifacts/diabetes/manifest.json artifacts/diabetes/
 RUN python scripts/baixar_modelo.py --manifesto artifacts/diabetes/manifest.json --destino models \
-        --repo "$REPO_GITHUB"
+        --snapshot-destino data/processado/diabetes --repo "$REPO_GITHUB"
 
 # ---------- estágio 3: runtime ----------
 FROM python:3.12-slim
@@ -58,8 +59,9 @@ COPY --from=modelo --chown=app:app /app/data/processado /app/data/processado
 # a citação de FONTE.md e grava os dois hashes em operacao.carga_fonte (§3.2).
 COPY --chown=app:app data/bruto /app/data/bruto
 # base_painel.parquet é derivado AQUI, do snapshot, sem banco (python -m app.treino.painel): a
-# imagem é autocontida, local e na VPS — nenhum compose monta arquivo por cima dela.
-RUN python -m app.treino.painel && chown -R app:app /app/data
+# imagem é autocontida, local e na VPS — nenhum compose monta arquivo por cima dela. A base do
+# painel da vertente diabetes também, do snapshot dela (python -m app.diabetes.treino.painel).
+RUN python -m app.treino.painel && python -m app.diabetes.treino.painel && chown -R app:app /app/data
 USER app
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

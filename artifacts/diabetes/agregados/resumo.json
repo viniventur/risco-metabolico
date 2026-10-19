@@ -1,0 +1,64 @@
+{
+  "id": "resumo",
+  "titulo": "Resumo da base de diabetes",
+  "mede": "Quantas respostas a base tem, quantas são de quem já ouviu de um profissional de saúde que tem diabetes, quanto isso representa do total (a prevalência na base, não na população) e o IMC médio, sobre a base inteira.",
+  "origem": "study/02_triagem_de_diabetes.ipynb, seção \"Exploração\" (prevalência na base); faixa de KPIs da Visão Geral de diabetes",
+  "fonte": [
+    "dados.registros_diabetes"
+  ],
+  "versao_dados": "dee1f27e9777",
+  "sql_sha256": "b5aec4396cce705c2fc3ec1b485443fc88ff1de9ae9ee9828301d4abd8eda2bb",
+  "gerado_em": "2026-10-19T13:48:11+00:00",
+  "dimensoes": [],
+  "medidas": [
+    {
+      "nome": "total_registros",
+      "classe": "contagem"
+    },
+    {
+      "nome": "n_diabetes",
+      "classe": "contagem"
+    },
+    {
+      "nome": "prevalencia",
+      "classe": "proporcao"
+    },
+    {
+      "nome": "imc_medio",
+      "classe": "media_limitada"
+    }
+  ],
+  "amostra_minima": null,
+  "divergencia": null,
+  "total_linhas": 4,
+  "linhas": [
+    {
+      "ordem": 1,
+      "medida": "total_registros",
+      "valor": 253680.0,
+      "n": 253680,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "medida": "n_diabetes",
+      "valor": 35346.0,
+      "n": 35346,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "medida": "prevalencia",
+      "valor": 13.933301797540208,
+      "n": 253680,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "medida": "imc_medio",
+      "valor": 28.382363607694735,
+      "n": 253680,
+      "suprimido": false
+    }
+  ]
+}

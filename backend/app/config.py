@@ -1,4 +1,4 @@
-"""Configuração do backend: as 22 variáveis de ambiente do plano (§11.3), lidas uma vez, tipadas.
+"""Configuração do backend: as 22 variáveis do plano (§11.3) e a da vertente diabetes, tipadas.
 
 Todo `os.environ` do projeto passa por aqui. A senha do banco (dentro de `BANCO_URL`) não é
 lida em mais nenhum lugar, e nenhuma constante de módulo duplica um valor que vive aqui.
@@ -64,6 +64,9 @@ class Settings(BaseSettings):
 
     # ---- deriva (6.8.5) ----
     n_minimo_deriva: int | None = None  # sem default: obrigatória com BANCO_HABILITADO=true
+    # A da vertente diabetes, medida pelo método da ADR 0008. Sem default e NÃO obrigatória: sem
+    # ela a API sobe como antes, e só /diabetes/monitoramento/deriva responde disponivel=false.
+    n_minimo_deriva_diabetes: int | None = None
 
     @property
     def lista_origens_cors(self) -> list[str]:

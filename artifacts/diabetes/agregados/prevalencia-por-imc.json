@@ -1,0 +1,233 @@
+{
+  "id": "prevalencia-por-imc",
+  "titulo": "Prevalência de diabetes por faixa de IMC",
+  "mede": "Para cada faixa de IMC da OMS (abaixo do peso, peso ideal, sobrepeso, obesidade graus I, II e III): quantas respostas, quanto isso representa do total, quantas são de quem tem diabetes e a fração com diabetes dentro da faixa, sobre a base inteira.",
+  "origem": "study/02_triagem_de_diabetes.ipynb, seção \"Exploração\" (prevalência por faixa de IMC da OMS); gráfico de prevalência por IMC da Visão Geral de diabetes",
+  "fonte": [
+    "dados.registros_diabetes"
+  ],
+  "versao_dados": "dee1f27e9777",
+  "sql_sha256": "8b4f76a20fd17631d1f32cdc8ac601ef28216743d0103a3e568cbf9313631d64",
+  "gerado_em": "2026-10-19T13:48:11+00:00",
+  "dimensoes": [
+    {
+      "nome": "faixa_imc",
+      "tipo": "texto"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "contagem",
+      "classe": "contagem"
+    },
+    {
+      "nome": "pct",
+      "classe": "proporcao"
+    },
+    {
+      "nome": "n_diabetes",
+      "classe": "contagem"
+    },
+    {
+      "nome": "prevalencia",
+      "classe": "proporcao"
+    }
+  ],
+  "amostra_minima": 15,
+  "divergencia": null,
+  "total_linhas": 24,
+  "linhas": [
+    {
+      "ordem": 1,
+      "faixa_imc": "Abaixo do Peso",
+      "medida": "contagem",
+      "valor": 3127.0,
+      "n": 3127,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "faixa_imc": "Abaixo do Peso",
+      "medida": "pct",
+      "valor": 1.2326553137811416,
+      "n": 3127,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "faixa_imc": "Abaixo do Peso",
+      "medida": "n_diabetes",
+      "valor": 169.0,
+      "n": 169,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "faixa_imc": "Abaixo do Peso",
+      "medida": "prevalencia",
+      "valor": 5.404541093700032,
+      "n": 3127,
+      "suprimido": false
+    },
+    {
+      "ordem": 5,
+      "faixa_imc": "Peso Ideal",
+      "medida": "contagem",
+      "valor": 68953.0,
+      "n": 68953,
+      "suprimido": false
+    },
+    {
+      "ordem": 6,
+      "faixa_imc": "Peso Ideal",
+      "medida": "pct",
+      "valor": 27.181094292021445,
+      "n": 68953,
+      "suprimido": false
+    },
+    {
+      "ordem": 7,
+      "faixa_imc": "Peso Ideal",
+      "medida": "n_diabetes",
+      "valor": 3928.0,
+      "n": 3928,
+      "suprimido": false
+    },
+    {
+      "ordem": 8,
+      "faixa_imc": "Peso Ideal",
+      "medida": "prevalencia",
+      "valor": 5.696633939059939,
+      "n": 68953,
+      "suprimido": false
+    },
+    {
+      "ordem": 9,
+      "faixa_imc": "Sobrepeso",
+      "medida": "contagem",
+      "valor": 93749.0,
+      "n": 93749,
+      "suprimido": false
+    },
+    {
+      "ordem": 10,
+      "faixa_imc": "Sobrepeso",
+      "medida": "pct",
+      "valor": 36.955613371176284,
+      "n": 93749,
+      "suprimido": false
+    },
+    {
+      "ordem": 11,
+      "faixa_imc": "Sobrepeso",
+      "medida": "n_diabetes",
+      "valor": 10692.0,
+      "n": 10692,
+      "suprimido": false
+    },
+    {
+      "ordem": 12,
+      "faixa_imc": "Sobrepeso",
+      "medida": "prevalencia",
+      "valor": 11.404921652497627,
+      "n": 93749,
+      "suprimido": false
+    },
+    {
+      "ordem": 13,
+      "faixa_imc": "Obesidade Grau I",
+      "medida": "contagem",
+      "valor": 53451.0,
+      "n": 53451,
+      "suprimido": false
+    },
+    {
+      "ordem": 14,
+      "faixa_imc": "Obesidade Grau I",
+      "medida": "pct",
+      "valor": 21.070245979186378,
+      "n": 53451,
+      "suprimido": false
+    },
+    {
+      "ordem": 15,
+      "faixa_imc": "Obesidade Grau I",
+      "medida": "n_diabetes",
+      "valor": 10281.0,
+      "n": 10281,
+      "suprimido": false
+    },
+    {
+      "ordem": 16,
+      "faixa_imc": "Obesidade Grau I",
+      "medida": "prevalencia",
+      "valor": 19.23443901891452,
+      "n": 53451,
+      "suprimido": false
+    },
+    {
+      "ordem": 17,
+      "faixa_imc": "Obesidade Grau II",
+      "medida": "contagem",
+      "valor": 20663.0,
+      "n": 20663,
+      "suprimido": false
+    },
+    {
+      "ordem": 18,
+      "faixa_imc": "Obesidade Grau II",
+      "medida": "pct",
+      "valor": 8.145301166824346,
+      "n": 20663,
+      "suprimido": false
+    },
+    {
+      "ordem": 19,
+      "faixa_imc": "Obesidade Grau II",
+      "medida": "n_diabetes",
+      "valor": 5669.0,
+      "n": 5669,
+      "suprimido": false
+    },
+    {
+      "ordem": 20,
+      "faixa_imc": "Obesidade Grau II",
+      "medida": "prevalencia",
+      "valor": 27.435512752262497,
+      "n": 20663,
+      "suprimido": false
+    },
+    {
+      "ordem": 21,
+      "faixa_imc": "Obesidade Grau III",
+      "medida": "contagem",
+      "valor": 13737.0,
+      "n": 13737,
+      "suprimido": false
+    },
+    {
+      "ordem": 22,
+      "faixa_imc": "Obesidade Grau III",
+      "medida": "pct",
+      "valor": 5.415089877010407,
+      "n": 13737,
+      "suprimido": false
+    },
+    {
+      "ordem": 23,
+      "faixa_imc": "Obesidade Grau III",
+      "medida": "n_diabetes",
+      "valor": 4607.0,
+      "n": 4607,
+      "suprimido": false
+    },
+    {
+      "ordem": 24,
+      "faixa_imc": "Obesidade Grau III",
+      "medida": "prevalencia",
+      "valor": 33.53716240809493,
+      "n": 13737,
+      "suprimido": false
+    }
+  ]
+}

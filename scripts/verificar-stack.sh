@@ -6,14 +6,19 @@
 #   bash scripts/verificar-stack.sh                        (app em http://127.0.0.1:8080)
 #   WEB_HOST_PORT=8081 bash scripts/verificar-stack.sh     (se o web estiver em outra porta)
 #
-# Antes de conferir, prepara o banco exatamente como o scripts/deploy.sh faz na VPS: seed e
-# referência de deriva pela imagem da API, com o dono do banco (idempotente).
+# Antes de conferir, prepara o banco exatamente como o scripts/deploy.sh faz na VPS: seed das duas
+# bases e referências de deriva das duas vertentes pela imagem da API, com o dono do banco
+# (idempotente).
 #
 # Por dentro: containers sem root e sem capabilities, portas só em 127.0.0.1, papel da API sem
 # superusuário e sem DELETE/TRUNCATE, senha fora dos logs. Por fora, pelo nginx: as telas, a API
 # na mesma origem, cabeçalhos de segurança, cache, limite de consultas no envelope de erro da API.
 # =============================================================================
 set -uo pipefail
+# No Git Bash do Windows, o MSYS converte argumento com cara de caminho (/app/data/...) em
+# C:/Program Files/Git/app/... antes de chamar o docker, e o seed não acha o CSV. No Linux (CI, VPS)
+# a variável não faz nada.
+export MSYS_NO_PATHCONV=1
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 
 # O dono do banco: do ambiente, senão do .env que o compose leu (o CI gera senhas aleatórias nele),
@@ -58,6 +63,8 @@ conferir "seed da vertente diabetes pela imagem da API, com o dono do banco" \
   python -m app.diabetes.dados.seed --arquivo /app/data/bruto/diabetes/cdc_diabetes_health_indicators.csv
 conferir "referência de deriva carregada" \
   docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api python -m app.treino.distribuicao --carregar
+conferir "referência de deriva da vertente diabetes carregada" \
+  docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api python -m app.diabetes.treino.distribuicao --carregar
 
 # ---------------------------------------------------------------------------
 secao "Containers"
@@ -87,6 +94,7 @@ conferir "a API não apaga o log" contem "$(sql_api "SELECT has_table_privilege(
 conferir "a API não altera a base" contem "$(sql_api "SELECT has_table_privilege(current_user, 'dados.registros_triagem', 'UPDATE') OR has_table_privilege(current_user, 'dados.registros_triagem', 'DELETE');" 2>/dev/null || true)" "^f$"
 conferir "a API lê a base da vertente diabetes" contem "$(sql_api 'SELECT count(*) FROM dados.registros_diabetes;' 2>/dev/null || true)" "^253680$"
 conferir "a API não altera a base da vertente diabetes" contem "$(sql_api "SELECT has_table_privilege(current_user, 'dados.registros_diabetes', 'UPDATE') OR has_table_privilege(current_user, 'dados.registros_diabetes', 'DELETE') OR has_table_privilege(current_user, 'dados.registros_diabetes', 'INSERT');" 2>/dev/null || true)" "^f$"
+conferir "a API lê a referência de deriva da vertente diabetes" contem "$(sql_api 'SELECT count(*) FROM operacao.diabetes_distribuicao_treino_faixa;' 2>/dev/null || true)" "^[1-9]"
 conferir "a API não cria tabelas" nega sql_api "CREATE TABLE operacao.verificacao (id int);"
 conferir "a API não executa comandos no servidor" nega sql_api "COPY (SELECT 1) TO PROGRAM 'id';"
 conferir "a API não lê arquivos do servidor" nega sql_api "SELECT pg_read_file('/etc/passwd');"
@@ -133,6 +141,12 @@ entrada_diabetes=$(python3 -c 'import json;print(json.dumps(json.load(open("back
   python -c 'import json;print(json.dumps(json.load(open("backend/tests/diabetes/dados_ouro/entradas.json", encoding="utf-8"))[0]))')
 predicao_diabetes=$(curl -sS --max-time 20 -H 'Content-Type: application/json' -H 'X-Origem-Cliente: painel' -d "$entrada_diabetes" "$BASE/api/v1/diabetes/predicoes" 2>/dev/null || true)
 conferir "POST /api/v1/diabetes/predicoes devolve probabilidade e limiar" contem "$predicao_diabetes" '"probabilidade":[^,]+,"limiar":[^,]+,"risco_elevado":(true|false)'
+# O painel, a Consulta e o monitoramento da vertente diabetes (servidos de memória, menos a deriva).
+conferir "/api/v1/diabetes/painel/resumo com 253.680 registros" contem "$(curl -sS --max-time 20 "$BASE/api/v1/diabetes/painel/resumo" 2>/dev/null)" '"total_global":253680'
+conferir "/api/v1/diabetes/painel/fatores com os 16 fatores" contem "$(curl -sS --max-time 20 "$BASE/api/v1/diabetes/painel/fatores" 2>/dev/null | grep -o '"campo":"[a-z_0-9]*"' | sort -u | wc -l | tr -d ' ')" "^16$"
+conferir "/api/v1/diabetes/monitoramento/deriva disponível" contem "$(curl -sS --max-time 20 "$BASE/api/v1/diabetes/monitoramento/deriva" 2>/dev/null)" '"disponivel":true'
+conferir "/api/v1/diabetes/registros/exportar em CSV" contem "$(status '/api/v1/diabetes/registros/exportar?faixa_etaria=1')" "^200 text/csv"
+conferir "a exportação da vertente diabetes sai inteira, sem teto (253.680 linhas e o cabeçalho)" contem "$(curl -sS --max-time 120 "$BASE/api/v1/diabetes/registros/exportar" 2>/dev/null | wc -l | tr -d ' ')" "^253681$"
 sleep 2
 conferir "a predição chegou ao log com origem painel" contem "$(docker compose exec -T banco sh -c 'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atq -c "SELECT count(*) FROM operacao.log_predicao WHERE origem = '"'"'painel'"'"'"' 2>/dev/null || true)" "^[1-9]"
 

@@ -12,6 +12,7 @@ from typing import Any, Final
 
 from app.diabetes.dominio.features import ALVO, COLUNAS_SIM_NAO
 from app.diabetes.esquemas.saida import Classificacao
+from app.dominio.regras import FaixaImc
 
 # 1. Domínio de cada coluna, na ordem lexicográfica que um encoder usaria sozinho para o texto e
 #    na ordem da escala para as inteiras. O IMC não tem domínio fechado: tem a faixa observada.
@@ -94,3 +95,48 @@ RISCO_BAIXO: Final = "Risco baixo"
 def classificar(probabilidade: float, limiar: float) -> Classificacao:
     """Risco elevado no limiar ou acima dele; empate no limiar encaminha, como no critério."""
     return RISCO_ELEVADO if probabilidade >= limiar else RISCO_BAIXO
+
+
+# 6. A faixa de IMC do painel: a coluna derivada `Faixa_IMC`, com os cortes e os nomes de
+#    `app.dominio.regras.classificar_imc` — o vocabulário de tela que a resposta da predição já usa
+#    (`faixa_imc`). A ordem é a da escala, não a alfabética.
+COLUNA_FAIXA_IMC: Final = "Faixa_IMC"
+ORDEM_FAIXA_IMC: list[str] = [faixa.value for faixa in FaixaImc]
+
+# 7. Rótulo de cada coluna da base no painel e na Consulta (APRESENTAÇÃO), mais a faixa de IMC
+#    derivada. As dez entradas repetem ROTULOS_ENTRADAS; as outras seguem o sentido da pergunta no
+#    dicionário de dados (docs/dicionario-de-dados-diabetes.md).
+ROTULOS_COLUNAS: dict[str, str] = {
+    "Diabetes": "Diabetes diagnosticado",
+    "Pressao_Alta": ROTULOS_ENTRADAS["Pressao_Alta"],
+    "Colesterol_Alto": ROTULOS_ENTRADAS["Colesterol_Alto"],
+    "Exame_Colesterol_5_Anos": "Mediu o colesterol nos últimos 5 anos",
+    "IMC": ROTULOS_ENTRADAS["IMC"],
+    "Fumou_100_Cigarros": ROTULOS_ENTRADAS["Fumou_100_Cigarros"],
+    "Teve_AVC": "Já teve AVC",
+    "Doenca_Coronariana_Ou_Infarto": "Doença coronariana ou infarto",
+    "Atividade_Fisica_30_Dias": ROTULOS_ENTRADAS["Atividade_Fisica_30_Dias"],
+    "Fruta_Diaria": ROTULOS_ENTRADAS["Fruta_Diaria"],
+    "Verdura_Diaria": ROTULOS_ENTRADAS["Verdura_Diaria"],
+    "Consumo_Pesado_Alcool": "Consumo pesado de álcool",
+    "Cobertura_Saude": "Tem cobertura de saúde",
+    "Deixou_Medico_Por_Custo": "Deixou de ir ao médico pelo custo",
+    "Saude_Geral": "Saúde geral, na própria avaliação",
+    "Dias_Saude_Mental_Ruim": "Dias de saúde mental ruim (dos últimos 30)",
+    "Dias_Saude_Fisica_Ruim": "Dias de saúde física ruim (dos últimos 30)",
+    "Dificuldade_Caminhar": "Dificuldade para andar ou subir escadas",
+    "Sexo": ROTULOS_ENTRADAS["Sexo"],
+    "Faixa_Etaria": ROTULOS_ENTRADAS["Faixa_Etaria"],
+    "Escolaridade": ROTULOS_ENTRADAS["Escolaridade"],
+    "Faixa_Renda": "Renda do domicílio (US$ de 2015)",
+    COLUNA_FAIXA_IMC: "Faixa de IMC",
+}
+
+
+def rotulo_valor(coluna: str, valor: Any) -> str:
+    """O rótulo de exibição de um valor: o da escala, os dias por extenso, ou o próprio texto."""
+    if coluna in ROTULOS_ESCALA:
+        return ROTULOS_ESCALA[coluna][int(valor)]
+    if coluna.startswith("Dias_"):
+        return "1 dia" if int(valor) == 1 else f"{int(valor)} dias"
+    return str(valor)

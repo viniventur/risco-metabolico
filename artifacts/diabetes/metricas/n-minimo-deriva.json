@@ -1,0 +1,208 @@
+{
+  "medido_em": "2026-10-19",
+  "vertente": "diabetes",
+  "metodo": "docs/decisoes/0008-limiares-de-psi.md, decisão 2 (tools/medir_n_minimo_deriva.py)",
+  "versao_modelo": "1.0.0",
+  "versao_dados": "dee1f27e9777",
+  "linhas_snapshot": 253680,
+  "reamostragens": 300,
+  "semente": 42,
+  "percentil": 95,
+  "limiar_psi": 0.1,
+  "epsilon": 1e-06,
+  "imc_arredondado": true,
+  "grade": [
+    25,
+    50,
+    75,
+    100,
+    150,
+    200,
+    300,
+    400,
+    500,
+    750,
+    1000
+  ],
+  "psi_p95": {
+    "25": {
+      "Faixa_Etaria": 3.1246380968650094,
+      "Sexo": 0.1129912122861476,
+      "IMC": 2.830618317088436,
+      "Pressao_Alta": 0.16381703271902848,
+      "Colesterol_Alto": 0.15591370128077323,
+      "Fumou_100_Cigarros": 0.1581888093249063,
+      "Atividade_Fisica_30_Dias": 0.11709112916739951,
+      "Fruta_Diaria": 0.15378840123631726,
+      "Verdura_Diaria": 0.1515178216336755,
+      "Escolaridade": 0.7241725577810717
+    },
+    "50": {
+      "Faixa_Etaria": 1.2271477701167348,
+      "Sexo": 0.07856408509948448,
+      "IMC": 0.886692444732351,
+      "Pressao_Alta": 0.09191320589029212,
+      "Colesterol_Alto": 0.09203312225757604,
+      "Fumou_100_Cigarros": 0.07540586090911462,
+      "Atividade_Fisica_30_Dias": 0.04542655111421658,
+      "Fruta_Diaria": 0.07571834824144891,
+      "Verdura_Diaria": 0.09271555830106404,
+      "Escolaridade": 0.562281871698502
+    },
+    "75": {
+      "Faixa_Etaria": 0.7570762692594891,
+      "Sexo": 0.061855664984903615,
+      "IMC": 0.28051249958660246,
+      "Pressao_Alta": 0.05567220524230655,
+      "Colesterol_Alto": 0.04798906334883389,
+      "Fumou_100_Cigarros": 0.0512449417862044,
+      "Atividade_Fisica_30_Dias": 0.05161538481491367,
+      "Fruta_Diaria": 0.04568298130276787,
+      "Verdura_Diaria": 0.06075827425331764,
+      "Escolaridade": 0.4004886246186796
+    },
+    "100": {
+      "Faixa_Etaria": 0.39966690689919515,
+      "Sexo": 0.03987471214579515,
+      "IMC": 0.19168184579432376,
+      "Pressao_Alta": 0.03395736924342363,
+      "Colesterol_Alto": 0.03700181294870415,
+      "Fumou_100_Cigarros": 0.030256997043878193,
+      "Atividade_Fisica_30_Dias": 0.03683624775515023,
+      "Fruta_Diaria": 0.037063478860786134,
+      "Verdura_Diaria": 0.03783096182197976,
+      "Escolaridade": 0.20753535305010584
+    },
+    "150": {
+      "Faixa_Etaria": 0.16298988930882305,
+      "Sexo": 0.02260144568023805,
+      "IMC": 0.11729263062835295,
+      "Pressao_Alta": 0.02427794678560388,
+      "Colesterol_Alto": 0.03016516298978466,
+      "Fumou_100_Cigarros": 0.02797857594544233,
+      "Atividade_Fisica_30_Dias": 0.024403939792028286,
+      "Fruta_Diaria": 0.02297145686408088,
+      "Verdura_Diaria": 0.01742662614652833,
+      "Escolaridade": 0.16997261022336518
+    },
+    "200": {
+      "Faixa_Etaria": 0.12468608446828423,
+      "Sexo": 0.02066162845125888,
+      "IMC": 0.08980522162857688,
+      "Pressao_Alta": 0.020437003996795673,
+      "Colesterol_Alto": 0.017646319145858628,
+      "Fumou_100_Cigarros": 0.022236249181408103,
+      "Atividade_Fisica_30_Dias": 0.016902219110931888,
+      "Fruta_Diaria": 0.016588165945564448,
+      "Verdura_Diaria": 0.021335162657038005,
+      "Escolaridade": 0.07101709562837676
+    },
+    "300": {
+      "Faixa_Etaria": 0.07242892580930828,
+      "Sexo": 0.013434140737689533,
+      "IMC": 0.05909149443684161,
+      "Pressao_Alta": 0.011473959755018567,
+      "Colesterol_Alto": 0.012619521118349172,
+      "Fumou_100_Cigarros": 0.011643905585387169,
+      "Atividade_Fisica_30_Dias": 0.014398769516476957,
+      "Fruta_Diaria": 0.01226747706649434,
+      "Verdura_Diaria": 0.012706991203209535,
+      "Escolaridade": 0.037771677280849555
+    },
+    "400": {
+      "Faixa_Etaria": 0.054528055507015824,
+      "Sexo": 0.008532480131196852,
+      "IMC": 0.04421359585043393,
+      "Pressao_Alta": 0.01455480822048051,
+      "Colesterol_Alto": 0.008548175867496207,
+      "Fumou_100_Cigarros": 0.009538834618343216,
+      "Atividade_Fisica_30_Dias": 0.008891566216830285,
+      "Fruta_Diaria": 0.008339318067508626,
+      "Verdura_Diaria": 0.010673418721029644,
+      "Escolaridade": 0.031226069776497195
+    },
+    "500": {
+      "Faixa_Etaria": 0.043883378732011244,
+      "Sexo": 0.008102541525304886,
+      "IMC": 0.034229169420523516,
+      "Pressao_Alta": 0.006987538204928781,
+      "Colesterol_Alto": 0.00711924805658289,
+      "Fumou_100_Cigarros": 0.0076474278130907285,
+      "Atividade_Fisica_30_Dias": 0.00772012846880377,
+      "Fruta_Diaria": 0.007746639436893568,
+      "Verdura_Diaria": 0.007472717409385888,
+      "Escolaridade": 0.023986803597638884
+    },
+    "750": {
+      "Faixa_Etaria": 0.026742161439392245,
+      "Sexo": 0.00465195066172445,
+      "IMC": 0.023581596426972565,
+      "Pressao_Alta": 0.006173491457032889,
+      "Colesterol_Alto": 0.005037388153058601,
+      "Fumou_100_Cigarros": 0.005904813598342354,
+      "Atividade_Fisica_30_Dias": 0.004664026343542179,
+      "Fruta_Diaria": 0.00464005038320306,
+      "Verdura_Diaria": 0.0057062638054151136,
+      "Escolaridade": 0.01658561556441701
+    },
+    "1000": {
+      "Faixa_Etaria": 0.020737095662643524,
+      "Sexo": 0.0035726123972960435,
+      "IMC": 0.01655320549139324,
+      "Pressao_Alta": 0.003466714313786593,
+      "Colesterol_Alto": 0.0026170468387677775,
+      "Fumou_100_Cigarros": 0.003718722678063578,
+      "Atividade_Fisica_30_Dias": 0.004262248354622757,
+      "Fruta_Diaria": 0.004685218816675949,
+      "Verdura_Diaria": 0.00372507561185512,
+      "Escolaridade": 0.013438027308395016
+    }
+  },
+  "pior_por_n": {
+    "25": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 3.1246380968650094
+    },
+    "50": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 1.2271477701167348
+    },
+    "75": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 0.7570762692594891
+    },
+    "100": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 0.39966690689919515
+    },
+    "150": {
+      "feature": "Escolaridade",
+      "psi_p95": 0.16997261022336518
+    },
+    "200": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 0.12468608446828423
+    },
+    "300": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 0.07242892580930828
+    },
+    "400": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 0.054528055507015824
+    },
+    "500": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 0.043883378732011244
+    },
+    "750": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 0.026742161439392245
+    },
+    "1000": {
+      "feature": "Faixa_Etaria",
+      "psi_p95": 0.020737095662643524
+    }
+  },
+  "n_minimo": 300
+}

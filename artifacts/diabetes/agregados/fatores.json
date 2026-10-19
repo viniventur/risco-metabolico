@@ -1,0 +1,1665 @@
+{
+  "id": "fatores",
+  "titulo": "Fatores associados: a fração com diabetes em cada resposta",
+  "mede": "Para cada uma das 16 variáveis categóricas da base (as 13 de sim ou não, a saúde geral, a escolaridade e a renda) e cada resposta: quantas respostas, quanto isso representa do total, quantas são de quem tem diabetes e a fração com diabetes entre quem deu aquela resposta, sobre a base inteira.",
+  "origem": "study/02_triagem_de_diabetes.ipynb, seção \"Exploração\" (prevalência por resposta e por nível); gráfico de fatores da Visão Geral de diabetes",
+  "fonte": [
+    "dados.registros_diabetes"
+  ],
+  "versao_dados": "dee1f27e9777",
+  "sql_sha256": "ea1b47f94be592961d5c5a414e936132ca624e576abfb4f58136fc2e7bb2d0f5",
+  "gerado_em": "2026-10-19T13:48:11+00:00",
+  "dimensoes": [
+    {
+      "nome": "fator",
+      "tipo": "texto"
+    },
+    {
+      "nome": "resposta",
+      "tipo": "texto"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "contagem",
+      "classe": "contagem"
+    },
+    {
+      "nome": "pct",
+      "classe": "proporcao"
+    },
+    {
+      "nome": "n_diabetes",
+      "classe": "contagem"
+    },
+    {
+      "nome": "prevalencia",
+      "classe": "proporcao"
+    }
+  ],
+  "amostra_minima": 15,
+  "divergencia": null,
+  "total_linhas": 180,
+  "linhas": [
+    {
+      "ordem": 1,
+      "fator": "pressao_alta",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 144851.0,
+      "n": 144851,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "fator": "pressao_alta",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 57.099889624724064,
+      "n": 144851,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "fator": "pressao_alta",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 8742.0,
+      "n": 8742,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "fator": "pressao_alta",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 6.035167171783419,
+      "n": 144851,
+      "suprimido": false
+    },
+    {
+      "ordem": 5,
+      "fator": "pressao_alta",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 108829.0,
+      "n": 108829,
+      "suprimido": false
+    },
+    {
+      "ordem": 6,
+      "fator": "pressao_alta",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 42.900110375275936,
+      "n": 108829,
+      "suprimido": false
+    },
+    {
+      "ordem": 7,
+      "fator": "pressao_alta",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 26604.0,
+      "n": 26604,
+      "suprimido": false
+    },
+    {
+      "ordem": 8,
+      "fator": "pressao_alta",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 24.445690027474296,
+      "n": 108829,
+      "suprimido": false
+    },
+    {
+      "ordem": 9,
+      "fator": "colesterol_alto",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 146089.0,
+      "n": 146089,
+      "suprimido": false
+    },
+    {
+      "ordem": 10,
+      "fator": "colesterol_alto",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 57.58790602333649,
+      "n": 146089,
+      "suprimido": false
+    },
+    {
+      "ordem": 11,
+      "fator": "colesterol_alto",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 11660.0,
+      "n": 11660,
+      "suprimido": false
+    },
+    {
+      "ordem": 12,
+      "fator": "colesterol_alto",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 7.981435973961078,
+      "n": 146089,
+      "suprimido": false
+    },
+    {
+      "ordem": 13,
+      "fator": "colesterol_alto",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 107591.0,
+      "n": 107591,
+      "suprimido": false
+    },
+    {
+      "ordem": 14,
+      "fator": "colesterol_alto",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 42.41209397666351,
+      "n": 107591,
+      "suprimido": false
+    },
+    {
+      "ordem": 15,
+      "fator": "colesterol_alto",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 23686.0,
+      "n": 23686,
+      "suprimido": false
+    },
+    {
+      "ordem": 16,
+      "fator": "colesterol_alto",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 22.014852543428354,
+      "n": 107591,
+      "suprimido": false
+    },
+    {
+      "ordem": 17,
+      "fator": "exame_colesterol_5_anos",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 9470.0,
+      "n": 9470,
+      "suprimido": false
+    },
+    {
+      "ordem": 18,
+      "fator": "exame_colesterol_5_anos",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 3.7330495111952064,
+      "n": 9470,
+      "suprimido": false
+    },
+    {
+      "ordem": 19,
+      "fator": "exame_colesterol_5_anos",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 241.0,
+      "n": 241,
+      "suprimido": false
+    },
+    {
+      "ordem": 20,
+      "fator": "exame_colesterol_5_anos",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 2.5448785638859555,
+      "n": 9470,
+      "suprimido": false
+    },
+    {
+      "ordem": 21,
+      "fator": "exame_colesterol_5_anos",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 244210.0,
+      "n": 244210,
+      "suprimido": false
+    },
+    {
+      "ordem": 22,
+      "fator": "exame_colesterol_5_anos",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 96.2669504888048,
+      "n": 244210,
+      "suprimido": false
+    },
+    {
+      "ordem": 23,
+      "fator": "exame_colesterol_5_anos",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 35105.0,
+      "n": 35105,
+      "suprimido": false
+    },
+    {
+      "ordem": 24,
+      "fator": "exame_colesterol_5_anos",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 14.374923221817289,
+      "n": 244210,
+      "suprimido": false
+    },
+    {
+      "ordem": 25,
+      "fator": "fumou_100_cigarros",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 141257.0,
+      "n": 141257,
+      "suprimido": false
+    },
+    {
+      "ordem": 26,
+      "fator": "fumou_100_cigarros",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 55.68314411857458,
+      "n": 141257,
+      "suprimido": false
+    },
+    {
+      "ordem": 27,
+      "fator": "fumou_100_cigarros",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 17029.0,
+      "n": 17029,
+      "suprimido": false
+    },
+    {
+      "ordem": 28,
+      "fator": "fumou_100_cigarros",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 12.055331771168863,
+      "n": 141257,
+      "suprimido": false
+    },
+    {
+      "ordem": 29,
+      "fator": "fumou_100_cigarros",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 112423.0,
+      "n": 112423,
+      "suprimido": false
+    },
+    {
+      "ordem": 30,
+      "fator": "fumou_100_cigarros",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 44.31685588142542,
+      "n": 112423,
+      "suprimido": false
+    },
+    {
+      "ordem": 31,
+      "fator": "fumou_100_cigarros",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 18317.0,
+      "n": 18317,
+      "suprimido": false
+    },
+    {
+      "ordem": 32,
+      "fator": "fumou_100_cigarros",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 16.292929382777544,
+      "n": 112423,
+      "suprimido": false
+    },
+    {
+      "ordem": 33,
+      "fator": "teve_avc",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 243388.0,
+      "n": 243388,
+      "suprimido": false
+    },
+    {
+      "ordem": 34,
+      "fator": "teve_avc",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 95.94292021444339,
+      "n": 243388,
+      "suprimido": false
+    },
+    {
+      "ordem": 35,
+      "fator": "teve_avc",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 32078.0,
+      "n": 32078,
+      "suprimido": false
+    },
+    {
+      "ordem": 36,
+      "fator": "teve_avc",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 13.17977878942265,
+      "n": 243388,
+      "suprimido": false
+    },
+    {
+      "ordem": 37,
+      "fator": "teve_avc",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 10292.0,
+      "n": 10292,
+      "suprimido": false
+    },
+    {
+      "ordem": 38,
+      "fator": "teve_avc",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 4.057079785556606,
+      "n": 10292,
+      "suprimido": false
+    },
+    {
+      "ordem": 39,
+      "fator": "teve_avc",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 3268.0,
+      "n": 3268,
+      "suprimido": false
+    },
+    {
+      "ordem": 40,
+      "fator": "teve_avc",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 31.752817722502915,
+      "n": 10292,
+      "suprimido": false
+    },
+    {
+      "ordem": 41,
+      "fator": "doenca_coronariana_ou_infarto",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 229787.0,
+      "n": 229787,
+      "suprimido": false
+    },
+    {
+      "ordem": 42,
+      "fator": "doenca_coronariana_ou_infarto",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 90.58144118574582,
+      "n": 229787,
+      "suprimido": false
+    },
+    {
+      "ordem": 43,
+      "fator": "doenca_coronariana_ou_infarto",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 27468.0,
+      "n": 27468,
+      "suprimido": false
+    },
+    {
+      "ordem": 44,
+      "fator": "doenca_coronariana_ou_infarto",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 11.953678841709932,
+      "n": 229787,
+      "suprimido": false
+    },
+    {
+      "ordem": 45,
+      "fator": "doenca_coronariana_ou_infarto",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 23893.0,
+      "n": 23893,
+      "suprimido": false
+    },
+    {
+      "ordem": 46,
+      "fator": "doenca_coronariana_ou_infarto",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 9.418558814254178,
+      "n": 23893,
+      "suprimido": false
+    },
+    {
+      "ordem": 47,
+      "fator": "doenca_coronariana_ou_infarto",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 7878.0,
+      "n": 7878,
+      "suprimido": false
+    },
+    {
+      "ordem": 48,
+      "fator": "doenca_coronariana_ou_infarto",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 32.97200016741305,
+      "n": 23893,
+      "suprimido": false
+    },
+    {
+      "ordem": 49,
+      "fator": "atividade_fisica_30_dias",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 61760.0,
+      "n": 61760,
+      "suprimido": false
+    },
+    {
+      "ordem": 50,
+      "fator": "atividade_fisica_30_dias",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 24.34563229265216,
+      "n": 61760,
+      "suprimido": false
+    },
+    {
+      "ordem": 51,
+      "fator": "atividade_fisica_30_dias",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 13059.0,
+      "n": 13059,
+      "suprimido": false
+    },
+    {
+      "ordem": 52,
+      "fator": "atividade_fisica_30_dias",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 21.144753886010363,
+      "n": 61760,
+      "suprimido": false
+    },
+    {
+      "ordem": 53,
+      "fator": "atividade_fisica_30_dias",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 191920.0,
+      "n": 191920,
+      "suprimido": false
+    },
+    {
+      "ordem": 54,
+      "fator": "atividade_fisica_30_dias",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 75.65436770734784,
+      "n": 191920,
+      "suprimido": false
+    },
+    {
+      "ordem": 55,
+      "fator": "atividade_fisica_30_dias",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 22287.0,
+      "n": 22287,
+      "suprimido": false
+    },
+    {
+      "ordem": 56,
+      "fator": "atividade_fisica_30_dias",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 11.612651104626927,
+      "n": 191920,
+      "suprimido": false
+    },
+    {
+      "ordem": 57,
+      "fator": "fruta_diaria",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 92782.0,
+      "n": 92782,
+      "suprimido": false
+    },
+    {
+      "ordem": 58,
+      "fator": "fruta_diaria",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 36.574424471775465,
+      "n": 92782,
+      "suprimido": false
+    },
+    {
+      "ordem": 59,
+      "fator": "fruta_diaria",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 14653.0,
+      "n": 14653,
+      "suprimido": false
+    },
+    {
+      "ordem": 60,
+      "fator": "fruta_diaria",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 15.79293397426225,
+      "n": 92782,
+      "suprimido": false
+    },
+    {
+      "ordem": 61,
+      "fator": "fruta_diaria",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 160898.0,
+      "n": 160898,
+      "suprimido": false
+    },
+    {
+      "ordem": 62,
+      "fator": "fruta_diaria",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 63.425575528224535,
+      "n": 160898,
+      "suprimido": false
+    },
+    {
+      "ordem": 63,
+      "fator": "fruta_diaria",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 20693.0,
+      "n": 20693,
+      "suprimido": false
+    },
+    {
+      "ordem": 64,
+      "fator": "fruta_diaria",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 12.860942957650188,
+      "n": 160898,
+      "suprimido": false
+    },
+    {
+      "ordem": 65,
+      "fator": "verdura_diaria",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 47839.0,
+      "n": 47839,
+      "suprimido": false
+    },
+    {
+      "ordem": 66,
+      "fator": "verdura_diaria",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 18.8580100914538,
+      "n": 47839,
+      "suprimido": false
+    },
+    {
+      "ordem": 67,
+      "fator": "verdura_diaria",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 8610.0,
+      "n": 8610,
+      "suprimido": false
+    },
+    {
+      "ordem": 68,
+      "fator": "verdura_diaria",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 17.9978678484082,
+      "n": 47839,
+      "suprimido": false
+    },
+    {
+      "ordem": 69,
+      "fator": "verdura_diaria",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 205841.0,
+      "n": 205841,
+      "suprimido": false
+    },
+    {
+      "ordem": 70,
+      "fator": "verdura_diaria",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 81.1419899085462,
+      "n": 205841,
+      "suprimido": false
+    },
+    {
+      "ordem": 71,
+      "fator": "verdura_diaria",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 26736.0,
+      "n": 26736,
+      "suprimido": false
+    },
+    {
+      "ordem": 72,
+      "fator": "verdura_diaria",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 12.988666009201276,
+      "n": 205841,
+      "suprimido": false
+    },
+    {
+      "ordem": 73,
+      "fator": "consumo_pesado_alcool",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 239424.0,
+      "n": 239424,
+      "suprimido": false
+    },
+    {
+      "ordem": 74,
+      "fator": "consumo_pesado_alcool",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 94.38032166508988,
+      "n": 239424,
+      "suprimido": false
+    },
+    {
+      "ordem": 75,
+      "fator": "consumo_pesado_alcool",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 34514.0,
+      "n": 34514,
+      "suprimido": false
+    },
+    {
+      "ordem": 76,
+      "fator": "consumo_pesado_alcool",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 14.415430366212243,
+      "n": 239424,
+      "suprimido": false
+    },
+    {
+      "ordem": 77,
+      "fator": "consumo_pesado_alcool",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 14256.0,
+      "n": 14256,
+      "suprimido": false
+    },
+    {
+      "ordem": 78,
+      "fator": "consumo_pesado_alcool",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 5.619678334910123,
+      "n": 14256,
+      "suprimido": false
+    },
+    {
+      "ordem": 79,
+      "fator": "consumo_pesado_alcool",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 832.0,
+      "n": 832,
+      "suprimido": false
+    },
+    {
+      "ordem": 80,
+      "fator": "consumo_pesado_alcool",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 5.836139169472503,
+      "n": 14256,
+      "suprimido": false
+    },
+    {
+      "ordem": 81,
+      "fator": "cobertura_saude",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 12417.0,
+      "n": 12417,
+      "suprimido": false
+    },
+    {
+      "ordem": 82,
+      "fator": "cobertura_saude",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 4.894749290444655,
+      "n": 12417,
+      "suprimido": false
+    },
+    {
+      "ordem": 83,
+      "fator": "cobertura_saude",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 1422.0,
+      "n": 1422,
+      "suprimido": false
+    },
+    {
+      "ordem": 84,
+      "fator": "cobertura_saude",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 11.452041555931384,
+      "n": 12417,
+      "suprimido": false
+    },
+    {
+      "ordem": 85,
+      "fator": "cobertura_saude",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 241263.0,
+      "n": 241263,
+      "suprimido": false
+    },
+    {
+      "ordem": 86,
+      "fator": "cobertura_saude",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 95.10525070955535,
+      "n": 241263,
+      "suprimido": false
+    },
+    {
+      "ordem": 87,
+      "fator": "cobertura_saude",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 33924.0,
+      "n": 33924,
+      "suprimido": false
+    },
+    {
+      "ordem": 88,
+      "fator": "cobertura_saude",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 14.061003966625632,
+      "n": 241263,
+      "suprimido": false
+    },
+    {
+      "ordem": 89,
+      "fator": "deixou_medico_por_custo",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 232326.0,
+      "n": 232326,
+      "suprimido": false
+    },
+    {
+      "ordem": 90,
+      "fator": "deixou_medico_por_custo",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 91.58230842005676,
+      "n": 232326,
+      "suprimido": false
+    },
+    {
+      "ordem": 91,
+      "fator": "deixou_medico_por_custo",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 31604.0,
+      "n": 31604,
+      "suprimido": false
+    },
+    {
+      "ordem": 92,
+      "fator": "deixou_medico_por_custo",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 13.603298812875012,
+      "n": 232326,
+      "suprimido": false
+    },
+    {
+      "ordem": 93,
+      "fator": "deixou_medico_por_custo",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 21354.0,
+      "n": 21354,
+      "suprimido": false
+    },
+    {
+      "ordem": 94,
+      "fator": "deixou_medico_por_custo",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 8.417691579943236,
+      "n": 21354,
+      "suprimido": false
+    },
+    {
+      "ordem": 95,
+      "fator": "deixou_medico_por_custo",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 3742.0,
+      "n": 3742,
+      "suprimido": false
+    },
+    {
+      "ordem": 96,
+      "fator": "deixou_medico_por_custo",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 17.523648965065092,
+      "n": 21354,
+      "suprimido": false
+    },
+    {
+      "ordem": 97,
+      "fator": "saude_geral",
+      "resposta": "1",
+      "medida": "contagem",
+      "valor": 45299.0,
+      "n": 45299,
+      "suprimido": false
+    },
+    {
+      "ordem": 98,
+      "fator": "saude_geral",
+      "resposta": "1",
+      "medida": "pct",
+      "valor": 17.856748659728794,
+      "n": 45299,
+      "suprimido": false
+    },
+    {
+      "ordem": 99,
+      "fator": "saude_geral",
+      "resposta": "1",
+      "medida": "n_diabetes",
+      "valor": 1140.0,
+      "n": 1140,
+      "suprimido": false
+    },
+    {
+      "ordem": 100,
+      "fator": "saude_geral",
+      "resposta": "1",
+      "medida": "prevalencia",
+      "valor": 2.516611845736109,
+      "n": 45299,
+      "suprimido": false
+    },
+    {
+      "ordem": 101,
+      "fator": "saude_geral",
+      "resposta": "2",
+      "medida": "contagem",
+      "valor": 89084.0,
+      "n": 89084,
+      "suprimido": false
+    },
+    {
+      "ordem": 102,
+      "fator": "saude_geral",
+      "resposta": "2",
+      "medida": "pct",
+      "valor": 35.11668243456323,
+      "n": 89084,
+      "suprimido": false
+    },
+    {
+      "ordem": 103,
+      "fator": "saude_geral",
+      "resposta": "2",
+      "medida": "n_diabetes",
+      "valor": 6381.0,
+      "n": 6381,
+      "suprimido": false
+    },
+    {
+      "ordem": 104,
+      "fator": "saude_geral",
+      "resposta": "2",
+      "medida": "prevalencia",
+      "valor": 7.162902429167977,
+      "n": 89084,
+      "suprimido": false
+    },
+    {
+      "ordem": 105,
+      "fator": "saude_geral",
+      "resposta": "3",
+      "medida": "contagem",
+      "valor": 75646.0,
+      "n": 75646,
+      "suprimido": false
+    },
+    {
+      "ordem": 106,
+      "fator": "saude_geral",
+      "resposta": "3",
+      "medida": "pct",
+      "valor": 29.819457584358247,
+      "n": 75646,
+      "suprimido": false
+    },
+    {
+      "ordem": 107,
+      "fator": "saude_geral",
+      "resposta": "3",
+      "medida": "n_diabetes",
+      "valor": 13457.0,
+      "n": 13457,
+      "suprimido": false
+    },
+    {
+      "ordem": 108,
+      "fator": "saude_geral",
+      "resposta": "3",
+      "medida": "prevalencia",
+      "valor": 17.78944028765566,
+      "n": 75646,
+      "suprimido": false
+    },
+    {
+      "ordem": 109,
+      "fator": "saude_geral",
+      "resposta": "4",
+      "medida": "contagem",
+      "valor": 31570.0,
+      "n": 31570,
+      "suprimido": false
+    },
+    {
+      "ordem": 110,
+      "fator": "saude_geral",
+      "resposta": "4",
+      "medida": "pct",
+      "valor": 12.444812362030905,
+      "n": 31570,
+      "suprimido": false
+    },
+    {
+      "ordem": 111,
+      "fator": "saude_geral",
+      "resposta": "4",
+      "medida": "n_diabetes",
+      "valor": 9790.0,
+      "n": 9790,
+      "suprimido": false
+    },
+    {
+      "ordem": 112,
+      "fator": "saude_geral",
+      "resposta": "4",
+      "medida": "prevalencia",
+      "valor": 31.010452961672474,
+      "n": 31570,
+      "suprimido": false
+    },
+    {
+      "ordem": 113,
+      "fator": "saude_geral",
+      "resposta": "5",
+      "medida": "contagem",
+      "valor": 12081.0,
+      "n": 12081,
+      "suprimido": false
+    },
+    {
+      "ordem": 114,
+      "fator": "saude_geral",
+      "resposta": "5",
+      "medida": "pct",
+      "valor": 4.7622989593188265,
+      "n": 12081,
+      "suprimido": false
+    },
+    {
+      "ordem": 115,
+      "fator": "saude_geral",
+      "resposta": "5",
+      "medida": "n_diabetes",
+      "valor": 4578.0,
+      "n": 4578,
+      "suprimido": false
+    },
+    {
+      "ordem": 116,
+      "fator": "saude_geral",
+      "resposta": "5",
+      "medida": "prevalencia",
+      "valor": 37.89421405512789,
+      "n": 12081,
+      "suprimido": false
+    },
+    {
+      "ordem": 117,
+      "fator": "dificuldade_caminhar",
+      "resposta": "Não",
+      "medida": "contagem",
+      "valor": 211005.0,
+      "n": 211005,
+      "suprimido": false
+    },
+    {
+      "ordem": 118,
+      "fator": "dificuldade_caminhar",
+      "resposta": "Não",
+      "medida": "pct",
+      "valor": 83.17762535477767,
+      "n": 211005,
+      "suprimido": false
+    },
+    {
+      "ordem": 119,
+      "fator": "dificuldade_caminhar",
+      "resposta": "Não",
+      "medida": "n_diabetes",
+      "valor": 22225.0,
+      "n": 22225,
+      "suprimido": false
+    },
+    {
+      "ordem": 120,
+      "fator": "dificuldade_caminhar",
+      "resposta": "Não",
+      "medida": "prevalencia",
+      "valor": 10.532925760053079,
+      "n": 211005,
+      "suprimido": false
+    },
+    {
+      "ordem": 121,
+      "fator": "dificuldade_caminhar",
+      "resposta": "Sim",
+      "medida": "contagem",
+      "valor": 42675.0,
+      "n": 42675,
+      "suprimido": false
+    },
+    {
+      "ordem": 122,
+      "fator": "dificuldade_caminhar",
+      "resposta": "Sim",
+      "medida": "pct",
+      "valor": 16.82237464522233,
+      "n": 42675,
+      "suprimido": false
+    },
+    {
+      "ordem": 123,
+      "fator": "dificuldade_caminhar",
+      "resposta": "Sim",
+      "medida": "n_diabetes",
+      "valor": 13121.0,
+      "n": 13121,
+      "suprimido": false
+    },
+    {
+      "ordem": 124,
+      "fator": "dificuldade_caminhar",
+      "resposta": "Sim",
+      "medida": "prevalencia",
+      "valor": 30.746338605741066,
+      "n": 42675,
+      "suprimido": false
+    },
+    {
+      "ordem": 125,
+      "fator": "escolaridade",
+      "resposta": "1",
+      "medida": "contagem",
+      "valor": 174.0,
+      "n": 174,
+      "suprimido": false
+    },
+    {
+      "ordem": 126,
+      "fator": "escolaridade",
+      "resposta": "1",
+      "medida": "pct",
+      "valor": 0.06859035004730368,
+      "n": 174,
+      "suprimido": false
+    },
+    {
+      "ordem": 127,
+      "fator": "escolaridade",
+      "resposta": "1",
+      "medida": "n_diabetes",
+      "valor": 47.0,
+      "n": 47,
+      "suprimido": false
+    },
+    {
+      "ordem": 128,
+      "fator": "escolaridade",
+      "resposta": "1",
+      "medida": "prevalencia",
+      "valor": 27.011494252873565,
+      "n": 174,
+      "suprimido": false
+    },
+    {
+      "ordem": 129,
+      "fator": "escolaridade",
+      "resposta": "2",
+      "medida": "contagem",
+      "valor": 4043.0,
+      "n": 4043,
+      "suprimido": false
+    },
+    {
+      "ordem": 130,
+      "fator": "escolaridade",
+      "resposta": "2",
+      "medida": "pct",
+      "valor": 1.5937401450646485,
+      "n": 4043,
+      "suprimido": false
+    },
+    {
+      "ordem": 131,
+      "fator": "escolaridade",
+      "resposta": "2",
+      "medida": "n_diabetes",
+      "valor": 1183.0,
+      "n": 1183,
+      "suprimido": false
+    },
+    {
+      "ordem": 132,
+      "fator": "escolaridade",
+      "resposta": "2",
+      "medida": "prevalencia",
+      "valor": 29.260450160771704,
+      "n": 4043,
+      "suprimido": false
+    },
+    {
+      "ordem": 133,
+      "fator": "escolaridade",
+      "resposta": "3",
+      "medida": "contagem",
+      "valor": 9478.0,
+      "n": 9478,
+      "suprimido": false
+    },
+    {
+      "ordem": 134,
+      "fator": "escolaridade",
+      "resposta": "3",
+      "medida": "pct",
+      "valor": 3.7362030905077264,
+      "n": 9478,
+      "suprimido": false
+    },
+    {
+      "ordem": 135,
+      "fator": "escolaridade",
+      "resposta": "3",
+      "medida": "n_diabetes",
+      "valor": 2296.0,
+      "n": 2296,
+      "suprimido": false
+    },
+    {
+      "ordem": 136,
+      "fator": "escolaridade",
+      "resposta": "3",
+      "medida": "prevalencia",
+      "valor": 24.224519940915805,
+      "n": 9478,
+      "suprimido": false
+    },
+    {
+      "ordem": 137,
+      "fator": "escolaridade",
+      "resposta": "4",
+      "medida": "contagem",
+      "valor": 62750.0,
+      "n": 62750,
+      "suprimido": false
+    },
+    {
+      "ordem": 138,
+      "fator": "escolaridade",
+      "resposta": "4",
+      "medida": "pct",
+      "valor": 24.735887732576476,
+      "n": 62750,
+      "suprimido": false
+    },
+    {
+      "ordem": 139,
+      "fator": "escolaridade",
+      "resposta": "4",
+      "medida": "n_diabetes",
+      "valor": 11066.0,
+      "n": 11066,
+      "suprimido": false
+    },
+    {
+      "ordem": 140,
+      "fator": "escolaridade",
+      "resposta": "4",
+      "medida": "prevalencia",
+      "valor": 17.635059760956175,
+      "n": 62750,
+      "suprimido": false
+    },
+    {
+      "ordem": 141,
+      "fator": "escolaridade",
+      "resposta": "5",
+      "medida": "contagem",
+      "valor": 69910.0,
+      "n": 69910,
+      "suprimido": false
+    },
+    {
+      "ordem": 142,
+      "fator": "escolaridade",
+      "resposta": "5",
+      "medida": "pct",
+      "valor": 27.558341217281615,
+      "n": 69910,
+      "suprimido": false
+    },
+    {
+      "ordem": 143,
+      "fator": "escolaridade",
+      "resposta": "5",
+      "medida": "n_diabetes",
+      "valor": 10354.0,
+      "n": 10354,
+      "suprimido": false
+    },
+    {
+      "ordem": 144,
+      "fator": "escolaridade",
+      "resposta": "5",
+      "medida": "prevalencia",
+      "valor": 14.810470605063653,
+      "n": 69910,
+      "suprimido": false
+    },
+    {
+      "ordem": 145,
+      "fator": "escolaridade",
+      "resposta": "6",
+      "medida": "contagem",
+      "valor": 107325.0,
+      "n": 107325,
+      "suprimido": false
+    },
+    {
+      "ordem": 146,
+      "fator": "escolaridade",
+      "resposta": "6",
+      "medida": "pct",
+      "valor": 42.30723746452223,
+      "n": 107325,
+      "suprimido": false
+    },
+    {
+      "ordem": 147,
+      "fator": "escolaridade",
+      "resposta": "6",
+      "medida": "n_diabetes",
+      "valor": 10400.0,
+      "n": 10400,
+      "suprimido": false
+    },
+    {
+      "ordem": 148,
+      "fator": "escolaridade",
+      "resposta": "6",
+      "medida": "prevalencia",
+      "valor": 9.69019333799208,
+      "n": 107325,
+      "suprimido": false
+    },
+    {
+      "ordem": 149,
+      "fator": "faixa_renda",
+      "resposta": "1",
+      "medida": "contagem",
+      "valor": 9811.0,
+      "n": 9811,
+      "suprimido": false
+    },
+    {
+      "ordem": 150,
+      "fator": "faixa_renda",
+      "resposta": "1",
+      "medida": "pct",
+      "valor": 3.867470829391359,
+      "n": 9811,
+      "suprimido": false
+    },
+    {
+      "ordem": 151,
+      "fator": "faixa_renda",
+      "resposta": "1",
+      "medida": "n_diabetes",
+      "valor": 2383.0,
+      "n": 2383,
+      "suprimido": false
+    },
+    {
+      "ordem": 152,
+      "fator": "faixa_renda",
+      "resposta": "1",
+      "medida": "prevalencia",
+      "valor": 24.28906329630007,
+      "n": 9811,
+      "suprimido": false
+    },
+    {
+      "ordem": 153,
+      "fator": "faixa_renda",
+      "resposta": "2",
+      "medida": "contagem",
+      "valor": 11783.0,
+      "n": 11783,
+      "suprimido": false
+    },
+    {
+      "ordem": 154,
+      "fator": "faixa_renda",
+      "resposta": "2",
+      "medida": "pct",
+      "valor": 4.644828129927467,
+      "n": 11783,
+      "suprimido": false
+    },
+    {
+      "ordem": 155,
+      "fator": "faixa_renda",
+      "resposta": "2",
+      "medida": "n_diabetes",
+      "valor": 3086.0,
+      "n": 3086,
+      "suprimido": false
+    },
+    {
+      "ordem": 156,
+      "fator": "faixa_renda",
+      "resposta": "2",
+      "medida": "prevalencia",
+      "valor": 26.190274123737588,
+      "n": 11783,
+      "suprimido": false
+    },
+    {
+      "ordem": 157,
+      "fator": "faixa_renda",
+      "resposta": "3",
+      "medida": "contagem",
+      "valor": 15994.0,
+      "n": 15994,
+      "suprimido": false
+    },
+    {
+      "ordem": 158,
+      "fator": "faixa_renda",
+      "resposta": "3",
+      "medida": "pct",
+      "valor": 6.30479344055503,
+      "n": 15994,
+      "suprimido": false
+    },
+    {
+      "ordem": 159,
+      "fator": "faixa_renda",
+      "resposta": "3",
+      "medida": "n_diabetes",
+      "valor": 3568.0,
+      "n": 3568,
+      "suprimido": false
+    },
+    {
+      "ordem": 160,
+      "fator": "faixa_renda",
+      "resposta": "3",
+      "medida": "prevalencia",
+      "valor": 22.30836563711392,
+      "n": 15994,
+      "suprimido": false
+    },
+    {
+      "ordem": 161,
+      "fator": "faixa_renda",
+      "resposta": "4",
+      "medida": "contagem",
+      "valor": 20135.0,
+      "n": 20135,
+      "suprimido": false
+    },
+    {
+      "ordem": 162,
+      "fator": "faixa_renda",
+      "resposta": "4",
+      "medida": "pct",
+      "valor": 7.937164932198045,
+      "n": 20135,
+      "suprimido": false
+    },
+    {
+      "ordem": 163,
+      "fator": "faixa_renda",
+      "resposta": "4",
+      "medida": "n_diabetes",
+      "valor": 4054.0,
+      "n": 4054,
+      "suprimido": false
+    },
+    {
+      "ordem": 164,
+      "fator": "faixa_renda",
+      "resposta": "4",
+      "medida": "prevalencia",
+      "valor": 20.134094859697043,
+      "n": 20135,
+      "suprimido": false
+    },
+    {
+      "ordem": 165,
+      "fator": "faixa_renda",
+      "resposta": "5",
+      "medida": "contagem",
+      "valor": 25883.0,
+      "n": 25883,
+      "suprimido": false
+    },
+    {
+      "ordem": 166,
+      "fator": "faixa_renda",
+      "resposta": "5",
+      "medida": "pct",
+      "valor": 10.203011668243457,
+      "n": 25883,
+      "suprimido": false
+    },
+    {
+      "ordem": 167,
+      "fator": "faixa_renda",
+      "resposta": "5",
+      "medida": "n_diabetes",
+      "valor": 4504.0,
+      "n": 4504,
+      "suprimido": false
+    },
+    {
+      "ordem": 168,
+      "fator": "faixa_renda",
+      "resposta": "5",
+      "medida": "prevalencia",
+      "valor": 17.4013831472395,
+      "n": 25883,
+      "suprimido": false
+    },
+    {
+      "ordem": 169,
+      "fator": "faixa_renda",
+      "resposta": "6",
+      "medida": "contagem",
+      "valor": 36470.0,
+      "n": 36470,
+      "suprimido": false
+    },
+    {
+      "ordem": 170,
+      "fator": "faixa_renda",
+      "resposta": "6",
+      "medida": "pct",
+      "valor": 14.376379690949227,
+      "n": 36470,
+      "suprimido": false
+    },
+    {
+      "ordem": 171,
+      "fator": "faixa_renda",
+      "resposta": "6",
+      "medida": "n_diabetes",
+      "valor": 5291.0,
+      "n": 5291,
+      "suprimido": false
+    },
+    {
+      "ordem": 172,
+      "fator": "faixa_renda",
+      "resposta": "6",
+      "medida": "prevalencia",
+      "valor": 14.507814642171647,
+      "n": 36470,
+      "suprimido": false
+    },
+    {
+      "ordem": 173,
+      "fator": "faixa_renda",
+      "resposta": "7",
+      "medida": "contagem",
+      "valor": 43219.0,
+      "n": 43219,
+      "suprimido": false
+    },
+    {
+      "ordem": 174,
+      "fator": "faixa_renda",
+      "resposta": "7",
+      "medida": "pct",
+      "valor": 17.03681803847367,
+      "n": 43219,
+      "suprimido": false
+    },
+    {
+      "ordem": 175,
+      "fator": "faixa_renda",
+      "resposta": "7",
+      "medida": "n_diabetes",
+      "valor": 5265.0,
+      "n": 5265,
+      "suprimido": false
+    },
+    {
+      "ordem": 176,
+      "fator": "faixa_renda",
+      "resposta": "7",
+      "medida": "prevalencia",
+      "valor": 12.182142113422337,
+      "n": 43219,
+      "suprimido": false
+    },
+    {
+      "ordem": 177,
+      "fator": "faixa_renda",
+      "resposta": "8",
+      "medida": "contagem",
+      "valor": 90385.0,
+      "n": 90385,
+      "suprimido": false
+    },
+    {
+      "ordem": 178,
+      "fator": "faixa_renda",
+      "resposta": "8",
+      "medida": "pct",
+      "valor": 35.629533270261746,
+      "n": 90385,
+      "suprimido": false
+    },
+    {
+      "ordem": 179,
+      "fator": "faixa_renda",
+      "resposta": "8",
+      "medida": "n_diabetes",
+      "valor": 7195.0,
+      "n": 7195,
+      "suprimido": false
+    },
+    {
+      "ordem": 180,
+      "fator": "faixa_renda",
+      "resposta": "8",
+      "medida": "prevalencia",
+      "valor": 7.960391657907839,
+      "n": 90385,
+      "suprimido": false
+    }
+  ]
+}

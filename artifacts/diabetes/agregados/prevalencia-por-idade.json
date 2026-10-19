@@ -1,0 +1,457 @@
+{
+  "id": "prevalencia-por-idade",
+  "titulo": "Prevalência de diabetes por faixa etária",
+  "mede": "Para cada faixa etária de 5 anos: quantas respostas, quanto isso representa do total, quantas são de quem tem diabetes e a fração com diabetes dentro da faixa (a prevalência na base), sobre a base inteira.",
+  "origem": "study/02_triagem_de_diabetes.ipynb, seção \"Exploração\" (prevalência por faixa etária); gráfico de prevalência por idade da Visão Geral de diabetes",
+  "fonte": [
+    "dados.registros_diabetes"
+  ],
+  "versao_dados": "dee1f27e9777",
+  "sql_sha256": "6ba9fc53ae22b6e93b820b6e0b13029f027bcf94e2629267162703e5d661dacc",
+  "gerado_em": "2026-10-19T13:48:11+00:00",
+  "dimensoes": [
+    {
+      "nome": "faixa_etaria",
+      "tipo": "inteiro"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "contagem",
+      "classe": "contagem"
+    },
+    {
+      "nome": "pct",
+      "classe": "proporcao"
+    },
+    {
+      "nome": "n_diabetes",
+      "classe": "contagem"
+    },
+    {
+      "nome": "prevalencia",
+      "classe": "proporcao"
+    }
+  ],
+  "amostra_minima": 15,
+  "divergencia": null,
+  "total_linhas": 52,
+  "linhas": [
+    {
+      "ordem": 1,
+      "faixa_etaria": "1",
+      "medida": "contagem",
+      "valor": 5700.0,
+      "n": 5700,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "faixa_etaria": "1",
+      "medida": "pct",
+      "valor": 2.2469252601702934,
+      "n": 5700,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "faixa_etaria": "1",
+      "medida": "n_diabetes",
+      "valor": 78.0,
+      "n": 78,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "faixa_etaria": "1",
+      "medida": "prevalencia",
+      "valor": 1.368421052631579,
+      "n": 5700,
+      "suprimido": false
+    },
+    {
+      "ordem": 5,
+      "faixa_etaria": "2",
+      "medida": "contagem",
+      "valor": 7598.0,
+      "n": 7598,
+      "suprimido": false
+    },
+    {
+      "ordem": 6,
+      "faixa_etaria": "2",
+      "medida": "pct",
+      "valor": 2.9951119520655944,
+      "n": 7598,
+      "suprimido": false
+    },
+    {
+      "ordem": 7,
+      "faixa_etaria": "2",
+      "medida": "n_diabetes",
+      "valor": 140.0,
+      "n": 140,
+      "suprimido": false
+    },
+    {
+      "ordem": 8,
+      "faixa_etaria": "2",
+      "medida": "prevalencia",
+      "valor": 1.8425901553040274,
+      "n": 7598,
+      "suprimido": false
+    },
+    {
+      "ordem": 9,
+      "faixa_etaria": "3",
+      "medida": "contagem",
+      "valor": 11123.0,
+      "n": 11123,
+      "suprimido": false
+    },
+    {
+      "ordem": 10,
+      "faixa_etaria": "3",
+      "medida": "pct",
+      "valor": 4.384657836644592,
+      "n": 11123,
+      "suprimido": false
+    },
+    {
+      "ordem": 11,
+      "faixa_etaria": "3",
+      "medida": "n_diabetes",
+      "valor": 314.0,
+      "n": 314,
+      "suprimido": false
+    },
+    {
+      "ordem": 12,
+      "faixa_etaria": "3",
+      "medida": "prevalencia",
+      "valor": 2.8229794120291287,
+      "n": 11123,
+      "suprimido": false
+    },
+    {
+      "ordem": 13,
+      "faixa_etaria": "4",
+      "medida": "contagem",
+      "valor": 13823.0,
+      "n": 13823,
+      "suprimido": false
+    },
+    {
+      "ordem": 14,
+      "faixa_etaria": "4",
+      "medida": "pct",
+      "valor": 5.448990854619994,
+      "n": 13823,
+      "suprimido": false
+    },
+    {
+      "ordem": 15,
+      "faixa_etaria": "4",
+      "medida": "n_diabetes",
+      "valor": 626.0,
+      "n": 626,
+      "suprimido": false
+    },
+    {
+      "ordem": 16,
+      "faixa_etaria": "4",
+      "medida": "prevalencia",
+      "valor": 4.528684077262533,
+      "n": 13823,
+      "suprimido": false
+    },
+    {
+      "ordem": 17,
+      "faixa_etaria": "5",
+      "medida": "contagem",
+      "valor": 16157.0,
+      "n": 16157,
+      "suprimido": false
+    },
+    {
+      "ordem": 18,
+      "faixa_etaria": "5",
+      "medida": "pct",
+      "valor": 6.369047619047619,
+      "n": 16157,
+      "suprimido": false
+    },
+    {
+      "ordem": 19,
+      "faixa_etaria": "5",
+      "medida": "n_diabetes",
+      "valor": 1051.0,
+      "n": 1051,
+      "suprimido": false
+    },
+    {
+      "ordem": 20,
+      "faixa_etaria": "5",
+      "medida": "prevalencia",
+      "valor": 6.504920467908646,
+      "n": 16157,
+      "suprimido": false
+    },
+    {
+      "ordem": 21,
+      "faixa_etaria": "6",
+      "medida": "contagem",
+      "valor": 19819.0,
+      "n": 19819,
+      "suprimido": false
+    },
+    {
+      "ordem": 22,
+      "faixa_etaria": "6",
+      "medida": "pct",
+      "valor": 7.812598549353516,
+      "n": 19819,
+      "suprimido": false
+    },
+    {
+      "ordem": 23,
+      "faixa_etaria": "6",
+      "medida": "n_diabetes",
+      "valor": 1742.0,
+      "n": 1742,
+      "suprimido": false
+    },
+    {
+      "ordem": 24,
+      "faixa_etaria": "6",
+      "medida": "prevalencia",
+      "valor": 8.789545385740956,
+      "n": 19819,
+      "suprimido": false
+    },
+    {
+      "ordem": 25,
+      "faixa_etaria": "7",
+      "medida": "contagem",
+      "valor": 26314.0,
+      "n": 26314,
+      "suprimido": false
+    },
+    {
+      "ordem": 26,
+      "faixa_etaria": "7",
+      "medida": "pct",
+      "valor": 10.372910753705456,
+      "n": 26314,
+      "suprimido": false
+    },
+    {
+      "ordem": 27,
+      "faixa_etaria": "7",
+      "medida": "n_diabetes",
+      "valor": 3088.0,
+      "n": 3088,
+      "suprimido": false
+    },
+    {
+      "ordem": 28,
+      "faixa_etaria": "7",
+      "medida": "prevalencia",
+      "valor": 11.735197993463556,
+      "n": 26314,
+      "suprimido": false
+    },
+    {
+      "ordem": 29,
+      "faixa_etaria": "8",
+      "medida": "contagem",
+      "valor": 30832.0,
+      "n": 30832,
+      "suprimido": false
+    },
+    {
+      "ordem": 30,
+      "faixa_etaria": "8",
+      "medida": "pct",
+      "valor": 12.153894670450962,
+      "n": 30832,
+      "suprimido": false
+    },
+    {
+      "ordem": 31,
+      "faixa_etaria": "8",
+      "medida": "n_diabetes",
+      "valor": 4263.0,
+      "n": 4263,
+      "suprimido": false
+    },
+    {
+      "ordem": 32,
+      "faixa_etaria": "8",
+      "medida": "prevalencia",
+      "valor": 13.826543850544889,
+      "n": 30832,
+      "suprimido": false
+    },
+    {
+      "ordem": 33,
+      "faixa_etaria": "9",
+      "medida": "contagem",
+      "valor": 33244.0,
+      "n": 33244,
+      "suprimido": false
+    },
+    {
+      "ordem": 34,
+      "faixa_etaria": "9",
+      "medida": "pct",
+      "valor": 13.104698833175654,
+      "n": 33244,
+      "suprimido": false
+    },
+    {
+      "ordem": 35,
+      "faixa_etaria": "9",
+      "medida": "n_diabetes",
+      "valor": 5733.0,
+      "n": 5733,
+      "suprimido": false
+    },
+    {
+      "ordem": 36,
+      "faixa_etaria": "9",
+      "medida": "prevalencia",
+      "valor": 17.245217182047888,
+      "n": 33244,
+      "suprimido": false
+    },
+    {
+      "ordem": 37,
+      "faixa_etaria": "10",
+      "medida": "contagem",
+      "valor": 32194.0,
+      "n": 32194,
+      "suprimido": false
+    },
+    {
+      "ordem": 38,
+      "faixa_etaria": "10",
+      "medida": "pct",
+      "valor": 12.690791548407443,
+      "n": 32194,
+      "suprimido": false
+    },
+    {
+      "ordem": 39,
+      "faixa_etaria": "10",
+      "medida": "n_diabetes",
+      "valor": 6558.0,
+      "n": 6558,
+      "suprimido": false
+    },
+    {
+      "ordem": 40,
+      "faixa_etaria": "10",
+      "medida": "prevalencia",
+      "valor": 20.37025532707958,
+      "n": 32194,
+      "suprimido": false
+    },
+    {
+      "ordem": 41,
+      "faixa_etaria": "11",
+      "medida": "contagem",
+      "valor": 23533.0,
+      "n": 23533,
+      "suprimido": false
+    },
+    {
+      "ordem": 42,
+      "faixa_etaria": "11",
+      "medida": "pct",
+      "valor": 9.276647745190791,
+      "n": 23533,
+      "suprimido": false
+    },
+    {
+      "ordem": 43,
+      "faixa_etaria": "11",
+      "medida": "n_diabetes",
+      "valor": 5141.0,
+      "n": 5141,
+      "suprimido": false
+    },
+    {
+      "ordem": 44,
+      "faixa_etaria": "11",
+      "medida": "prevalencia",
+      "valor": 21.845918497429142,
+      "n": 23533,
+      "suprimido": false
+    },
+    {
+      "ordem": 45,
+      "faixa_etaria": "12",
+      "medida": "contagem",
+      "valor": 15980.0,
+      "n": 15980,
+      "suprimido": false
+    },
+    {
+      "ordem": 46,
+      "faixa_etaria": "12",
+      "medida": "pct",
+      "valor": 6.29927467675812,
+      "n": 15980,
+      "suprimido": false
+    },
+    {
+      "ordem": 47,
+      "faixa_etaria": "12",
+      "medida": "n_diabetes",
+      "valor": 3403.0,
+      "n": 3403,
+      "suprimido": false
+    },
+    {
+      "ordem": 48,
+      "faixa_etaria": "12",
+      "medida": "prevalencia",
+      "valor": 21.295369211514394,
+      "n": 15980,
+      "suprimido": false
+    },
+    {
+      "ordem": 49,
+      "faixa_etaria": "13",
+      "medida": "contagem",
+      "valor": 17363.0,
+      "n": 17363,
+      "suprimido": false
+    },
+    {
+      "ordem": 50,
+      "faixa_etaria": "13",
+      "medida": "pct",
+      "valor": 6.844449700409966,
+      "n": 17363,
+      "suprimido": false
+    },
+    {
+      "ordem": 51,
+      "faixa_etaria": "13",
+      "medida": "n_diabetes",
+      "valor": 3209.0,
+      "n": 3209,
+      "suprimido": false
+    },
+    {
+      "ordem": 52,
+      "faixa_etaria": "13",
+      "medida": "prevalencia",
+      "valor": 18.481829176985546,
+      "n": 17363,
+      "suprimido": false
+    }
+  ]
+}

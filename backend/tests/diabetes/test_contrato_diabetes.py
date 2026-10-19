@@ -143,6 +143,13 @@ def test_openapi_tem_as_rotas_e_a_tag_da_vertente(cliente) -> None:
         f"{URL_DIABETES}/predicoes/relatorio",
         f"{URL_DIABETES}/metadata",
         f"{URL_DIABETES}/model/info",
+        f"{URL_DIABETES}/dimensoes",
+        f"{URL_DIABETES}/painel/resumo",
+        f"{URL_DIABETES}/painel/por-categoria",
+        f"{URL_DIABETES}/painel/fatores",
+        f"{URL_DIABETES}/registros",
+        f"{URL_DIABETES}/registros/exportar",
+        f"{URL_DIABETES}/monitoramento/deriva",
     }
     tag = next(t for t in doc["tags"] if t["name"] == "diabetes")
     assert FRASE_D3 in tag["description"]

@@ -1,0 +1,544 @@
+{
+  "versao_modelo": "1.0.0",
+  "versao_dados": "dee1f27e9777",
+  "sha256_snapshot": "dee1f27e977705110f731ed32285c2d852320240b9900f01dbc7420f47fac18f",
+  "n_treino": 253680,
+  "features": [
+    {
+      "feature": "Faixa_Etaria",
+      "tipo": "categorica",
+      "ordem": 0,
+      "media": null,
+      "desvio": null,
+      "p50": null,
+      "minimo": null,
+      "maximo": null,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": "1",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 5700,
+          "proporcao_treino": 0.022469252601702933
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": "2",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 7598,
+          "proporcao_treino": 0.029951119520655944
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": "3",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 11123,
+          "proporcao_treino": 0.04384657836644592
+        },
+        {
+          "faixa_idx": 3,
+          "faixa_rotulo": "4",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 13823,
+          "proporcao_treino": 0.054489908546199936
+        },
+        {
+          "faixa_idx": 4,
+          "faixa_rotulo": "5",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 16157,
+          "proporcao_treino": 0.06369047619047619
+        },
+        {
+          "faixa_idx": 5,
+          "faixa_rotulo": "6",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 19819,
+          "proporcao_treino": 0.07812598549353517
+        },
+        {
+          "faixa_idx": 6,
+          "faixa_rotulo": "7",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 26314,
+          "proporcao_treino": 0.10372910753705455
+        },
+        {
+          "faixa_idx": 7,
+          "faixa_rotulo": "8",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 30832,
+          "proporcao_treino": 0.12153894670450961
+        },
+        {
+          "faixa_idx": 8,
+          "faixa_rotulo": "9",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 33244,
+          "proporcao_treino": 0.13104698833175654
+        },
+        {
+          "faixa_idx": 9,
+          "faixa_rotulo": "10",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 32194,
+          "proporcao_treino": 0.12690791548407443
+        },
+        {
+          "faixa_idx": 10,
+          "faixa_rotulo": "11",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 23533,
+          "proporcao_treino": 0.09276647745190791
+        },
+        {
+          "faixa_idx": 11,
+          "faixa_rotulo": "12",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 15980,
+          "proporcao_treino": 0.06299274676758121
+        },
+        {
+          "faixa_idx": 12,
+          "faixa_rotulo": "13",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 17363,
+          "proporcao_treino": 0.06844449700409966
+        },
+        {
+          "faixa_idx": 13,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 0,
+          "proporcao_treino": 0.0
+        }
+      ]
+    },
+    {
+      "feature": "Sexo",
+      "tipo": "categorica",
+      "ordem": 1,
+      "media": null,
+      "desvio": null,
+      "p50": null,
+      "minimo": null,
+      "maximo": null,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": "Feminino",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 141974,
+          "proporcao_treino": 0.5596578366445916
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": "Masculino",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 111706,
+          "proporcao_treino": 0.4403421633554084
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 0,
+          "proporcao_treino": 0.0
+        }
+      ]
+    },
+    {
+      "feature": "IMC",
+      "tipo": "numerica",
+      "ordem": 2,
+      "media": 28.382363607694735,
+      "desvio": 6.608694201406008,
+      "p50": 27.0,
+      "minimo": 12.0,
+      "maximo": 98.0,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": 22.0,
+          "n_treino": 23277,
+          "proporcao_treino": 0.0917573320719016
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": null,
+          "limite_inf": 22.0,
+          "limite_sup": 23.0,
+          "n_treino": 13643,
+          "proporcao_treino": 0.053780353200883
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": null,
+          "limite_inf": 23.0,
+          "limite_sup": 25.0,
+          "n_treino": 35160,
+          "proporcao_treino": 0.13859981078524125
+        },
+        {
+          "faixa_idx": 3,
+          "faixa_rotulo": null,
+          "limite_inf": 25.0,
+          "limite_sup": 26.0,
+          "n_treino": 17146,
+          "proporcao_treino": 0.06758908861557868
+        },
+        {
+          "faixa_idx": 4,
+          "faixa_rotulo": null,
+          "limite_inf": 26.0,
+          "limite_sup": 27.0,
+          "n_treino": 20562,
+          "proporcao_treino": 0.08105487228003784
+        },
+        {
+          "faixa_idx": 5,
+          "faixa_rotulo": null,
+          "limite_inf": 27.0,
+          "limite_sup": 29.0,
+          "n_treino": 41151,
+          "proporcao_treino": 0.16221617786187323
+        },
+        {
+          "faixa_idx": 6,
+          "faixa_rotulo": null,
+          "limite_inf": 29.0,
+          "limite_sup": 30.0,
+          "n_treino": 14890,
+          "proporcao_treino": 0.0586959949542731
+        },
+        {
+          "faixa_idx": 7,
+          "faixa_rotulo": null,
+          "limite_inf": 30.0,
+          "limite_sup": 32.0,
+          "n_treino": 26848,
+          "proporcao_treino": 0.10583412172816146
+        },
+        {
+          "faixa_idx": 8,
+          "faixa_rotulo": null,
+          "limite_inf": 32.0,
+          "limite_sup": 36.0,
+          "n_treino": 32178,
+          "proporcao_treino": 0.12684484389782402
+        },
+        {
+          "faixa_idx": 9,
+          "faixa_rotulo": null,
+          "limite_inf": 36.0,
+          "limite_sup": null,
+          "n_treino": 28825,
+          "proporcao_treino": 0.1136274046042258
+        }
+      ]
+    },
+    {
+      "feature": "Pressao_Alta",
+      "tipo": "categorica",
+      "ordem": 3,
+      "media": null,
+      "desvio": null,
+      "p50": null,
+      "minimo": null,
+      "maximo": null,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": "Não",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 144851,
+          "proporcao_treino": 0.5709988962472407
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": "Sim",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 108829,
+          "proporcao_treino": 0.4290011037527594
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 0,
+          "proporcao_treino": 0.0
+        }
+      ]
+    },
+    {
+      "feature": "Colesterol_Alto",
+      "tipo": "categorica",
+      "ordem": 4,
+      "media": null,
+      "desvio": null,
+      "p50": null,
+      "minimo": null,
+      "maximo": null,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": "Não",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 146089,
+          "proporcao_treino": 0.5758790602333649
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": "Sim",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 107591,
+          "proporcao_treino": 0.4241209397666351
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 0,
+          "proporcao_treino": 0.0
+        }
+      ]
+    },
+    {
+      "feature": "Fumou_100_Cigarros",
+      "tipo": "categorica",
+      "ordem": 5,
+      "media": null,
+      "desvio": null,
+      "p50": null,
+      "minimo": null,
+      "maximo": null,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": "Não",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 141257,
+          "proporcao_treino": 0.5568314411857458
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": "Sim",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 112423,
+          "proporcao_treino": 0.44316855881425415
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 0,
+          "proporcao_treino": 0.0
+        }
+      ]
+    },
+    {
+      "feature": "Atividade_Fisica_30_Dias",
+      "tipo": "categorica",
+      "ordem": 6,
+      "media": null,
+      "desvio": null,
+      "p50": null,
+      "minimo": null,
+      "maximo": null,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": "Não",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 61760,
+          "proporcao_treino": 0.2434563229265216
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": "Sim",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 191920,
+          "proporcao_treino": 0.7565436770734784
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 0,
+          "proporcao_treino": 0.0
+        }
+      ]
+    },
+    {
+      "feature": "Fruta_Diaria",
+      "tipo": "categorica",
+      "ordem": 7,
+      "media": null,
+      "desvio": null,
+      "p50": null,
+      "minimo": null,
+      "maximo": null,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": "Não",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 92782,
+          "proporcao_treino": 0.36574424471775463
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": "Sim",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 160898,
+          "proporcao_treino": 0.6342557552822453
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 0,
+          "proporcao_treino": 0.0
+        }
+      ]
+    },
+    {
+      "feature": "Verdura_Diaria",
+      "tipo": "categorica",
+      "ordem": 8,
+      "media": null,
+      "desvio": null,
+      "p50": null,
+      "minimo": null,
+      "maximo": null,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": "Não",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 47839,
+          "proporcao_treino": 0.188580100914538
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": "Sim",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 205841,
+          "proporcao_treino": 0.811419899085462
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 0,
+          "proporcao_treino": 0.0
+        }
+      ]
+    },
+    {
+      "feature": "Escolaridade",
+      "tipo": "categorica",
+      "ordem": 9,
+      "media": null,
+      "desvio": null,
+      "p50": null,
+      "minimo": null,
+      "maximo": null,
+      "faixas": [
+        {
+          "faixa_idx": 0,
+          "faixa_rotulo": "1",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 174,
+          "proporcao_treino": 0.0006859035004730369
+        },
+        {
+          "faixa_idx": 1,
+          "faixa_rotulo": "2",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 4043,
+          "proporcao_treino": 0.015937401450646482
+        },
+        {
+          "faixa_idx": 2,
+          "faixa_rotulo": "3",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 9478,
+          "proporcao_treino": 0.03736203090507726
+        },
+        {
+          "faixa_idx": 3,
+          "faixa_rotulo": "4",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 62750,
+          "proporcao_treino": 0.24735887732576475
+        },
+        {
+          "faixa_idx": 4,
+          "faixa_rotulo": "5",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 69910,
+          "proporcao_treino": 0.2755834121728161
+        },
+        {
+          "faixa_idx": 5,
+          "faixa_rotulo": "6",
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 107325,
+          "proporcao_treino": 0.42307237464522235
+        },
+        {
+          "faixa_idx": 6,
+          "faixa_rotulo": null,
+          "limite_inf": null,
+          "limite_sup": null,
+          "n_treino": 0,
+          "proporcao_treino": 0.0
+        }
+      ]
+    }
+  ]
+}

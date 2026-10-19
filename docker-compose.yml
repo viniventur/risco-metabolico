@@ -68,6 +68,9 @@ services:
       # Sem default em app/config.py: a API recusa subir com BANCO_HABILITADO=true e esta vazia.
       # Valor medido (ADR 0008).
       N_MINIMO_DERIVA: "200"
+      # A da vertente diabetes, medida pelo mesmo método e registrada em
+      # artifacts/diabetes/metricas/n-minimo-deriva.json (sem ela, só a deriva dela fica indisponível).
+      N_MINIMO_DERIVA_DIABETES: "300"
       EXIGIR_INTEGRIDADE: ${EXIGIR_INTEGRIDADE:-false}
       LIMITE_TAXA_ATIVO: ${LIMITE_TAXA_ATIVO:-false}
       SAL_TAXA: ${SAL_TAXA:-}

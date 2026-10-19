@@ -1,0 +1,981 @@
+{
+  "id": "piramide-idade-sexo",
+  "titulo": "Pirâmide etária por sexo, com a fração com diabetes",
+  "mede": "Para cada combinação de faixa etária e sexo: quantas respostas, quanto isso representa do total, quantas são de quem tem diabetes e a fração com diabetes dentro do grupo, sobre a base inteira.",
+  "origem": "study/02_triagem_de_diabetes.ipynb, seção \"Exploração\" (prevalência por faixa etária e sexo); pirâmide da Visão Geral de diabetes",
+  "fonte": [
+    "dados.registros_diabetes"
+  ],
+  "versao_dados": "dee1f27e9777",
+  "sql_sha256": "59a654ecfb7b120c11af1e7821ceb8f1752ccd1fb9de6c91ab1137f284fb71b6",
+  "gerado_em": "2026-10-19T13:48:11+00:00",
+  "dimensoes": [
+    {
+      "nome": "faixa_etaria",
+      "tipo": "inteiro"
+    },
+    {
+      "nome": "sexo",
+      "tipo": "texto"
+    }
+  ],
+  "medidas": [
+    {
+      "nome": "contagem",
+      "classe": "contagem"
+    },
+    {
+      "nome": "pct",
+      "classe": "proporcao"
+    },
+    {
+      "nome": "n_diabetes",
+      "classe": "contagem"
+    },
+    {
+      "nome": "prevalencia",
+      "classe": "proporcao"
+    }
+  ],
+  "amostra_minima": 15,
+  "divergencia": null,
+  "total_linhas": 104,
+  "linhas": [
+    {
+      "ordem": 1,
+      "faixa_etaria": "1",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 2745.0,
+      "n": 2745,
+      "suprimido": false
+    },
+    {
+      "ordem": 2,
+      "faixa_etaria": "1",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 1.0820719016083256,
+      "n": 2745,
+      "suprimido": false
+    },
+    {
+      "ordem": 3,
+      "faixa_etaria": "1",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 45.0,
+      "n": 45,
+      "suprimido": false
+    },
+    {
+      "ordem": 4,
+      "faixa_etaria": "1",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 1.639344262295082,
+      "n": 2745,
+      "suprimido": false
+    },
+    {
+      "ordem": 5,
+      "faixa_etaria": "1",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 2955.0,
+      "n": 2955,
+      "suprimido": false
+    },
+    {
+      "ordem": 6,
+      "faixa_etaria": "1",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 1.1648533585619678,
+      "n": 2955,
+      "suprimido": false
+    },
+    {
+      "ordem": 7,
+      "faixa_etaria": "1",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 33.0,
+      "n": 33,
+      "suprimido": false
+    },
+    {
+      "ordem": 8,
+      "faixa_etaria": "1",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 1.116751269035533,
+      "n": 2955,
+      "suprimido": false
+    },
+    {
+      "ordem": 9,
+      "faixa_etaria": "2",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 3991.0,
+      "n": 3991,
+      "suprimido": false
+    },
+    {
+      "ordem": 10,
+      "faixa_etaria": "2",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 1.5732418795332703,
+      "n": 3991,
+      "suprimido": false
+    },
+    {
+      "ordem": 11,
+      "faixa_etaria": "2",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 89.0,
+      "n": 89,
+      "suprimido": false
+    },
+    {
+      "ordem": 12,
+      "faixa_etaria": "2",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 2.2300175394637933,
+      "n": 3991,
+      "suprimido": false
+    },
+    {
+      "ordem": 13,
+      "faixa_etaria": "2",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 3607.0,
+      "n": 3607,
+      "suprimido": false
+    },
+    {
+      "ordem": 14,
+      "faixa_etaria": "2",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 1.4218700725323241,
+      "n": 3607,
+      "suprimido": false
+    },
+    {
+      "ordem": 15,
+      "faixa_etaria": "2",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 51.0,
+      "n": 51,
+      "suprimido": false
+    },
+    {
+      "ordem": 16,
+      "faixa_etaria": "2",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 1.4139173828666483,
+      "n": 3607,
+      "suprimido": false
+    },
+    {
+      "ordem": 17,
+      "faixa_etaria": "3",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 6062.0,
+      "n": 6062,
+      "suprimido": false
+    },
+    {
+      "ordem": 18,
+      "faixa_etaria": "3",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 2.38962472406181,
+      "n": 6062,
+      "suprimido": false
+    },
+    {
+      "ordem": 19,
+      "faixa_etaria": "3",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 191.0,
+      "n": 191,
+      "suprimido": false
+    },
+    {
+      "ordem": 20,
+      "faixa_etaria": "3",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 3.1507753216760146,
+      "n": 6062,
+      "suprimido": false
+    },
+    {
+      "ordem": 21,
+      "faixa_etaria": "3",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 5061.0,
+      "n": 5061,
+      "suprimido": false
+    },
+    {
+      "ordem": 22,
+      "faixa_etaria": "3",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 1.9950331125827814,
+      "n": 5061,
+      "suprimido": false
+    },
+    {
+      "ordem": 23,
+      "faixa_etaria": "3",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 123.0,
+      "n": 123,
+      "suprimido": false
+    },
+    {
+      "ordem": 24,
+      "faixa_etaria": "3",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 2.4303497332542974,
+      "n": 5061,
+      "suprimido": false
+    },
+    {
+      "ordem": 25,
+      "faixa_etaria": "4",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 7725.0,
+      "n": 7725,
+      "suprimido": false
+    },
+    {
+      "ordem": 26,
+      "faixa_etaria": "4",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 3.045175023651845,
+      "n": 7725,
+      "suprimido": false
+    },
+    {
+      "ordem": 27,
+      "faixa_etaria": "4",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 366.0,
+      "n": 366,
+      "suprimido": false
+    },
+    {
+      "ordem": 28,
+      "faixa_etaria": "4",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 4.737864077669903,
+      "n": 7725,
+      "suprimido": false
+    },
+    {
+      "ordem": 29,
+      "faixa_etaria": "4",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 6098.0,
+      "n": 6098,
+      "suprimido": false
+    },
+    {
+      "ordem": 30,
+      "faixa_etaria": "4",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 2.4038158309681488,
+      "n": 6098,
+      "suprimido": false
+    },
+    {
+      "ordem": 31,
+      "faixa_etaria": "4",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 260.0,
+      "n": 260,
+      "suprimido": false
+    },
+    {
+      "ordem": 32,
+      "faixa_etaria": "4",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 4.2636930141029845,
+      "n": 6098,
+      "suprimido": false
+    },
+    {
+      "ordem": 33,
+      "faixa_etaria": "5",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 9136.0,
+      "n": 9136,
+      "suprimido": false
+    },
+    {
+      "ordem": 34,
+      "faixa_etaria": "5",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 3.6013875748975086,
+      "n": 9136,
+      "suprimido": false
+    },
+    {
+      "ordem": 35,
+      "faixa_etaria": "5",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 576.0,
+      "n": 576,
+      "suprimido": false
+    },
+    {
+      "ordem": 36,
+      "faixa_etaria": "5",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 6.304728546409807,
+      "n": 9136,
+      "suprimido": false
+    },
+    {
+      "ordem": 37,
+      "faixa_etaria": "5",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 7021.0,
+      "n": 7021,
+      "suprimido": false
+    },
+    {
+      "ordem": 38,
+      "faixa_etaria": "5",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 2.7676600441501105,
+      "n": 7021,
+      "suprimido": false
+    },
+    {
+      "ordem": 39,
+      "faixa_etaria": "5",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 475.0,
+      "n": 475,
+      "suprimido": false
+    },
+    {
+      "ordem": 40,
+      "faixa_etaria": "5",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 6.7654180316194275,
+      "n": 7021,
+      "suprimido": false
+    },
+    {
+      "ordem": 41,
+      "faixa_etaria": "6",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 10928.0,
+      "n": 10928,
+      "suprimido": false
+    },
+    {
+      "ordem": 42,
+      "faixa_etaria": "6",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 4.307789340901924,
+      "n": 10928,
+      "suprimido": false
+    },
+    {
+      "ordem": 43,
+      "faixa_etaria": "6",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 902.0,
+      "n": 902,
+      "suprimido": false
+    },
+    {
+      "ordem": 44,
+      "faixa_etaria": "6",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 8.25402635431918,
+      "n": 10928,
+      "suprimido": false
+    },
+    {
+      "ordem": 45,
+      "faixa_etaria": "6",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 8891.0,
+      "n": 8891,
+      "suprimido": false
+    },
+    {
+      "ordem": 46,
+      "faixa_etaria": "6",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 3.5048092084515927,
+      "n": 8891,
+      "suprimido": false
+    },
+    {
+      "ordem": 47,
+      "faixa_etaria": "6",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 840.0,
+      "n": 840,
+      "suprimido": false
+    },
+    {
+      "ordem": 48,
+      "faixa_etaria": "6",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 9.447756157912496,
+      "n": 8891,
+      "suprimido": false
+    },
+    {
+      "ordem": 49,
+      "faixa_etaria": "7",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 14805.0,
+      "n": 14805,
+      "suprimido": false
+    },
+    {
+      "ordem": 50,
+      "faixa_etaria": "7",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 5.836092715231788,
+      "n": 14805,
+      "suprimido": false
+    },
+    {
+      "ordem": 51,
+      "faixa_etaria": "7",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 1642.0,
+      "n": 1642,
+      "suprimido": false
+    },
+    {
+      "ordem": 52,
+      "faixa_etaria": "7",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 11.090847686592367,
+      "n": 14805,
+      "suprimido": false
+    },
+    {
+      "ordem": 53,
+      "faixa_etaria": "7",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 11509.0,
+      "n": 11509,
+      "suprimido": false
+    },
+    {
+      "ordem": 54,
+      "faixa_etaria": "7",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 4.536818038473668,
+      "n": 11509,
+      "suprimido": false
+    },
+    {
+      "ordem": 55,
+      "faixa_etaria": "7",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 1446.0,
+      "n": 1446,
+      "suprimido": false
+    },
+    {
+      "ordem": 56,
+      "faixa_etaria": "7",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 12.564080284994352,
+      "n": 11509,
+      "suprimido": false
+    },
+    {
+      "ordem": 57,
+      "faixa_etaria": "8",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 17469.0,
+      "n": 17469,
+      "suprimido": false
+    },
+    {
+      "ordem": 58,
+      "faixa_etaria": "8",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 6.886234626300851,
+      "n": 17469,
+      "suprimido": false
+    },
+    {
+      "ordem": 59,
+      "faixa_etaria": "8",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 2255.0,
+      "n": 2255,
+      "suprimido": false
+    },
+    {
+      "ordem": 60,
+      "faixa_etaria": "8",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 12.908580914763295,
+      "n": 17469,
+      "suprimido": false
+    },
+    {
+      "ordem": 61,
+      "faixa_etaria": "8",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 13363.0,
+      "n": 13363,
+      "suprimido": false
+    },
+    {
+      "ordem": 62,
+      "faixa_etaria": "8",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 5.2676600441501105,
+      "n": 13363,
+      "suprimido": false
+    },
+    {
+      "ordem": 63,
+      "faixa_etaria": "8",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 2008.0,
+      "n": 2008,
+      "suprimido": false
+    },
+    {
+      "ordem": 64,
+      "faixa_etaria": "8",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 15.026565890892764,
+      "n": 13363,
+      "suprimido": false
+    },
+    {
+      "ordem": 65,
+      "faixa_etaria": "9",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 18271.0,
+      "n": 18271,
+      "suprimido": false
+    },
+    {
+      "ordem": 66,
+      "faixa_etaria": "9",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 7.2023809523809526,
+      "n": 18271,
+      "suprimido": false
+    },
+    {
+      "ordem": 67,
+      "faixa_etaria": "9",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 2968.0,
+      "n": 2968,
+      "suprimido": false
+    },
+    {
+      "ordem": 68,
+      "faixa_etaria": "9",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 16.244321602539543,
+      "n": 18271,
+      "suprimido": false
+    },
+    {
+      "ordem": 69,
+      "faixa_etaria": "9",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 14973.0,
+      "n": 14973,
+      "suprimido": false
+    },
+    {
+      "ordem": 70,
+      "faixa_etaria": "9",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 5.902317880794702,
+      "n": 14973,
+      "suprimido": false
+    },
+    {
+      "ordem": 71,
+      "faixa_etaria": "9",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 2765.0,
+      "n": 2765,
+      "suprimido": false
+    },
+    {
+      "ordem": 72,
+      "faixa_etaria": "9",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 18.46657316503039,
+      "n": 14973,
+      "suprimido": false
+    },
+    {
+      "ordem": 73,
+      "faixa_etaria": "10",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 17743.0,
+      "n": 17743,
+      "suprimido": false
+    },
+    {
+      "ordem": 74,
+      "faixa_etaria": "10",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 6.994244717754651,
+      "n": 17743,
+      "suprimido": false
+    },
+    {
+      "ordem": 75,
+      "faixa_etaria": "10",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 3250.0,
+      "n": 3250,
+      "suprimido": false
+    },
+    {
+      "ordem": 76,
+      "faixa_etaria": "10",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 18.317082793214226,
+      "n": 17743,
+      "suprimido": false
+    },
+    {
+      "ordem": 77,
+      "faixa_etaria": "10",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 14451.0,
+      "n": 14451,
+      "suprimido": false
+    },
+    {
+      "ordem": 78,
+      "faixa_etaria": "10",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 5.696546830652791,
+      "n": 14451,
+      "suprimido": false
+    },
+    {
+      "ordem": 79,
+      "faixa_etaria": "10",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 3308.0,
+      "n": 3308,
+      "suprimido": false
+    },
+    {
+      "ordem": 80,
+      "faixa_etaria": "10",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 22.89114940142551,
+      "n": 14451,
+      "suprimido": false
+    },
+    {
+      "ordem": 81,
+      "faixa_etaria": "11",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 13159.0,
+      "n": 13159,
+      "suprimido": false
+    },
+    {
+      "ordem": 82,
+      "faixa_etaria": "11",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 5.1872437716808575,
+      "n": 13159,
+      "suprimido": false
+    },
+    {
+      "ordem": 83,
+      "faixa_etaria": "11",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 2553.0,
+      "n": 2553,
+      "suprimido": false
+    },
+    {
+      "ordem": 84,
+      "faixa_etaria": "11",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 19.40117030169466,
+      "n": 13159,
+      "suprimido": false
+    },
+    {
+      "ordem": 85,
+      "faixa_etaria": "11",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 10374.0,
+      "n": 10374,
+      "suprimido": false
+    },
+    {
+      "ordem": 86,
+      "faixa_etaria": "11",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 4.089403973509934,
+      "n": 10374,
+      "suprimido": false
+    },
+    {
+      "ordem": 87,
+      "faixa_etaria": "11",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 2588.0,
+      "n": 2588,
+      "suprimido": false
+    },
+    {
+      "ordem": 88,
+      "faixa_etaria": "11",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 24.946982841719684,
+      "n": 10374,
+      "suprimido": false
+    },
+    {
+      "ordem": 89,
+      "faixa_etaria": "12",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 9418.0,
+      "n": 9418,
+      "suprimido": false
+    },
+    {
+      "ordem": 90,
+      "faixa_etaria": "12",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 3.7125512456638283,
+      "n": 9418,
+      "suprimido": false
+    },
+    {
+      "ordem": 91,
+      "faixa_etaria": "12",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 1834.0,
+      "n": 1834,
+      "suprimido": false
+    },
+    {
+      "ordem": 92,
+      "faixa_etaria": "12",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 19.473348906349543,
+      "n": 9418,
+      "suprimido": false
+    },
+    {
+      "ordem": 93,
+      "faixa_etaria": "12",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 6562.0,
+      "n": 6562,
+      "suprimido": false
+    },
+    {
+      "ordem": 94,
+      "faixa_etaria": "12",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 2.586723431094292,
+      "n": 6562,
+      "suprimido": false
+    },
+    {
+      "ordem": 95,
+      "faixa_etaria": "12",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 1569.0,
+      "n": 1569,
+      "suprimido": false
+    },
+    {
+      "ordem": 96,
+      "faixa_etaria": "12",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 23.910393172813166,
+      "n": 6562,
+      "suprimido": false
+    },
+    {
+      "ordem": 97,
+      "faixa_etaria": "13",
+      "sexo": "Feminino",
+      "medida": "contagem",
+      "valor": 10522.0,
+      "n": 10522,
+      "suprimido": false
+    },
+    {
+      "ordem": 98,
+      "faixa_etaria": "13",
+      "sexo": "Feminino",
+      "medida": "pct",
+      "valor": 4.147745190791548,
+      "n": 10522,
+      "suprimido": false
+    },
+    {
+      "ordem": 99,
+      "faixa_etaria": "13",
+      "sexo": "Feminino",
+      "medida": "n_diabetes",
+      "valor": 1740.0,
+      "n": 1740,
+      "suprimido": false
+    },
+    {
+      "ordem": 100,
+      "faixa_etaria": "13",
+      "sexo": "Feminino",
+      "medida": "prevalencia",
+      "valor": 16.53678007983273,
+      "n": 10522,
+      "suprimido": false
+    },
+    {
+      "ordem": 101,
+      "faixa_etaria": "13",
+      "sexo": "Masculino",
+      "medida": "contagem",
+      "valor": 6841.0,
+      "n": 6841,
+      "suprimido": false
+    },
+    {
+      "ordem": 102,
+      "faixa_etaria": "13",
+      "sexo": "Masculino",
+      "medida": "pct",
+      "valor": 2.696704509618417,
+      "n": 6841,
+      "suprimido": false
+    },
+    {
+      "ordem": 103,
+      "faixa_etaria": "13",
+      "sexo": "Masculino",
+      "medida": "n_diabetes",
+      "valor": 1469.0,
+      "n": 1469,
+      "suprimido": false
+    },
+    {
+      "ordem": 104,
+      "faixa_etaria": "13",
+      "sexo": "Masculino",
+      "medida": "prevalencia",
+      "valor": 21.47346879111241,
+      "n": 6841,
+      "suprimido": false
+    }
+  ]
+}
