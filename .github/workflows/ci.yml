@@ -79,6 +79,8 @@ jobs:
           uv sync --extra treino --extra dev
           uv run --extra treino python -m app.dados.seed --arquivo ../data/bruto/obesity.csv --tabela dados.registros_triagem
           uv run --extra treino python -m app.dados.schema --conferir
+          uv run --extra treino python -m app.diabetes.dados.seed
+          uv run --extra treino python -m app.diabetes.dados.schema --conferir
           uv run --extra treino python -m app.treino.distribuicao --carregar
 
       - name: Lint de SQL antes de lint de Python
@@ -93,6 +95,7 @@ jobs:
           uv run ruff format --check app tests
           uv run mypy app
           uv run --extra treino python -m app.treino congelar
+          uv run --extra treino python -m app.diabetes.treino snapshot
           python3 ../scripts/baixar_modelo.py --manifesto ../artifacts/manifest.json --destino ../models
           uv run --extra treino pytest -q --cov=app --cov-fail-under=80
           uv run --extra treino python -m app.treino verificar

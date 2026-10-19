@@ -53,6 +53,9 @@ dono="postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@banco:5432/$POSTGRES_DB"
 conferir "seed pela imagem da API, com o dono do banco" \
   docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
   python -m app.dados.seed --arquivo /app/data/bruto/obesity.csv --tabela dados.registros_triagem
+conferir "seed da vertente diabetes pela imagem da API, com o dono do banco" \
+  docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
+  python -m app.diabetes.dados.seed --arquivo /app/data/bruto/diabetes/cdc_diabetes_health_indicators.csv
 conferir "referência de deriva carregada" \
   docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api python -m app.treino.distribuicao --carregar
 
@@ -82,6 +85,8 @@ conferir "a API lê a referência de deriva" contem "$(sql_api 'SELECT count(*) 
 conferir "a API grava no log de predição" contem "$(sql_api "SELECT has_table_privilege(current_user, 'operacao.log_predicao', 'INSERT');" 2>/dev/null || true)" "^t$"
 conferir "a API não apaga o log" contem "$(sql_api "SELECT has_table_privilege(current_user, 'operacao.log_predicao', 'DELETE');" 2>/dev/null || true)" "^f$"
 conferir "a API não altera a base" contem "$(sql_api "SELECT has_table_privilege(current_user, 'dados.registros_triagem', 'UPDATE') OR has_table_privilege(current_user, 'dados.registros_triagem', 'DELETE');" 2>/dev/null || true)" "^f$"
+conferir "a API lê a base da vertente diabetes" contem "$(sql_api 'SELECT count(*) FROM dados.registros_diabetes;' 2>/dev/null || true)" "^253680$"
+conferir "a API não altera a base da vertente diabetes" contem "$(sql_api "SELECT has_table_privilege(current_user, 'dados.registros_diabetes', 'UPDATE') OR has_table_privilege(current_user, 'dados.registros_diabetes', 'DELETE') OR has_table_privilege(current_user, 'dados.registros_diabetes', 'INSERT');" 2>/dev/null || true)" "^f$"
 conferir "a API não cria tabelas" nega sql_api "CREATE TABLE operacao.verificacao (id int);"
 conferir "a API não executa comandos no servidor" nega sql_api "COPY (SELECT 1) TO PROGRAM 'id';"
 conferir "a API não lê arquivos do servidor" nega sql_api "SELECT pg_read_file('/etc/passwd');"

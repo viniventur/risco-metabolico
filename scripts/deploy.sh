@@ -223,6 +223,10 @@ SQL
   local dono="postgresql://${VALOR[POSTGRES_USER]:-postgres}:${VALOR[POSTGRES_PASSWORD]}@banco:5432/${VALOR[POSTGRES_DB]:-app_local}"
   docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
     python -m app.dados.seed --arquivo /app/data/bruto/obesity.csv --tabela dados.registros_triagem || return 1
+  # A base da vertente diabetes, na tabela dela (idempotente do mesmo jeito).
+  docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
+    python -m app.diabetes.dados.seed \
+    --arquivo /app/data/bruto/diabetes/cdc_diabetes_health_indicators.csv || return 1
   docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
     python -m app.treino.distribuicao --carregar >/dev/null || return 1
 }

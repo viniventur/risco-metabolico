@@ -1,0 +1,19 @@
+{
+  "nome": "risco-metabolico",
+  "vertente": "diabetes",
+  "versao": null,
+  "dataset": {
+    "tabela_origem": "dados.registros_diabetes",
+    "insumo_de_semeadura": "data/bruto/diabetes/cdc_diabetes_health_indicators.csv",
+    "proveniencia": "data/bruto/diabetes/FONTE.md",
+    "snapshot": "data/processado/diabetes/snapshot-dee1f27e9777.parquet",
+    "versao_dados": "dee1f27e9777",
+    "sha256_snapshot": "dee1f27e977705110f731ed32285c2d852320240b9900f01dbc7420f47fac18f",
+    "sha256_conteudo": "b5a01b25f85981ca92ccc8d4bef5e66d7f3ce0752513b61fca6b6c8957679c7f",
+    "sha256_carga": "9f71fda9d4ae5f4878c99b9233b6a16accfa9a17c194116a6b78100540934964",
+    "pyarrow": "26.0.0",
+    "linhas": 253680,
+    "colunas": 22
+  },
+  "notebook_origem": "study/02_triagem_de_diabetes.ipynb"
+}

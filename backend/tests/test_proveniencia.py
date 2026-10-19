@@ -4,6 +4,9 @@ O regex vive em UM lugar só (scripts/padrao-proveniencia.txt). Este teste aplic
 MESMA lista de exclusão do script PowerShell — incluindo a si mesmo, o script, a
 auditoria do legado e os PLANO-*.md — senão reprova o repositório por causa do
 próprio teste (plano, §3.4 e §10.6).
+
+Cada base tem o seu FONTE.md (data/bruto/FONTE.md e data/bruto/diabetes/FONTE.md), e os
+nomes de autor de cada um só podem aparecer nele.
 """
 
 from __future__ import annotations
@@ -18,6 +21,8 @@ import pytest
 RAIZ = Path(__file__).resolve().parents[2]
 PADRAO_TXT = RAIZ / "scripts" / "padrao-proveniencia.txt"
 FONTE_MD = RAIZ / "data" / "bruto" / "FONTE.md"
+FONTE_MD_DIABETES = RAIZ / "data" / "bruto" / "diabetes" / "FONTE.md"
+FONTES = sorted((RAIZ / "data" / "bruto").rglob("FONTE.md"))
 
 DIRS_IGNORADOS = {
     ".git",
@@ -111,9 +116,15 @@ def test_sem_termos_proibidos_em_nomes() -> None:
     assert not ruins, "termos proibidos em nomes de arquivo/pasta:\n" + "\n".join(ruins)
 
 
-def test_citacao_presente_e_nao_pendente() -> None:
+def test_as_duas_bases_tem_fonte() -> None:
     assert FONTE_MD.exists(), "data/bruto/FONTE.md é obrigatório (§3.2)"
-    texto = FONTE_MD.read_text(encoding="utf-8")
+    assert FONTE_MD_DIABETES.exists(), "data/bruto/diabetes/FONTE.md é obrigatório"
+    assert FONTES == sorted([FONTE_MD, FONTE_MD_DIABETES])
+
+
+@pytest.mark.parametrize("fonte", FONTES, ids=_relativo)
+def test_citacao_presente_e_nao_pendente(fonte: Path) -> None:
+    texto = fonte.read_text(encoding="utf-8")
     bloco = re.search(r"(?s)citacao-inicio -->(.*?)<!-- citacao-fim", texto)
     assert bloco and bloco.group(1).strip(), "bloco de citação vazio"
     assert "PENDENTE" not in bloco.group(1), "citação ainda PENDENTE"
@@ -122,18 +133,19 @@ def test_citacao_presente_e_nao_pendente() -> None:
     )
 
 
-def _tokens_de_autores() -> list[str]:
-    texto = FONTE_MD.read_text(encoding="utf-8")
+def _tokens_de_autores(fonte: Path) -> list[str]:
+    texto = fonte.read_text(encoding="utf-8")
     bloco = re.search(r"(?s)citacao-inicio -->(.*?)<!-- citacao-fim", texto).group(1)
     autores = re.search(r"(?s)autores-inicio -->(.*?)<!-- autores-fim", bloco).group(1)
     return sorted({t for t in re.findall(r"\b[^\W\d_][^\W\d_]{2,}\b", autores) if t[0].isupper()})
 
 
-def test_nomes_de_terceiros_nao_vazam_do_bloco_de_citacao() -> None:
-    """A exceção da §3.2 vale só dentro de FONTE.md: nenhum nome de autor em outro arquivo."""
-    tokens = _tokens_de_autores()
+@pytest.mark.parametrize("fonte", FONTES, ids=_relativo)
+def test_nomes_de_terceiros_nao_vazam_do_bloco_de_citacao(fonte: Path) -> None:
+    """A exceção da §3.2 vale só no próprio FONTE.md: nenhum nome de autor em outro arquivo."""
+    tokens = _tokens_de_autores(fonte)
     assert tokens, "nenhum nome de autor encontrado no sub-bloco de autores"
-    outros = [p for p in _alvos_conteudo() if p.resolve() != FONTE_MD.resolve()]
+    outros = [p for p in _alvos_conteudo() if p.resolve() != fonte.resolve()]
     achados: list[str] = []
     for token in tokens:
         padrao = re.compile(rf"\b{re.escape(token)}\b")

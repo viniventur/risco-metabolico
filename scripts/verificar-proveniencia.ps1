@@ -1,6 +1,6 @@
 # Falha se qualquer termo proibido (lista negra, plano §3.3) aparecer no conteúdo
-# ou no nome de arquivo do repositório, ou se um nome de autor da citação de
-# data/bruto/FONTE.md tiver vazado para qualquer outro arquivo.
+# ou no nome de arquivo do repositório, ou se um nome de autor da citação de um
+# data/bruto/**/FONTE.md tiver vazado para qualquer outro arquivo.
 #
 # Uso: .\scripts\verificar-proveniencia.ps1 [-Arquivo <caminho>]
 #   sem -Arquivo: varre o repositório inteiro (pre-commit, CI, uso manual)
@@ -82,20 +82,24 @@ $falhas += @($alvosNome |
 # Os nomes de pessoa ficam no sub-bloco <!-- autores-inicio --> ... <!-- autores-fim -->
 # dentro do bloco de citação. Extrair tokens do bloco de citação INTEIRO reprovaria
 # palavras do título do conjunto ("Dataset", "Obesity", "Learning") em todo arquivo.
-$fonteMd = Join-Path $raiz 'data\bruto\FONTE.md'
-if (Test-Path -LiteralPath $fonteMd) {
-    $texto = Get-Content -LiteralPath $fonteMd -Raw -Encoding utf8
+# Uma base, um FONTE.md: data/bruto/FONTE.md (obesidade) e data/bruto/diabetes/FONTE.md. Os nomes
+# de cada um só valem NELE — o FONTE.md da outra base também conta como "outro arquivo".
+$fontes = @(Get-ChildItem -LiteralPath (Join-Path $raiz 'data\bruto') -Recurse -File -Filter 'FONTE.md')
+if ($fontes.Count -eq 0) { $falhas += 'citacao: nenhum FONTE.md em data/bruto' }
+foreach ($fonte in $fontes) {
+    $relFonte = Relativo $fonte.FullName
+    $texto = Get-Content -LiteralPath $fonte.FullName -Raw -Encoding utf8
     $bloco = [regex]::Match($texto, '(?s)citacao-inicio -->(.*?)<!-- citacao-fim').Groups[1].Value
     $autores = [regex]::Match($bloco, '(?s)autores-inicio -->(.*?)<!-- autores-fim').Groups[1].Value
     if ($bloco.Trim() -eq '' -or $bloco -match 'PENDENTE') {
-        $falhas += 'citacao: o bloco de citacao de data/bruto/FONTE.md esta vazio ou PENDENTE'
+        $falhas += "citacao: o bloco de citacao de $relFonte esta vazio ou PENDENTE"
     }
     # Tokens capitalizados de 3+ letras: os nomes próprios dos autores.
     $tokens = [regex]::Matches($autores, '\b\p{Lu}\p{L}{2,}\b') |
         ForEach-Object { $_.Value } | Sort-Object -Unique
     if ($Arquivo) { $outros = $alvosConteudo } else {
-        # O próprio FONTE.md sai da varredura: é o único lugar onde a exceção vale.
-        $outros = @($alvosConteudo | Where-Object { $_.FullName -ne (Get-Item -LiteralPath $fonteMd).FullName })
+        # O próprio FONTE.md sai da varredura: é o único lugar onde a exceção dele vale.
+        $outros = @($alvosConteudo | Where-Object { $_.FullName -ne $fonte.FullName })
     }
     foreach ($token in $tokens) {
         if ($outros.Count -eq 0) { break }

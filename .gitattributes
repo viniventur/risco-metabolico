@@ -2,6 +2,11 @@
 # dentro de imagens Linux, e CRLF num shebang vira "bad interpreter".
 * text=auto eol=lf
 
+# A cópia literal da base da vertente diabetes chega com CRLF. Sem conversão nenhuma, os bytes (e o
+# sha256 registrado em data/bruto/diabetes/FONTE.md e em operacao.carga_fonte) são os do arquivo
+# baixado em qualquer clone — com `eol=lf` o checkout limpo teria outro hash.
+data/bruto/diabetes/*.csv -text
+
 *.png binary
 *.jpg binary
 *.ico binary

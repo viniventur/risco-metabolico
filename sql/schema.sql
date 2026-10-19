@@ -79,6 +79,50 @@ CREATE TABLE IF NOT EXISTS dados.rotulos_escala (
     CONSTRAINT rotulos_pk PRIMARY KEY (coluna, valor)
 );
 
+-- ============ dados.registros_diabetes (vertente diabetes) ============
+-- A base da segunda vertente: o data.csv do repositório público (UCI 891), respostas reais e
+-- anonimizadas do BRFSS 2015. Tabela própria, e não colunas novas na de cima: as duas vertentes
+-- convivem sem que uma escreva nos dados da outra, e a versão anterior da API continua lendo o que
+-- lia (a volta automática do deploy depende disso). A coluna ID do arquivo É a posição da linha e
+-- vira linha_origem — a chave que torna o SELECT do snapshot determinístico, como acima.
+CREATE TABLE IF NOT EXISTS dados.registros_diabetes (
+    linha_origem integer PRIMARY KEY,
+    -- DIABETES-INICIO-GERADO: as 22 colunas de docs/dicionario-de-dados-diabetes.md, na ordem de
+    -- app/diabetes/dominio/features.py::COLUNAS_MAP, em snake_case minúsculo, com os TIPOS de
+    -- TIPOS_SQL (double precision / smallint / text; numeric e real são proibidos).
+    -- Escrito por `python -m app.diabetes.dados.schema --gerar`. NÃO editar à mão.
+    diabetes                           text             NOT NULL,
+    pressao_alta                       text             NOT NULL,
+    colesterol_alto                    text             NOT NULL,
+    exame_colesterol_5_anos            text             NOT NULL,
+    imc                                double precision NOT NULL,
+    fumou_100_cigarros                 text             NOT NULL,
+    teve_avc                           text             NOT NULL,
+    doenca_coronariana_ou_infarto      text             NOT NULL,
+    atividade_fisica_30_dias           text             NOT NULL,
+    fruta_diaria                       text             NOT NULL,
+    verdura_diaria                     text             NOT NULL,
+    consumo_pesado_alcool              text             NOT NULL,
+    cobertura_saude                    text             NOT NULL,
+    deixou_medico_por_custo            text             NOT NULL,
+    saude_geral                        smallint         NOT NULL,
+    dias_saude_mental_ruim             smallint         NOT NULL,
+    dias_saude_fisica_ruim             smallint         NOT NULL,
+    dificuldade_caminhar               text             NOT NULL,
+    sexo                               text             NOT NULL,
+    faixa_etaria                       smallint         NOT NULL,
+    escolaridade                       smallint         NOT NULL,
+    faixa_renda                        smallint         NOT NULL,
+    -- DIABETES-FIM-GERADO
+    carga_id     bigint NOT NULL REFERENCES operacao.carga_fonte (id)
+);
+
+COMMENT ON TABLE dados.registros_diabetes IS
+  'Base pública da vertente diabetes: respostas reais e anonimizadas do BRFSS 2015 (CDC, EUA), '
+  'na cópia do repositório público UCI (id 891). Proveniência completa em '
+  'data/bruto/diabetes/FONTE.md, entre <!-- citacao-inicio --> e <!-- citacao-fim -->. '
+  'Nenhum nome de autor é copiado para o banco.';
+
 -- ============ operacao.snapshot_treino ============
 -- O registro do que o CLI congelou. É a resposta formal a "com quais dados este modelo foi
 -- treinado" — uma tabela mutável não responderia isso.

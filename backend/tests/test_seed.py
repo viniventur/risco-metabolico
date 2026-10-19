@@ -78,8 +78,10 @@ def test_seed_e_idempotente(dsn: str) -> None:
     with psycopg.connect(dsn) as con:
         depois = con.execute("SELECT count(*) FROM dados.registros_triagem").fetchone()[0]
         cargas_depois = con.execute("SELECT count(*) FROM operacao.carga_fonte").fetchone()[0]
+        # A última carga DESTA tabela: operacao.carga_fonte também registra a da vertente diabetes.
         origem = con.execute(
-            "SELECT arquivo_origem FROM operacao.carga_fonte ORDER BY id DESC LIMIT 1"
+            "SELECT arquivo_origem FROM operacao.carga_fonte "
+            "WHERE tabela_destino = 'dados.registros_triagem' ORDER BY id DESC LIMIT 1"
         ).fetchone()[0]
     assert antes == depois == 2111
     assert cargas_antes == cargas_depois

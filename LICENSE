@@ -24,3 +24,7 @@ SOFTWARE.
 
 O conjunto de dados em data/bruto/obesity.csv tem licença própria (CC BY 4.0)
 e proveniência registrada em data/bruto/FONTE.md.
+
+O conjunto de dados em data/bruto/diabetes/cdc_diabetes_health_indicators.csv
+tem licença própria (CC0 1.0) e proveniência registrada em
+data/bruto/diabetes/FONTE.md.
