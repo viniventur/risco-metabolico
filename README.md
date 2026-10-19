@@ -180,7 +180,7 @@ python scripts\baixar_modelo.py --manifesto artifacts\diabetes\manifest.json --d
 
 # 4. A mesma stack da VPS: banco, API, nginx com o front e a retenção do log
 docker compose up -d --build        # site em http://127.0.0.1:8080 (nginx) e a API em http://127.0.0.1:8000/docs
-bash scripts/verificar-stack.sh     # o mesmo aceite do CI: 60 verificações, por dentro e por fora (no Git Bash do Windows, com MSYS_NO_PATHCONV=1)
+bash scripts/verificar-stack.sh     # o mesmo aceite do CI: 76 verificações, por dentro e por fora (no Git Bash do Windows, com MSYS_NO_PATHCONV=1)
 
 # 5. Front em modo de desenvolvimento
 Push-Location frontend

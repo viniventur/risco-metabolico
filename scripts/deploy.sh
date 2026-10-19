@@ -205,7 +205,7 @@ gravar_env() {
 #   * o dono do banco passa a usar a senha do .env (o Postgres só lê o ambiente ao criar o volume)
 #   * as bases são semeadas (idempotente por sha256: com o mesmo CSV não escreve nada) e as
 #     referências de deriva das duas vertentes são carregadas — pela imagem da API, com o DONO do
-#     banco, sem subir a API
+#     banco, sem subir a API; as da vertente diabetes, só se a imagem da API a tiver
 # Os arquivos são os da própria imagem do banco (database/Dockerfile), na versão que está subindo.
 preparar_banco() {
   # Sem os avisos "já existe, pulando" a cada deploy; erros continuam aparecendo.
@@ -223,17 +223,36 @@ SQL
   # O seed e a carga da distribuição precisam do dono (TRUNCATE + COPY); a DSN vai só para o
   # processo descartável, nunca para o .env nem para o serviço da API.
   local dono="postgresql://${VALOR[POSTGRES_USER]:-postgres}:${VALOR[POSTGRES_PASSWORD]}@banco:5432/${VALOR[POSTGRES_DB]:-app_local}"
+  # A vertente diabetes só existe nas imagens que a trazem. Na volta automática (passo 6), este
+  # script é o da versão nova e a imagem da API é a da anterior: se ela não tem a vertente (saída 3),
+  # os dois passos dela ficam de fora e o banco fica como a versão anterior o deixava (ADR 0013).
+  # Qualquer outra falha para o deploy, como nos outros passos.
+  local diabetes=1 saida=0
+  docker compose run --rm --no-deps -T api python -c \
+    'import importlib.util as u, sys; sys.exit(0 if u.find_spec("app.diabetes") else 3)' >/dev/null || saida=$?
+  case $saida in
+    0) ;;
+    3)
+      diabetes=0
+      passo "A imagem da API é anterior à vertente diabetes: sem o seed e a referência de deriva dela"
+      ;;
+    *) return 1 ;;
+  esac
   docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
     python -m app.dados.seed --arquivo /app/data/bruto/obesity.csv --tabela dados.registros_triagem || return 1
   # A base da vertente diabetes, na tabela dela (idempotente do mesmo jeito).
-  docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
-    python -m app.diabetes.dados.seed \
-    --arquivo /app/data/bruto/diabetes/cdc_diabetes_health_indicators.csv || return 1
+  if ((diabetes)); then
+    docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
+      python -m app.diabetes.dados.seed \
+      --arquivo /app/data/bruto/diabetes/cdc_diabetes_health_indicators.csv || return 1
+  fi
   docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
     python -m app.treino.distribuicao --carregar >/dev/null || return 1
   # A referência de deriva da vertente diabetes, nas tabelas dela (operacao.diabetes_*).
-  docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
-    python -m app.diabetes.treino.distribuicao --carregar >/dev/null || return 1
+  if ((diabetes)); then
+    docker compose run --rm --no-deps -T -e BANCO_URL="$dono" api \
+      python -m app.diabetes.treino.distribuicao --carregar >/dev/null || return 1
+  fi
 }
 
 conferir_health() {

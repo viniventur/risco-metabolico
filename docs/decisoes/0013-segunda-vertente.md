@@ -154,8 +154,9 @@ Na F6 entram só textos: esta ADR e a 0014, `docs/modelagem-diabetes.md`, as se�
 - **Tudo é aditivo.** O banco ganha tabelas por `CREATE TABLE IF NOT EXISTS`. A view e a função de consolidação são trocadas por `CREATE OR REPLACE`, com as mesmas colunas e a mesma assinatura. Nada é apagado nem renomeado, e nenhuma coluna existente muda.
 - **A versão anterior não enxerga a vertente.** A imagem v2 não lê nenhuma tabela nova. As consultas de deriva dela filtram pela versão do modelo e dos dados, e as linhas de diabetes do log nunca têm as dela.
 - **A volta reaplica o schema anterior.** A volta automática do `deploy.sh`, ou um `git revert` com push, reaplica o `schema.sql` da versão anterior. As tabelas da vertente ficam, sem uso, e a view e a função voltam à definição antiga.
+- **Na volta automática, o script é o novo e a imagem da API é a anterior.** O `preparar_banco` pergunta à imagem se ela tem a vertente; sem ela, pula o seed e a referência de deriva da vertente. A F7 achou o defeito: sem essa pergunta, a volta parava no seed da vertente, com o banco na versão anterior e a API e o web ainda nas imagens novas.
 - **Um cuidado, só para uma volta longa.** A função antiga consolidaria as linhas de diabetes do log nas faixas NULL das 13 categóricas da obesidade, o defeito que a F4 corrigiu (ADR 0014, decisão 3). Ela só consolida linhas mais velhas que `RETENCAO_DIAS`. Uma volta curta não chega lá; uma que fique no ar mais que isso, com tráfego de diabetes no log, chega.
-- **O primeiro deploy cai por cima do volume da v2**, que é o que a VPS tem. O schema reaplicado cria as tabelas, o seed carrega a base uma vez (idempotente por sha256) e a referência de deriva da vertente é carregada. A F7 confere esse caminho e o do volume vazio.
+- **O primeiro deploy cai por cima do volume da v2**, que é o que a VPS tem. O schema reaplicado cria as tabelas, o seed carrega a base uma vez (idempotente por sha256) e a referência de deriva da vertente é carregada. A F7 conferiu esse caminho, o do volume vazio e as duas voltas: nada do que a v2 gravou mudou.
 
 ## Consequências
 

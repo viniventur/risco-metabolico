@@ -250,7 +250,10 @@ O `count(*)` tem de bater com as linhas do `FONTE.md` da vertente.
 **Voltar uma versão.** A volta, automática ou por `git revert`, reaplica o `schema.sql` anterior:
 
 - as tabelas da vertente ficam, sem uso;
-- a view e a função de consolidação voltam à definição antiga.
+- a view e a função de consolidação voltam à definição antiga;
+- na volta automática, quem roda é o `deploy.sh` novo, com a imagem anterior da API. Ele vê que
+  ela não tem a vertente e pula o seed e a referência de deriva dela ("A imagem da API é anterior
+  à vertente diabetes" no log do deploy).
 
 A única ressalva é uma volta longa. Se a versão sem a vertente ficar no ar mais que `RETENCAO_DIAS`
 com linhas de diabetes no log, a consolidação antiga as poria nas faixas NULL da obesidade (ADR 0014,
