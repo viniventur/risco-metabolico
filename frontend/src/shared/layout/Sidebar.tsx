@@ -35,7 +35,7 @@ export function Sidebar({ recolhido = false, aoAlternarRecolhido, aoNavegar, idD
         {recolhido ? null : (
           <div className="min-w-0 leading-tight">
             <p className="truncate text-sm font-semibold tracking-tight text-foreground">Triagem Metabólica</p>
-            <p className="truncate text-[11px] text-muted-foreground">dados fictícios · triagem</p>
+            <p className="truncate text-[11px] text-muted-foreground">triagem, não diagnóstico</p>
           </div>
         )}
       </div>

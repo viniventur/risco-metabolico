@@ -55,12 +55,14 @@ export function Heroi() {
           {/* O símbolo, com a área de proteção do manual (3 m = 3/19 do lado) até o selo ao lado. */}
           <div className="flex items-center gap-3">
             <Marca className="size-12" />
-            <p className="inline-flex items-center gap-2 rounded-full border border-warning/30 bg-warning/8 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
-            <span aria-hidden="true" className="relative flex size-2">
+            {/* As duas bases têm naturezas opostas e o selo diz as duas: a de obesidade é fictícia; a de
+                diabetes, respostas reais e anonimizadas. Longo para uma linha no celular: o raio aceita a quebra. */}
+            <p className="inline-flex items-center gap-2 rounded-2xl border border-warning/30 bg-warning/8 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
+            <span aria-hidden="true" className="relative flex size-2 shrink-0">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-warning/60 motion-reduce:animate-none" />
               <span className="relative inline-flex size-2 rounded-full bg-warning" />
             </span>
-              Dados fictícios · triagem, não diagnóstico
+              Obesidade: dados fictícios · Diabetes: dados reais e anonimizados · triagem, não diagnóstico
             </p>
           </div>
           {/* O gradiente (background-clip: text) só pinta dentro da caixa do h1: com a entrelinha apertada, a
