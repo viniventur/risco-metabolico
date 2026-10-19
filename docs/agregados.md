@@ -70,3 +70,38 @@ Também: o exemplo do plano emitia colunas sem alias (`SELECT 'x'::text, ...`); 
 | `@divergencia` | Agregado | ADR | Situação |
 |---|---|---|---|
 | — | — | — | nenhuma divergência aceita até agora |
+
+## Vertente diabetes
+
+Os 5 artefatos de `artifacts/diabetes/agregados/` nascem de `sql/diabetes/agregados/*.sql`, com o contrato desta página inteiro: o cabeçalho `@`, o formato longo único, as sete invariantes e as regras de todo `.sql`. A vertente não tem projeção de pontos.
+
+O materializador é o mesmo, `app.treino.agregar`, por import e sem edição. `python -m app.diabetes.treino.agregar` o chama sobre `dados.registros_diabetes` e carimba em cada JSON o `versao_dados` do snapshot da vertente. Ele roda fora da transação do snapshot (`python -m app.diabetes.treino snapshot`), como o `agregados` da obesidade. Por isso confere antes que a carga corrente da tabela é a que esse snapshot congelou (`operacao.carga_fonte` contra `operacao.snapshot_treino`).
+
+| Arquivo | Artefato | O que mede |
+|---|---|---|
+| `sql/diabetes/agregados/resumo.sql` | `resumo.json` | respostas, com diabetes, a prevalência na base e o IMC médio |
+| `sql/diabetes/agregados/prevalencia-por-idade.sql` | `prevalencia-por-idade.json` | por faixa etária (as 13 do BRFSS): contagem, % do total, com diabetes e a prevalência dentro da faixa |
+| `sql/diabetes/agregados/prevalencia-por-imc.sql` | `prevalencia-por-imc.json` | o mesmo por faixa de IMC, com os cortes e os nomes de `app/dominio/regras.py::classificar_imc` (os da resposta da predição) |
+| `sql/diabetes/agregados/piramide-idade-sexo.sql` | `piramide-idade-sexo.json` | o mesmo por faixa etária × sexo |
+| `sql/diabetes/agregados/fatores.sql` | `fatores.json` | o mesmo para cada resposta das 16 variáveis categóricas: as 13 de sim ou não, a saúde geral, a escolaridade e a renda |
+
+O que muda em relação aos agregados da obesidade:
+
+- **A medida nova é a prevalência.** É `n_diabetes` ÷ `contagem` do grupo, em pontos percentuais (0 a 100), como o `pct`. Ela é a prevalência **na base**, sem pesos amostrais, não na população.
+- **Supressão.** Com `@amostra_minima: 15`, só a prevalência de um grupo com menos de 15 respostas sai suprimida, o mesmo corte das médias da obesidade. As contagens nunca são suprimidas, e o resumo, como o da obesidade, também não: quem lê o recorte vê o `n` ao lado.
+- **Domínio completo.** Faixa etária, faixa de IMC e as respostas de cada fator entram por `LEFT JOIN` contra o domínio, e grupo ausente vira `n = 0`. Os literais do SQL são conferidos contra `app/diabetes/dominio/regras.py` por `tests/diabetes/test_dominios_sql_diabetes.py`.
+- **Dimensões com nome de coluna.** O `fator` de `fatores.sql` é o nome da coluna no banco, o mesmo `campo` de `/diabetes/painel/por-categoria`. O rótulo de exibição vai na resposta da API (`campos`).
+- **O que fica de fora.** Idade, sexo e IMC têm gráfico próprio. Os dois "dias de saúde ruim", de 0 a 30, ficam na Consulta e em `/diabetes/painel/por-categoria`.
+
+**Runtime e paridade.** Como na obesidade, os JSON não são a fonte do painel em runtime.
+
+- `/diabetes/painel/*` é servido de `data/processado/diabetes/base_painel.parquet` em memória, com tipos pequenos (`app/diabetes/dominio/agregados.py::BasePainelDiabetes`).
+- Essa base é derivada do snapshot sem banco: pelo `agregar` e, no build da imagem, por `python -m app.diabetes.treino.painel`.
+- `backend/tests/diabetes/test_paridade_agregados_diabetes.py` compara os 5 JSON com `BasePainelDiabetes.agregado(id)` sem filtro: o mesmo conjunto de linhas, a mesma ordem, `n` e supressão exatos e valores com `abs = 1e-9`, a mesma tolerância e sem componente relativa.
+- `tools/verificar-cabecalhos-sql.py` confere os 5 cabeçalhos, que eles produzem exatamente os 5 JSON e que o `TOLERANCIA` desse teste coincide com `CLASSES_MEDIDA`.
+
+Quem manda quando os dois lados discordam é o SQL (ADR 0006). As `@origem` apontam para a seção "Exploração" do notebook 02, e nos valores que também aparecem lá o notebook é a fonte de verdade.
+
+| `@divergencia` | Agregado | ADR | Situação |
+|---|---|---|---|
+| — | — | — | nenhuma divergência aceita até agora |

@@ -23,6 +23,7 @@ from app.diabetes.dominio.agregados import BasePainelDiabetes
 from app.diabetes.dominio.relatorio import FRASE_DADOS_REAIS
 from app.diabetes.nucleo.artefato import RegistroDiabetes
 from app.dominio.agregados import BasePainel
+from app.dominio.relatorio import FRASE_DADOS_FICTICIOS
 from app.nucleo.banco import Banco
 from app.nucleo.erros import ArtefatoIndisponivel, registrar_handlers
 from app.nucleo.limite_taxa import registrar_limitador
@@ -110,11 +111,17 @@ def criar_app() -> FastAPI:
     app = FastAPI(
         title=CONFIG.nome_app,
         version="2.0.0",
-        summary="Triagem metabólica: 16 respostas, distribuição entre 7 faixas e risco acumulado.",
+        summary=(
+            "Triagem metabólica em duas vertentes: obesidade (16 respostas, distribuição entre 7 "
+            "faixas e risco acumulado) e diabetes (10 respostas, probabilidade e limiar)."
+        ),
+        # A frase de dados de cada vertente, literal (decisão D3): a base da obesidade é fictícia; a
+        # da diabetes, real e anonimizada. A tag `diabetes` repete a dela, abaixo.
         description=(
-            "Os dados exibidos são fictícios e servem apenas para demonstração. "
-            "Nenhum registro corresponde a uma pessoa real. "
-            "Esta ferramenta é de triagem e não substitui avaliação clínica."
+            "Vertente de obesidade: "
+            + FRASE_DADOS_FICTICIOS
+            + "\n\nVertente diabetes (as rotas de `/diabetes`, tag `diabetes`): "
+            + FRASE_DADOS_REAIS
         ),
         lifespan=lifespan,
         docs_url="/docs",

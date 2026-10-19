@@ -2611,8 +2611,8 @@
     }
   },
   "info": {
-    "description": "Os dados exibidos são fictícios e servem apenas para demonstração. Nenhum registro corresponde a uma pessoa real. Esta ferramenta é de triagem e não substitui avaliação clínica.",
-    "summary": "Triagem metabólica: 16 respostas, distribuição entre 7 faixas e risco acumulado.",
+    "description": "Vertente de obesidade: Os dados exibidos são fictícios e servem apenas para demonstração. Nenhum registro corresponde a uma pessoa real. Esta ferramenta é de triagem e não substitui avaliação clínica.\n\nVertente diabetes (as rotas de `/diabetes`, tag `diabetes`): Os dados exibidos são respostas reais e anonimizadas de uma pesquisa pública de saúde dos Estados Unidos (BRFSS 2015, CDC) e servem apenas para demonstração. Nenhum registro identifica uma pessoa. Esta ferramenta é de triagem e não substitui avaliação clínica.",
+    "summary": "Triagem metabólica em duas vertentes: obesidade (16 respostas, distribuição entre 7 faixas e risco acumulado) e diabetes (10 respostas, probabilidade e limiar).",
     "title": "Triagem Metabólica",
     "version": "2.0.0"
   },

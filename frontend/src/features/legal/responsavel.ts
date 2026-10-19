@@ -40,7 +40,7 @@ export const RESPONSAVEL: Responsavel = {
 };
 
 /** Versão do documento. Mudou algo importante? Troque a data e some uma linha ao histórico do texto. */
-export const VERSAO_DOCUMENTO = { numero: "1.0", data: "2026-10-18" } as const;
+export const VERSAO_DOCUMENTO = { numero: "1.1", data: "2026-10-19" } as const;
 
 const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
 

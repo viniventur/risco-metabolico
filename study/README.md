@@ -77,9 +77,30 @@ O que ele decide, nesta ordem e com o critério escrito **antes** de cada mediç
 |---|---|---|
 | 2 | leitura do CSV, `colunas_map` e `traducoes` | `backend/app/diabetes/dominio/features.py::preparar_base` — o backend lê o snapshot congelado, nunca o CSV |
 | 3 | `arredondar_imc` e a célula de paridade | `backend/app/diabetes/dominio/features.py::arredondar_imc`; a célula prova por `assert_frame_equal` que as duas preparações e os dois arredondamentos são idênticos |
-| 14 | `ENTRADAS`, o split e as dobras | o pipeline de treino da vertente (F3) |
-| 15 | `preprocessador`, `montar`, `xgb`/`lgbm` | o pipeline de treino da vertente (F3), com os passos nomeados `imc`, `colunas` e `modelo` |
-| 29 | `limiar_para_recall` e `ponto_de_operacao` | a avaliação do CLI de treino da vertente (F3) |
-| 38 | `CONGELADO` | o contrato dos números do CLI: entradas, split, algoritmo, hiperparâmetros, desbalanceamento, calibração e o critério do limiar |
+| 14 | `ENTRADAS`, o split e as dobras | `backend/app/diabetes/dominio/features.py::ENTRADAS`; `backend/app/diabetes/treino/pipeline.py::separar`, `dividir` e `dobras` |
+| 15 | `preprocessador` e `montar` (ramo das árvores, sem SMOTE) | `treino/pipeline.py::montar_preprocessamento` e `montar_pipeline`, com os passos nomeados `imc`, `colunas` e `modelo` |
+| 15 | `xgb`, com os ajustes do escolhido (célula 20) | `treino/pipeline.py::HIPERPARAMETROS`, literalmente |
+| 15 | `validar` | `treino/avaliacao.py::validar`: as mesmas 5 dobras, as predições fora da dobra e as métricas por dobra |
+| 29 | `limiar_para_recall` e `ponto_de_operacao` | `treino/avaliacao.py`, com os mesmos nomes; o critério escrito é `CRITERIO_LIMIAR`, e a tabela de alvos de recall vira `artifacts/diabetes/metricas/pontos-de-operacao.json` |
+| 32 | a avaliação final, uma vez, no teste | `treino/avaliacao.py::avaliar_teste` e `matriz_confusao` → `metricas_teste` do manifest e `metricas/matriz-confusao.json` |
+| 34 | o desempenho por sexo e por idade | `treino/avaliacao.py::por_grupo` → `metricas/por-grupo.json` |
+| 38 | `CONGELADO` | o contrato dos números do CLI (`python -m app.diabetes.treino`): as constantes de `treino/pipeline.py` e `treino/avaliacao.py` |
 
-As métricas publicadas da vertente não são as deste notebook: são as do manifest (`artifacts/diabetes/manifest.json`), que o CLI escreve ao treinar sobre o snapshot congelado do banco.
+As métricas publicadas da vertente não são as deste notebook: são as do manifest (`artifacts/diabetes/manifest.json`), que o CLI escreve ao treinar sobre o snapshot congelado do banco. Os critérios e as tabelas de cada escolha estão em `docs/modelagem-diabetes.md`; o limiar, a deriva e a reprodutibilidade entre plataformas, na ADR 0014.
+
+### O que está congelado (contrato dos números)
+
+A célula 38 imprime o que o CLI reproduz. O `verificar` compara com o manifest as entradas, o algoritmo, os hiperparâmetros, o desbalanceamento, a calibração e o critério do limiar.
+
+- As 10 entradas, na ordem de `ENTRADAS`, que é a ordem das colunas que o XGBoost vê.
+- `train_test_split(test_size=0.2, random_state=42, stratify=y)` e `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` no treino.
+- `XGBClassifier` com os hiperparâmetros da célula 38, literalmente.
+- O desbalanceamento: `nenhum`. A calibração: `nenhuma`.
+- O critério do limiar: o maior com recall ≥ 0,80 nas predições fora da dobra do treino. O teste dá um segundo ponto de leitura com a precisão fixa em 0,30.
+- Os três grupos de idade da célula 34: 18 a 44, 45 a 64, 65 ou mais.
+
+### Paridade com o backend
+
+- **A preparação.** A célula 3 prova por `assert_frame_equal` que a preparação do notebook e a de `preparar_base` produzem o mesmo DataFrame, e que o arredondamento do IMC dos dois lados é o mesmo. Fora do venv do backend, ela avisa que a paridade não foi conferida naquela execução.
+- **O modelo.** O `python -m app.diabetes.treino verificar` roda no CI e retreina a configuração congelada sobre o snapshot do banco. Ele exige o mesmo limiar, as mesmas métricas e as mesmas predições de ouro do manifest. Na plataforma do treino, o critério é o sha256 exato; noutra, as tolerâncias medidas da ADR 0014.
+- **O que fica no notebook.** As baselines, o A/B das entradas, os tratamentos do desbalanceamento e a calibração isotônica são estudo: o CLI não os refaz.

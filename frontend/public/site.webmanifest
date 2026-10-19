@@ -1,7 +1,7 @@
 {
   "name": "Triagem Metabólica",
   "short_name": "Triagem",
-  "description": "Distribuição de probabilidade entre 7 faixas de composição corporal e um risco acumulado, a partir de 16 respostas. Dados fictícios; triagem, não diagnóstico.",
+  "description": "Duas triagens de demonstração — obesidade (16 respostas, 7 faixas de composição corporal e risco acumulado, dados fictícios) e diabetes (10 respostas, probabilidade e limiar, respostas reais e anonimizadas do BRFSS 2015). Triagem, não diagnóstico.",
   "lang": "pt-BR",
   "start_url": "/",
   "scope": "/",

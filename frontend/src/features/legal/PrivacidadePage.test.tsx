@@ -30,7 +30,7 @@ describe("Política de Privacidade", () => {
   it("o título, a data, o sumário apontando para cada seção e o canal de privacidade", () => {
     renderizar();
     expect(screen.getByRole("heading", { level: 1, name: "Política de Privacidade" })).toBeInTheDocument();
-    expect(screen.getByText(/Última atualização: 18 de outubro de 2026 · Versão 1\.0/)).toBeInTheDocument();
+    expect(screen.getByText(/Última atualização: 19 de outubro de 2026 · Versão 1\.1/)).toBeInTheDocument();
     const sumario = screen.getByRole("navigation", { name: "Nesta página" });
     const itens = within(sumario).getAllByRole("link");
     expect(itens.length).toBeGreaterThanOrEqual(14);

@@ -1,14 +1,17 @@
 # Triagem Metabólica
 
 > Os dados exibidos são fictícios e servem apenas para demonstração. Nenhum registro corresponde a uma pessoa real. Esta ferramenta é de triagem e não substitui avaliação clínica.
+>
+> Os dados exibidos são respostas reais e anonimizadas de uma pesquisa pública de saúde dos Estados Unidos (BRFSS 2015, CDC) e servem apenas para demonstração. Nenhum registro identifica uma pessoa. Esta ferramenta é de triagem e não substitui avaliação clínica.
 
 [![ci](https://github.com/viniventur/risco-metabolico/actions/workflows/ci.yml/badge.svg)](https://github.com/viniventur/risco-metabolico/actions/workflows/ci.yml)
 [![modelo](https://img.shields.io/badge/modelo-2.0.0-blue)](https://github.com/viniventur/risco-metabolico/releases/tag/v2.0.0)
+[![diabetes](https://img.shields.io/badge/diabetes-1.0.0-blue)](https://github.com/viniventur/risco-metabolico/releases/tag/diabetes-v1.0.0)
 [![licença](https://img.shields.io/badge/licen%C3%A7a-MIT-green)](LICENSE)
 
-Um microserviço de machine learning que recebe **16 respostas** sobre medidas corporais e hábitos e devolve, em milissegundos, a **distribuição de probabilidade entre 7 faixas** de composição corporal mais um **risco metabólico acumulado**. A saída **ordena prioridade de atenção**; ela não fecha diagnóstico.
+Um microserviço de machine learning em duas vertentes, lado a lado. A de **obesidade** recebe **16 respostas** sobre medidas corporais e hábitos e devolve, em milissegundos, a **distribuição de probabilidade entre 7 faixas** de composição corporal mais um **risco metabólico acumulado**, sobre uma base pública majoritariamente sintética. A de **diabetes** recebe **10 respostas** que se sabem antes de qualquer diagnóstico e devolve a **probabilidade de já ter recebido o diagnóstico**, comparada a um **limiar de triagem**, sobre respostas reais e anonimizadas do BRFSS 2015 ([seção 18](#18-a-vertente-diabetes)) — daí as duas frases acima. Nas duas, a saída **ordena prioridade de atenção**; ela não fecha diagnóstico.
 
-Em volta do modelo: uma API FastAPI com contrato versionado; um front React com simulador, painel analítico, notebook de estudo renderizado e uma tela de monitoramento de deriva; um Postgres que guarda a base de origem e o log de predições; e o SQL do projeto (schema, agregados do painel, consultas de deriva) versionado em `sql/`. **O diferencial não é o modelo — é o serviço em volta dele**, e a auditoria do modelo herdado que motivou cada decisão (seção 7).
+Em volta dos dois modelos: uma API FastAPI com contrato versionado; um front React com, para cada vertente, simulador, painel analítico, notebook de estudo renderizado e tela de monitoramento de deriva; um Postgres que guarda as duas bases de origem e o log de predições; e o SQL do projeto (schema, agregados do painel, consultas de deriva) versionado em `sql/`. **O diferencial não é o modelo — é o serviço em volta dele**, e a auditoria do modelo herdado que motivou cada decisão (seção 7).
 
 ## Sumário
 
@@ -29,6 +32,7 @@ Em volta do modelo: uma API FastAPI com contrato versionado; um front React com 
 15. [Deploy e variáveis de ambiente](#15-deploy-e-variáveis-de-ambiente)
 16. [Testes e portões](#16-testes-e-portões)
 17. [Mapa do repositório e documentação](#17-mapa-do-repositório-e-documentação)
+18. [A vertente diabetes](#18-a-vertente-diabetes)
 
 ## 1. Demonstração ao vivo
 
@@ -162,10 +166,17 @@ uv run --extra treino python -m app.dados.seed              # idempotente; grava
 uv run --extra treino python -m app.dados.schema --conferir # banco == sql/schema.sql == dicionário de dados
 uv run --extra treino python -m app.treino congelar         # snapshot + agregados na mesma transação
 uv run --extra treino python -m app.treino.distribuicao --carregar   # referência de deriva (tela de monitoramento)
+# A vertente diabetes (seção 18): a base, o snapshot, os agregados com a base do painel e a referência de deriva
+uv run --extra treino python -m app.diabetes.dados.seed
+uv run --extra treino python -m app.diabetes.dados.schema --conferir
+uv run --extra treino python -m app.diabetes.treino snapshot
+uv run --extra treino python -m app.diabetes.treino.agregar             # gera data/processado/diabetes/base_painel.parquet
+uv run --extra treino python -m app.diabetes.treino.distribuicao --carregar
 Pop-Location
 
-# 3. O artefato de modelo: baixa o .pkl do release v<versao> e confere o sha256 do manifest
-python scripts\baixar_modelo.py --manifesto artifacts\manifest.json --destino models
+# 3. O artefato de modelo de cada vertente: baixa o .pkl do release do manifest e confere o sha256
+python scripts\baixar_modelo.py --manifesto artifacts\manifest.json --destino models            # release v<versao>
+python scripts\baixar_modelo.py --manifesto artifacts\diabetes\manifest.json --destino models   # release diabetes-v<versao>
 
 # 4. A mesma stack da VPS: banco, API, nginx com o front e a retenção do log
 docker compose up -d --build        # site em http://127.0.0.1:8080 (nginx) e a API em http://127.0.0.1:8000/docs
@@ -178,7 +189,7 @@ npm run dev                         # http://localhost:5173 — fala com http://
 Pop-Location
 ```
 
-No compose, a API entra no banco com o papel `triagem_api`, de menor privilégio (`sql/usuario-api.sh`); os comandos de CLI acima usam o dono `postgres`, local e descartável. Para rodar a API fora do contêiner (depuração), de `backend/`: `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000` com `BANCO_URL` acima, `BANCO_HABILITADO=true`, `N_MINIMO_DERIVA=200` e `LIMITE_TAXA_ATIVO=false` no ambiente ou no `.env` (copie de `.env.example`).
+No compose, a API entra no banco com o papel `triagem_api`, de menor privilégio (`sql/usuario-api.sh`); os comandos de CLI acima usam o dono `postgres`, local e descartável. Para rodar a API fora do contêiner (depuração), de `backend/`: `uv run uvicorn app.main:app --host 127.0.0.1 --port 8000` com `BANCO_URL` acima, `BANCO_HABILITADO=true`, `N_MINIMO_DERIVA=200`, `N_MINIMO_DERIVA_DIABETES=300` e `LIMITE_TAXA_ATIVO=false` no ambiente ou no `.env` (copie de `.env.example`). A da vertente diabetes é opcional: sem ela, só a deriva dessa vertente fica indisponível.
 
 **Armadilha do `initdb`:** os scripts de `/docker-entrypoint-initdb.d` só rodam quando o volume está vazio — depois de alterar `sql/schema.sql`, rode `docker compose down -v` antes de subir de novo, e semeie outra vez.
 
@@ -213,7 +224,7 @@ A auditoria do artefato legado (um `.pkl` de XGBoost, 43 features) encontrou qua
 
 **Serviço:** backend, front e banco rodam em contêineres na VPS do autor, sempre ligados; não há plano gratuito hibernando. O plano previa uma nota de *cold start* "se o provedor hibernar" — não se aplica. O front ainda faz `GET /health` ao montar e, se a API demora, mostra "Acordando o modelo…" num selo da barra do topo, o que cobre um deploy ou um reinício; o pipeline é carregado no `lifespan`, não na primeira requisição, então `/health` é honesto.
 
-**Banco:** o produto foi desenhado para um Postgres que pausava por inatividade, e o desenho ficou: **o painel inteiro abre sem o banco, e só a tela de monitoramento degrada, com aviso.** Hoje isso cobre um deploy, um reinício ou uma falha do contêiner. Comportamento endpoint a endpoint com o banco fora do ar:
+**Banco:** o produto foi desenhado para um Postgres que pausava por inatividade, e o desenho ficou: **o painel inteiro abre sem o banco, e só as telas de monitoramento degradam, com aviso.** Hoje isso cobre um deploy, um reinício ou uma falha do contêiner. Comportamento endpoint a endpoint com o banco fora do ar (as rotas de `/diabetes` se comportam como as suas equivalentes):
 
 | Endpoint | Com o banco fora | Código |
 |---|---|---|
@@ -221,7 +232,7 @@ A auditoria do artefato legado (um `.pkl` de XGBoost, 43 features) encontrou qua
 | `POST /predicoes`, `/predicoes/lote`, `/predicoes/relatorio` | nada muda: o log é enfileirado e, se preciso, descartado e contado | 200 |
 | `GET /monitoramento/deriva` | `disponivel: false` com `motivo`; o front mostra faixa de aviso, nunca tela de erro | 200 |
 | `GET /health` | `banco: "indisponivel"`, `log_predicao: "degradado"`, `logs_descartados: N` | 200 |
-| `GET /ready` | 200 assim que artefato e agregados carregaram — **o banco não entra** | 200 |
+| `GET /ready` | 200 assim que os artefatos e as bases do painel das duas vertentes carregaram — **o banco não entra** | 200 |
 
 A retenção do log de predição (`operacao.manutencao_log`, 90 dias e um teto de linhas) roda no serviço `retencao-log` do compose, ao lado do banco, ao subir e a cada 7 dias — o Postgres não publica porta nenhuma, nem na VPS nem localmente, então nada de fora precisa alcançá-lo.
 
@@ -242,13 +253,15 @@ Em produção some a vantagem do processo local: rede, TLS e o proxy do nginx. O
 
 ## 10. Fonte de dados e licença
 
-A base é o conjunto público *Estimation of Obesity Levels Based On Eating Habits and Physical Condition* (UCI Machine Learning Repository, id 544, licença **CC BY 4.0**): 2.111 registros × 17 colunas, dos quais **77 % foram gerados sinteticamente pelos próprios autores**. A citação completa, o DOI do conjunto e do artigo de origem e a licença estão em [`data/bruto/FONTE.md`](data/bruto/FONTE.md) — o único arquivo do repositório onde os nomes dos autores aparecem, por decisão de proveniência, e um portão (`scripts/verificar-proveniencia.ps1`, no pre-commit e no CI) garante que não foram copiados para nenhum outro.
+A base da vertente de obesidade é o conjunto público *Estimation of Obesity Levels Based On Eating Habits and Physical Condition* (UCI Machine Learning Repository, id 544, licença **CC BY 4.0**): 2.111 registros × 17 colunas, dos quais **77 % foram gerados sinteticamente pelos próprios autores**. A citação completa, o DOI do conjunto e do artigo de origem e a licença estão em [`data/bruto/FONTE.md`](data/bruto/FONTE.md) — o único arquivo do repositório onde os nomes dos autores aparecem, por decisão de proveniência, e um portão (`scripts/verificar-proveniencia.ps1`, no pre-commit e no CI) garante que não foram copiados para nenhum outro.
 
 As duas afirmações convivem de propósito: a interface diz que nenhum registro é de pessoa real (e nenhuma leitura epidemiológica das distribuições é válida); a documentação credita a fonte. **A proveniência acompanha o dado até dentro do banco:** o seed recusa semear se o bloco de citação estiver vazio, grava em `operacao.carga_fonte` o `sha256` do CSV e do próprio `FONTE.md`, `sql/schema.sql` carrega um `COMMENT ON TABLE` apontando para a citação, e `python -m app.dados.schema --conferir` falha se o `FONTE.md` mudou desde a semeadura. O dicionário das 17 colunas (nome no CSV, no modelo e no banco) está em [`docs/dicionario-de-dados.md`](docs/dicionario-de-dados.md).
 
+A base da vertente diabetes, de respostas reais e anonimizadas do BRFSS 2015 sob licença CC0 1.0, tem o seu `FONTE.md`, com o mesmo portão, e o seu dicionário ([seção 18](#18-a-vertente-diabetes)).
+
 ## 11. Autoria
 
-**Vinícius Ventura.** Código sob licença [MIT](LICENSE); dados sob CC BY 4.0, creditados em `data/bruto/FONTE.md`.
+**Vinícius Ventura.** Código sob licença [MIT](LICENSE). Os dados têm licença própria, registrada também no `LICENSE`: CC BY 4.0 na vertente de obesidade, creditada em `data/bruto/FONTE.md`, e CC0 1.0 na de diabetes, creditada em `data/bruto/diabetes/FONTE.md`.
 
 No front, os créditos ("Desenvolvido por", com a marca do autor e o link para [viniciusventura.com.br](https://viniciusventura.com.br)) ficam no pé do menu lateral, no fim do Início, na Política de Privacidade e no 404 (`frontend/src/shared/autor`). A **Política de Privacidade** fica em `/privacidade`, com link no rodapé de toda tela: o texto mora em `frontend/src/features/legal/politica-privacidade.md` e os dados do responsável e os prazos (retenção do log, rodízio dos registros técnicos, janela do limite) em `responsavel.ts` — mudou um prazo na infraestrutura, muda lá.
 
@@ -283,13 +296,13 @@ No front, os créditos ("Desenvolvido por", com a marca do autor e o link para [
 
 Hospedagem na **VPS do autor**, decidida em [ADR 0009](docs/decisoes/0009-provedor-de-hospedagem.md) e descrita passo a passo em [`docs/deploy-vps.md`](docs/deploy-vps.md). Três imagens, montadas e testadas pelo CI e publicadas no GitHub Container Registry presas pelo digest:
 
-- **`risco-metabolico-api`** (`backend/Dockerfile`, contexto na raiz): autocontida — o build baixa do release o `.pkl` e o snapshot congelado, confere os dois `sha256` do manifest e deriva `base_painel.parquet` sem banco (`python -m app.treino.painel`). Usuário sem root, sistema de arquivos só de leitura, `HEALTHCHECK` em `/api/v1/health`, `--workers 1`.
+- **`risco-metabolico-api`** (`backend/Dockerfile`, contexto na raiz): autocontida — o build baixa do release o `.pkl` e o snapshot congelado, confere os dois `sha256` do manifest e deriva `base_painel.parquet` sem banco (`python -m app.treino.painel`). A vertente diabetes faz o mesmo, do release `diabetes-v<versao>` do manifest dela (`python -m app.diabetes.treino.painel`). Usuário sem root, sistema de arquivos só de leitura, `HEALTHCHECK` em `/api/v1/health`, `--workers 1`.
 - **`risco-metabolico-web`** (`frontend/Dockerfile`): o build do Vite servido por nginx sem root, que faz proxy de `/api/`, `/docs` e `/openapi.json` para a API. **Front e API na mesma origem**: `VITE_API_URL=/api/v1`, sem CORS em produção; CSP, HSTS e os demais cabeçalhos em `frontend/seguranca.conf`; limite de consultas respondendo no envelope de erro da API.
 - **`risco-metabolico-banco`** (`database/Dockerfile`): `postgres:16-alpine` com `sql/schema.sql`, `sql/grants.sql` e `sql/usuario-api.sh` dentro, aplicados pelo `initdb` e reaplicados a cada deploy. Só na rede interna; a API entra com o papel `triagem_api`.
 
-O deploy é o job `deploy` do CI, no ambiente `producao` do GitHub (só a `main`): SSH para a VPS com uma chave presa a `scripts/deploy.sh`, que confere cada variável recebida pelo stdin, baixa as imagens, reaplica schema, grants e papel, semeia (idempotente), carrega a referência de deriva, sobe tudo, confere `/api/v1/health` e `/api/v1/ready` pelo nginx e volta sozinho para a versão anterior se algo falhar. Na VPS não há código-fonte. O Caddy faz o HTTPS e entrega para `127.0.0.1:WEB_HOST_PORT`.
+O deploy é o job `deploy` do CI, no ambiente `producao` do GitHub (só a `main`): SSH para a VPS com uma chave presa a `scripts/deploy.sh`, que confere cada variável recebida pelo stdin, baixa as imagens, reaplica schema, grants e papel, semeia as duas bases (idempotente), carrega as referências de deriva das duas vertentes, sobe tudo, confere `/api/v1/health` e `/api/v1/ready` pelo nginx e volta sozinho para a versão anterior se algo falhar. Na VPS não há código-fonte. O Caddy faz o HTTPS e entrega para `127.0.0.1:WEB_HOST_PORT`.
 
-As **22 variáveis do backend** estão em [`.env.example`](.env.example), na ordem e sem valor real, seguidas das variáveis do compose. O que a produção fixa, pelo `deploy.sh` e pelo `docker-compose.yml`:
+As **22 variáveis do backend**, mais a da vertente diabetes, estão em [`.env.example`](.env.example), na ordem e sem valor real, seguidas das variáveis do compose. O que a produção fixa, pelo `deploy.sh` e pelo `docker-compose.yml`:
 
 | Variável | Publicado | Observação |
 |---|---|---|
@@ -297,6 +310,7 @@ As **22 variáveis do backend** estão em [`.env.example`](.env.example), na ord
 | `BANCO_URL` | `postgresql://triagem_api:…@banco:5432/app_local` | papel de menor privilégio; o dono só semeia, congela e faz a retenção |
 | `BANCO_HABILITADO` | `true` | desligado, a API sobe e serve tudo que é estático |
 | `N_MINIMO_DERIVA` | `200` | medido ([ADR 0008](docs/decisoes/0008-limiares-de-psi.md)); obrigatória com o banco ligado |
+| `N_MINIMO_DERIVA_DIABETES` | `300` | medido ([ADR 0014](docs/decisoes/0014-limiar-deriva-e-reprodutibilidade.md)); opcional: sem ela, só a deriva da vertente diabetes fica indisponível |
 | `LIMITE_TAXA_ATIVO` / `SAL_TAXA` | `true` / sal gerado | a API recusa subir com o limitador ligado e o sal vazio |
 | `EXIGIR_INTEGRIDADE` | `true` | `sha256` do artefato divergente vira 503, não aviso |
 
@@ -316,47 +330,138 @@ uv sync --extra treino --extra dev
 uv run ruff check app tests; uv run ruff format --check app tests; uv run mypy app
 uv run --extra treino pytest -q --cov=app --cov-fail-under=80   # testes marcados `banco` são pulados sem BANCO_URL
 uv run --extra treino python -m app.treino verificar
+uv run --extra treino python -m app.diabetes.treino verificar   # o modelo da vertente diabetes (ADR 0014)
 Pop-Location
 Push-Location frontend
 npx tsc --noEmit; npm run lint; npx vitest run; npm run build
-npx playwright test                                 # 6 smokes; precisam do backend em 127.0.0.1:8000 e do banco do compose
+npx playwright test                                 # os smokes, um arquivo por tela e e2e/diabetes.spec.ts para as quatro da vertente; precisam do backend em 127.0.0.1:8000 e do banco do compose
 Pop-Location
 pwsh .\scripts\verificar-bundle.ps1                 # nenhuma credencial em frontend\dist
 docker compose up -d --build; bash scripts\verificar-stack.sh    # a stack inteira: containers, papel da API, nginx, cabeçalhos, limite
 ```
 
-Os testes de maior valor: paridade treino ↔ serviço (a mesma entrada pelo pipeline do treino e pela API produz as mesmas probabilidades), ordem e completude das colunas, domínio fechado (os dois bugs do legado viram teste), paridade SQL × pandas dos 8 agregados, contrato OpenAPI congelado, e "o log não pode derrubar a predição" (banco morto, fila cheia, payload acima do teto).
+Os testes de maior valor: paridade treino ↔ serviço (a mesma entrada pelo pipeline do treino e pela API produz as mesmas probabilidades), ordem e completude das colunas, domínio fechado (os dois bugs do legado viram teste), paridade SQL × pandas dos 8 agregados da obesidade e dos 5 da vertente diabetes, contrato OpenAPI congelado, e "o log não pode derrubar a predição" (banco morto, fila cheia, payload acima do teto).
 
 ## 17. Mapa do repositório e documentação
 
 ```
-backend/      FastAPI (app/api, esquemas, dominio, nucleo, dados, treino) + tests/ + Dockerfile (imagem api)
+backend/      FastAPI (app/api, esquemas, dominio, nucleo, dados, treino) + tests/ + Dockerfile (imagem api);
+              app/diabetes/ e tests/diabetes/: a vertente diabetes, no mesmo desenho
 frontend/     React 19 + Vite 8 + TypeScript + Tailwind v4 + shadcn/ui (Radix); e2e/ com os smokes do
               Playwright; public/study/ gerado; public/tema-inicial.js (tema antes da hidratação);
-              Dockerfile + nginx.conf + seguranca.conf (imagem web)
+              Dockerfile + nginx.conf + seguranca.conf (imagem web); src/features/diabetes/ (/diabetes/*)
 database/     Dockerfile da imagem do banco (postgres + sql/)
-sql/          schema.sql, grants.sql, usuario-api.sh, agregados/, pontos/, deriva/
-artifacts/    manifest.json, agregados/*.json, distribuicao_treino.json, metricas/
-data/bruto/   obesity.csv + FONTE.md          data/processado/  gerado (gitignore)
-study/        01_comparacao_de_modelos.ipynb (com saídas, de propósito) + README.md
-tools/        nb2json.py, medir_n_minimo_deriva.py, verificar-cabecalhos-sql.py
+sql/          schema.sql, grants.sql, usuario-api.sh, agregados/, pontos/, deriva/, diabetes/{agregados,deriva}/
+artifacts/    manifest.json, agregados/*.json, distribuicao_treino.json, metricas/; diabetes/ (os da vertente)
+data/bruto/   obesity.csv + FONTE.md; diabetes/ (CSV + FONTE.md)       data/processado/  gerado (gitignore)
+study/        01_comparacao_de_modelos.ipynb e 02_triagem_de_diabetes.ipynb (com saídas, de propósito) + README.md
+tools/        nb2json.py, medir_n_minimo_deriva.py, medir_reprodutibilidade_diabetes.py, verificar-cabecalhos-sql.py
 scripts/      proveniência, bundle, baixar_modelo.py, carregar-distribuicao-treino.ps1, higiene-notebook.py,
               deploy.sh, pacote.Dockerfile, verificar-stack.sh, verificar-producao.sh
 docker-compose.yml (local, monta as imagens) · docker-compose.producao.yml (VPS, imagens por digest)
 docs/         contrato da API, modelagem, dicionário, agregados, auditoria do legado, tokens, capturas,
-              deploy-vps.md, decisões/
+              deploy-vps.md, decisões/; modelagem e dicionário da vertente diabetes
 ```
 
 | Documento | O que responde |
 |---|---|
-| [`docs/contrato-api.md`](docs/contrato-api.md) | endpoints, `RespostaTriagem`, envelope de erro, cabeçalhos, o que o log guarda e não guarda |
+| [`docs/contrato-api.md`](docs/contrato-api.md) | endpoints, `RespostaTriagem`, envelope de erro, cabeçalhos, o que o log guarda e não guarda; as 12 rotas de `/diabetes` e `RespostaDiabetes` |
 | [`docs/modelagem.md`](docs/modelagem.md) | pipeline, candidatos, critério de escolha, os dois A/B |
+| [`docs/modelagem-diabetes.md`](docs/modelagem-diabetes.md) | a vertente diabetes: entradas, baselines e candidatos, desbalanceamento, calibração, limiar, avaliação e limitações |
 | [`docs/dicionario-de-dados.md`](docs/dicionario-de-dados.md) | as 17 colunas nas três convenções de nome |
-| [`docs/agregados.md`](docs/agregados.md) | contrato dos agregados em SQL e a tabela de divergências |
+| [`docs/dicionario-de-dados-diabetes.md`](docs/dicionario-de-dados-diabetes.md) | as 22 colunas da vertente diabetes, com a variável do BRFSS 2015 de cada uma |
+| [`docs/agregados.md`](docs/agregados.md) | contrato dos agregados em SQL e a tabela de divergências; os 5 da vertente diabetes e a paridade deles |
 | [`docs/auditoria-do-legado.md`](docs/auditoria-do-legado.md) | as quatro divergências do artefato herdado, com evidência |
 | [`docs/design-tokens.md`](docs/design-tokens.md) · [`docs/estilo-de-codigo.md`](docs/estilo-de-codigo.md) | tokens claro/escuro, rampas dos gráficos, tipografia e grade; convenções herdadas do legado |
 | [`docs/redesenho-front.md`](docs/redesenho-front.md) | a auditoria medida do front anterior (defeito a defeito, com número) e a especificação do redesenho |
-| [`study/README.md`](study/README.md) | como reexecutar o notebook e o mapa célula → função do backend |
-| [`docs/deploy-vps.md`](docs/deploy-vps.md) | como a VPS é publicada: chave presa ao `deploy.sh`, segredos, Caddy, aceite |
+| [`study/README.md`](study/README.md) | como reexecutar os dois notebooks e o mapa célula → função do backend de cada um |
+| [`docs/deploy-vps.md`](docs/deploy-vps.md) | como a VPS é publicada: chave presa ao `deploy.sh`, segredos, Caddy, aceite; o que a vertente diabetes muda no deploy |
 
-Decisões registradas (`docs/decisoes/`): [0001 nome](docs/decisoes/0001-nome-do-projeto.md) · [0002 binning desligado](docs/decisoes/0002-binning-ligado-ou-desligado.md) · [0003 IMC como feature](docs/decisoes/0003-imc-como-feature.md) · [0004 artefato fora do git](docs/decisoes/0004-artefato-fora-do-git.md) · [0005 filtros no servidor](docs/decisoes/0005-filtros-no-servidor.md) · [0006 agregados em SQL](docs/decisoes/0006-agregados-em-sql.md) · [0007 Postgres sem autenticação](docs/decisoes/0007-postgres-sem-autenticacao.md) · [0008 limiares de PSI](docs/decisoes/0008-limiares-de-psi.md) · [0009 provedor de hospedagem](docs/decisoes/0009-provedor-de-hospedagem.md) · [0010 redesenho do front](docs/decisoes/0010-redesenho-do-front.md) · [0011 marca Visor](docs/decisoes/0011-marca-visor.md) · [0012 Visão Geral como história](docs/decisoes/0012-visao-geral-como-historia.md).
+Decisões registradas (`docs/decisoes/`): [0001 nome](docs/decisoes/0001-nome-do-projeto.md) · [0002 binning desligado](docs/decisoes/0002-binning-ligado-ou-desligado.md) · [0003 IMC como feature](docs/decisoes/0003-imc-como-feature.md) · [0004 artefato fora do git](docs/decisoes/0004-artefato-fora-do-git.md) · [0005 filtros no servidor](docs/decisoes/0005-filtros-no-servidor.md) · [0006 agregados em SQL](docs/decisoes/0006-agregados-em-sql.md) · [0007 Postgres sem autenticação](docs/decisoes/0007-postgres-sem-autenticacao.md) · [0008 limiares de PSI](docs/decisoes/0008-limiares-de-psi.md) · [0009 provedor de hospedagem](docs/decisoes/0009-provedor-de-hospedagem.md) · [0010 redesenho do front](docs/decisoes/0010-redesenho-do-front.md) · [0011 marca Visor](docs/decisoes/0011-marca-visor.md) · [0012 Visão Geral como história](docs/decisoes/0012-visao-geral-como-historia.md) · [0013 segunda vertente](docs/decisoes/0013-segunda-vertente.md) · [0014 limiar, deriva e reprodutibilidade da vertente diabetes](docs/decisoes/0014-limiar-deriva-e-reprodutibilidade.md).
+
+## 18. A vertente diabetes
+
+Uma segunda triagem, **paralela** à de obesidade e sem tocá-la ([ADR 0013](docs/decisoes/0013-segunda-vertente.md)). Ela parte de dez respostas que uma pessoa sabe **antes** de qualquer diagnóstico:
+
+- faixa etária e sexo;
+- IMC;
+- se já ouviu de um profissional de saúde que tem pressão alta ou colesterol alto;
+- se fumou 100 cigarros na vida;
+- se fez atividade física nos últimos 30 dias;
+- se come fruta e verdura todo dia;
+- escolaridade.
+
+Com elas, estima a **probabilidade de essa pessoa já ter ouvido que tem diabetes**. Se a probabilidade fica no **limiar de triagem** ou acima dele, a classificação é "Risco elevado", e a triagem sugere o exame de glicemia.
+
+A base é real: respostas anonimizadas do BRFSS 2015, a pesquisa telefônica de fatores de risco do CDC dos Estados Unidos. O alvo da obesidade é quase uma faixa de IMC, com altura e peso entre as entradas ([ADR 0003](docs/decisoes/0003-imc-como-feature.md)). O da diabetes não se calcula a partir das entradas, é caro de obter na hora da triagem e vem de dados reais. As duas vertentes convivem, e a junção das previsões fica para depois, com o autor.
+
+### Métricas
+
+Como na seção 3, nenhuma é escrita à mão. O treino grava em `artifacts/diabetes/manifest.json` as métricas da validação cruzada, o limiar com o critério e as do teste. A API as serve em `GET /api/v1/diabetes/model/info`, e a seção "Triagem de diabetes" do Início lê dali.
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/api/v1/diabetes/model/info | Select-Object -ExpandProperty metricas_teste
+# campos: roc_auc, pr_auc, brier, brier_da_prevalencia, recall_na_precisao_fixa e recall, precisão,
+# especificidade e encaminhados no limiar — medidos uma vez, no teste (20 %, estratificado)
+```
+
+O critério de cada escolha está em [`docs/modelagem-diabetes.md`](docs/modelagem-diabetes.md): as entradas, o modelo contra três baselines, a recusa do SMOTE e da calibração e o limiar.
+
+### Telas e API
+
+**No front**, o grupo "Diabetes" do menu tem a Visão Geral (`/diabetes`), a Consulta (`/diabetes/consulta`), o Simulador (`/diabetes/simulador`) e o Monitoramento (`/diabetes/monitoramento`). Há também a seção "Triagem de diabetes" no Início e o notebook em `/estudos/triagem-de-diabetes`. O rodapé escolhe a frase de dados pela rota:
+
+- as telas da vertente mostram a das respostas reais;
+- as da obesidade, a dos dados fictícios;
+- Início, Estudos e Privacidade, as duas.
+
+**Na API**, são 12 rotas sob `/api/v1/diabetes` ([`docs/contrato-api.md`](docs/contrato-api.md#vertente-diabetes)): a predição (individual, em lote e o relatório), o formulário, o modelo, o painel, a Consulta com a exportação em CSV e a deriva. Como na obesidade, só a deriva lê o banco; o resto é servido de memória.
+
+### Como rodar e retreinar
+
+O passo a passo da seção 5 já sobe a vertente. Para treinar um modelo novo dela:
+
+```powershell
+$env:BANCO_URL = "postgresql://postgres:postgres@127.0.0.1:55432/app_local"
+Push-Location backend
+uv run --extra treino python -m app.diabetes.treino snapshot                  # 1. congela dados.registros_diabetes; o sha256 vira versao_dados
+uv run --extra treino python -m app.diabetes.treino.agregar                   # 2. agregados SQL + data/processado/diabetes/base_painel.parquet
+uv run --extra treino python -m app.diabetes.treino treinar --versao 1.1.0    # 3. a configuração do notebook 02 (célula 38): limiar, métricas, manifest
+uv run --extra treino python -m app.diabetes.treino verificar                 # 4. retreina sobre o MESMO snapshot e compara; não escreve nada
+uv run --extra treino python -m app.diabetes.treino.distribuicao --escrever   # 5. o perfil de deriva do snapshot, com a versão nova
+uv run --extra treino python -m app.diabetes.treino.distribuicao --carregar   #    e a referência no banco
+Pop-Location
+gh release create diabetes-v1.1.0 models\modelo-diabetes-1.1.0.pkl (Get-Item data\processado\diabetes\snapshot-*.parquet) --title "modelo de diabetes 1.1.0" --latest=false   # 6. o release da vertente
+```
+
+`--latest=false` mantém o release da obesidade como o mais recente. Um modelo novo pede também a remedição de `N_MINIMO_DERIVA_DIABETES` (`tools/medir_n_minimo_deriva.py --vertente diabetes`): o registro guarda a versão do modelo e a dos dados, e um teste confere os dois contra o manifest.
+
+### Limiar, deriva e reprodutibilidade
+
+O que está na [ADR 0014](docs/decisoes/0014-limiar-deriva-e-reprodutibilidade.md):
+
+- **O limiar** é o maior com recall ≥ 0,80 nas predições fora da dobra do treino.
+- **A deriva** da vertente lê só as linhas `/diabetes/...` do log e compara o IMC arredondado, como o modelo o vê. Ela pede `N_MINIMO_DERIVA_DIABETES` respostas, um mínimo medido.
+- **O `verificar`** exige o sha256 exato das predições de ouro na plataforma do treino. Noutra, exige a mesma classificação e tolerâncias medidas: o XGBoost não dá o mesmo modelo em Windows e em Linux.
+
+### Onde está o SQL
+
+- `sql/schema.sql` tem a seção da vertente: `dados.registros_diabetes`, as referências `operacao.diabetes_*` e a view e a série da consolidação dela.
+- `sql/diabetes/agregados/` tem os 5 agregados da Visão Geral, com paridade SQL × pandas ([`docs/agregados.md`](docs/agregados.md#vertente-diabetes)).
+- `sql/diabetes/deriva/` tem as 3 consultas da tela de monitoramento da vertente.
+
+### Fonte e licença
+
+O conjunto é o *CDC Diabetes Health Indicators* (UCI Machine Learning Repository, id 891, DOI `10.24432/C53919`), cópia do BRFSS 2015 do CDC, com licença **CC0 1.0** no conjunto de origem.
+
+- [`data/bruto/diabetes/FONTE.md`](data/bruto/diabetes/FONTE.md) traz a citação, a ficha e as quatro afirmações da página que o arquivo desmente. A principal: o alvo **não** inclui o pré-diabetes.
+- A proveniência acompanha o dado até o banco, como na outra base: o hash do CSV e do `FONTE.md` em `operacao.carga_fonte`, o `COMMENT ON TABLE` e `python -m app.diabetes.dados.schema --conferir`.
+- As 22 colunas, com a variável do BRFSS de cada uma, estão em [`docs/dicionario-de-dados-diabetes.md`](docs/dicionario-de-dados-diabetes.md).
+
+### Limitações
+
+- **Autodeclarado e transversal.** Diagnósticos, hábitos e o próprio IMC são o que a pessoa respondeu ao telefone, num momento só. É associação, não causa: quem já tem o diagnóstico pode ter mudado os hábitos depois dele.
+- **O alvo é o diagnóstico recebido.** Quem tem diabetes e não sabe responde "não". O pré-diabetes também fica no "não", e a pergunta não separa o tipo 1 do tipo 2.
+- **Escala da base, não da população.** Sem pesos amostrais e só com casos completos, a probabilidade e a prevalência do painel valem para quem respondeu à pesquisa. Não valem para a população dos Estados Unidos, nem para a do Brasil, e nenhuma validação externa foi feita.
+- **Um limiar para todas as idades.** Entre os mais jovens quase ninguém passa do limiar; entre os mais velhos, a maioria passa (`artifacts/diabetes/metricas/por-grupo.json`). Um limiar por faixa etária seria uma decisão de política de triagem.
+- **O que este README ainda não tem da vertente:** medição de latência própria e capturas de tela.

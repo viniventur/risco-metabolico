@@ -31,8 +31,9 @@ pelo stdin vão o .env, os digests e uma autorização de leitura do registro qu
       │
       ▼
 VPS: ~/risco-metabolico/deploy.sh — confere cada variável, baixa as imagens, reaplica schema,
-grants e o papel da API, semeia (idempotente), carrega a referência de deriva, sobe tudo, confere
-/api/v1/health e /api/v1/ready pelo nginx; se falhar, volta sozinho para a versão anterior
+grants e o papel da API, semeia as duas bases (idempotente), carrega as referências de deriva das
+duas vertentes, sobe tudo, confere /api/v1/health e /api/v1/ready pelo nginx; se falhar, volta
+sozinho para a versão anterior
       │
       ▼
 Aceite visto de fora (scripts/verificar-producao.sh): HTTPS, HSTS, health, ready, preflight CORS,
@@ -208,6 +209,62 @@ df -h /
 
 O teto é o espaço que se aceita dar ao log dividido pelos bytes por linha medidos; o valor e a data
 vão para a tabela "Conferido na VPS" da ADR 0007 e para a variável `TETO_LINHAS_LOG`.
+
+## Vertente diabetes
+
+A triagem de diabetes é a segunda vertente do app (ADR 0013). No deploy ela não pede nenhum passo à
+mão, nenhum secret e nenhuma variável nova no GitHub. O que muda dentro do mesmo fluxo:
+
+- **A imagem da API** baixa no build também o `.pkl` e o snapshot do release `diabetes-v<versao>`,
+  que é o `release` do manifest dela (`artifacts/diabetes/manifest.json`). Ela confere os dois
+  `sha256` e deriva a base do painel da vertente (`python -m app.diabetes.treino.painel`). O
+  release da obesidade continua sendo `v<versao>`.
+- **O `deploy.sh`** semeia `dados.registros_diabetes` e carrega a referência de deriva dela, as
+  tabelas `operacao.diabetes_*`, pela imagem da API e com o dono do banco. O seed é idempotente pelo
+  `sha256` do CSV: depois da primeira carga, não escreve nada.
+- **`N_MINIMO_DERIVA_DIABETES=300`** vem do `docker-compose.yml`, como a da obesidade. Ela é
+  opcional: sem ela, a API sobe e só a deriva da vertente responde `disponivel: false` (ADR 0014).
+- **`/api/v1/ready`** só responde 200 com o artefato e a base do painel das duas vertentes. Um
+  artefato da vertente que não carregue reprova a conferência do deploy, e o `deploy.sh` volta
+  sozinho para a versão anterior.
+
+**O primeiro deploy com a vertente cai por cima do volume da v2.**
+
+- O `schema.sql` reaplicado cria as tabelas novas (`CREATE TABLE IF NOT EXISTS`) e troca a view e a
+  função de consolidação do log (`CREATE OR REPLACE`, com as mesmas colunas e a mesma assinatura).
+- O seed carrega a base da vertente uma vez.
+- Nada do que a v2 gravou é apagado ou alterado: o log, a base da obesidade e a série de deriva
+  ficam como estão.
+
+Para conferir na VPS:
+
+```bash
+cd ~/risco-metabolico
+curl -s http://127.0.0.1:8085/api/v1/ready                          # {"pronto":true, ...}: as duas vertentes
+curl -s http://127.0.0.1:8085/api/v1/diabetes/model/info | head -c 200    # versão e release do modelo de diabetes
+docker compose exec -T banco sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atq -c "SELECT count(*) FROM dados.registros_diabetes"'
+```
+
+O `count(*)` tem de bater com as linhas do `FONTE.md` da vertente.
+
+**Voltar uma versão.** A volta, automática ou por `git revert`, reaplica o `schema.sql` anterior:
+
+- as tabelas da vertente ficam, sem uso;
+- a view e a função de consolidação voltam à definição antiga.
+
+A única ressalva é uma volta longa. Se a versão sem a vertente ficar no ar mais que `RETENCAO_DIAS`
+com linhas de diabetes no log, a consolidação antiga as poria nas faixas NULL da obesidade (ADR 0014,
+decisão 3).
+
+**Retreino da vertente.** O processo é o mesmo da obesidade:
+
+1. `python -m app.diabetes.treino treinar --versao X.Y.Z` local;
+2. o release `diabetes-vX.Y.Z` com o `.pkl` e o snapshot, criado com `--latest=false` para o release
+   da obesidade seguir como o mais recente;
+3. o commit do manifest dela.
+
+O push publica a imagem nova, que baixa os dois assets no build. O passo a passo completo está na
+seção 18 do README.
 
 ## No dia a dia
 
