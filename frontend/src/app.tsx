@@ -93,7 +93,7 @@ function Casca() {
       {/* Celular: a mesma navegação numa gaveta modal (Radix Dialog). */}
       <SheetContent className="lg:hidden">
         <SheetTitle className="sr-only">Menu de navegação</SheetTitle>
-        <SheetDescription className="sr-only">As telas do painel, do modelo e dos estudos.</SheetDescription>
+        <SheetDescription className="sr-only">O Início, as telas de cada projeto e os estudos.</SheetDescription>
         <Sidebar aoNavegar={() => setGavetaAberta(false)} />
       </SheetContent>
       <Toaster />

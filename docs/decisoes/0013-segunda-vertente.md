@@ -76,7 +76,7 @@ Os portões:
 - `test_aviso_de_dados_reais_no_front`: `RodapeAviso.tsx`;
 - `test_aviso_de_dados_reais_no_readme`: o primeiro bloco do README, o mesmo que o portão da frase da obesidade lê.
 
-O selo do herói do Início passa a dizer só "Triagem, não diagnóstico", o que vale para o produto inteiro. A natureza de cada base fica no cartão "Dados", também a pedido do autor.
+O selo do herói do Início passa a dizer só "Triagem, não diagnóstico", o que vale para o produto inteiro. A natureza de cada base fica no cartão "Dados", também a pedido do autor. Desde a ADR 0016, cada projeto tem o seu cartão "Dados", no bloco dele do Início.
 
 **D4 — Limiar e saída da API.** O limiar é o **maior** com recall ≥ 0,80 nas predições fora da dobra do treino. Ele é escolhido na validação cruzada e avaliado uma vez no teste. A resposta traz:
 
@@ -102,6 +102,8 @@ O critério, o preço de cada alvo de recall e o limiar único para todas as ida
 | Dados brutos | `data/bruto/diabetes/` (o CSV, em CRLF preservado, e o `FONTE.md`) |
 | Notebook | `study/02_triagem_de_diabetes.ipynb`, em `/estudos/triagem-de-diabetes` |
 | Código | `backend/app/diabetes/`, `frontend/src/features/diabetes/`, `sql/diabetes/` |
+
+O menu e o Início mudaram de forma na ADR 0016: um bloco por projeto, a obesidade e a diabetes, cada um com as mesmas quatro telas.
 
 ## Como as duas vertentes convivem
 

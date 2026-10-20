@@ -2,13 +2,15 @@ import { Activity, ArrowRight, BookOpen, Calculator, LayoutDashboard, Table2, ty
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { CabecalhoDeSecao } from "@/features/inicio/SobreOProjeto";
+import { CabecalhoDoProjeto } from "@/features/inicio/CabecalhoDoProjeto";
+import { ComoFunciona, type PassoDoModelo } from "@/features/inicio/ComoFunciona";
 import { seguirOPonteiro } from "@/features/inicio/seguirOPonteiro";
 import { ErroInline } from "@/shared/estados/ErroInline";
 import { fmtDataHora, fmtNum, fmtPct } from "@/shared/format/ptBR";
 import { NumeroQueConta } from "@/shared/movimento/NumeroQueConta";
 import { Revelar } from "@/shared/movimento/Revelar";
 import { useApareceuNaTela } from "@/shared/movimento/useApareceuNaTela";
+import { DIABETES } from "@/shared/projetos";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 
@@ -228,10 +230,26 @@ function LimiarEModelo({ d }: { d: InfoModeloDiabetes }) {
 }
 
 /**
- * A seção da vertente diabetes no Início: o que o modelo faz, as métricas do teste contando até o
- * valor, o limiar com o critério e o artefato, e as telas da vertente. Todo número vem de
- * /diabetes/model/info. Os atalhos ficam num menu próprio, ao lado do "Explorar" da obesidade. Os
- * textos falam no limiar do grupo de idade quando o modelo servido traz `limiares_por_idade`.
+ * "Como funciona" no cabeçalho do projeto: as respostas, a probabilidade e o limiar — um por grupo de
+ * idade, quando o modelo servido traz `limiares_por_idade`. As contagens vêm de /diabetes/model/info.
+ */
+function passosDoModelo(d: InfoModeloDiabetes | undefined): PassoDoModelo[] {
+  const porIdade = d?.limiares_por_idade;
+  return [
+    { chave: "entrada", valor: d?.n_features_entrada, texto: "respostas sobre o perfil, a saúde e os hábitos" },
+    { chave: "saida", simbolo: "%", texto: "a probabilidade de já ter recebido o diagnóstico de diabetes" },
+    porIdade
+      ? { chave: "limiar", valor: porIdade.grupos.length, texto: "limiares de triagem, um para cada grupo de idade" }
+      : { chave: "limiar", simbolo: "≥", texto: "um limiar de triagem, o mesmo para todas as idades" },
+  ];
+}
+
+/**
+ * A seção da vertente diabetes no Início, o projeto 2 (ADR 0016): o cabeçalho do projeto com o que o
+ * modelo faz e "como funciona", as métricas do teste contando até o valor, o limiar com o critério e o
+ * artefato, e as telas da vertente. Todo número vem de /diabetes/model/info. Os atalhos ficam num menu
+ * próprio, como o "Explorar" da obesidade. Os textos falam no limiar do grupo de idade quando o modelo
+ * servido traz `limiares_por_idade`.
  */
 export function SecaoDiabetes() {
   const info = useModelInfoDiabetes();
@@ -240,13 +258,15 @@ export function SecaoDiabetes() {
   const limiar = porGrupo ? "o limiar do grupo de idade" : "o limiar";
   return (
     <section aria-labelledby="diabetes-titulo" className="scroll-mt-20">
-      <CabecalhoDeSecao
+      <CabecalhoDoProjeto
+        projeto={DIABETES}
         id="diabetes-titulo"
-        sobretitulo="Diabetes"
         titulo="Triagem de diabetes: o modelo em teste"
         descricao={`${d ? `${d.n_features_entrada} respostas viram` : "As respostas viram"} a probabilidade de já ter recebido o diagnóstico de diabetes; ${limiar} encaminha quem fica nele ou acima dele. A base é real e anonimizada: o BRFSS 2015, do CDC.`}
+        versao={d?.versao}
+        lado={<ComoFunciona rotulo="Como funciona a triagem de diabetes" passos={passosDoModelo(d)} carregando={info.isPending} />}
       />
-      <ul aria-label="Desempenho da triagem de diabetes no teste" className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ul aria-label="Desempenho da triagem de diabetes no teste" className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {METRICAS.map((m) => (
           <Metrica
             key={m.chave}

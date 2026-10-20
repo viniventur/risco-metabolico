@@ -34,13 +34,16 @@ import { TextoDecifrado } from "@/shared/movimento/TextoDecifrado";
 import { useApareceuNaTela } from "@/shared/movimento/useApareceuNaTela";
 import { Skeleton } from "@/shared/ui/skeleton";
 
+import { LIMITES_DO_SERVICO } from "./limites";
 import { seguirOPonteiro } from "./seguirOPonteiro";
 
 /**
- * "Sobre o projeto": objetivo, dados, entradas, métodos, validação, serviço, monitoramento, o que a
- * auditoria do legado corrigiu e as limitações, num mosaico (bento) de cartões. Os números que o
- * serviço sabe (linhas do split, features, versão dos dados, gap, campos do formulário) vêm da API;
- * os que são fato documentado (77% sintéticos, 17 de 43) vêm de data/bruto/FONTE.md e da auditoria.
+ * "Sobre o projeto", o da obesidade (ADR 0016): objetivo, dados, entradas, métodos, validação, serviço,
+ * monitoramento, o que a auditoria do legado corrigiu e as limitações, num mosaico (bento) de cartões.
+ * Os números que o serviço sabe (linhas do split, features, versão dos dados, gap, campos do
+ * formulário) vêm da API; os que são fato documentado (77% sintéticos, 17 de 43) vêm de
+ * data/bruto/FONTE.md e da auditoria. Os dados e os limites da diabetes ficam no projeto dela
+ * (features/diabetes/inicio/SobreADiabetes), com o cartão daqui.
  */
 export function SobreOProjeto() {
   return (
@@ -87,7 +90,8 @@ const ICONE_DO_TOM: Record<Tom, string> = {
   alerta: "bg-gradient-to-br from-warning/20 to-warning/5 text-warning ring-warning/20",
 };
 
-function Cartao({
+/** Um cartão do mosaico (um `li`): o projeto da diabetes usa o mesmo, nos dados e nos limites dele. */
+export function Cartao({
   icone: Icone,
   sobretitulo,
   titulo,
@@ -129,7 +133,7 @@ function Cartao({
   );
 }
 
-function LinkDoCartao({ para, children, externo }: { para: string; children: ReactNode; externo?: boolean }) {
+export function LinkDoCartao({ para, children, externo }: { para: string; children: ReactNode; externo?: boolean }) {
   const classe = "group/link mt-auto inline-flex w-fit items-center gap-1.5 pt-1 text-sm font-medium text-primary underline-offset-4 hover:underline";
   const seta = <ArrowRight aria-hidden="true" className="size-3.5 transition-transform duration-200 group-hover/link:translate-x-0.5 motion-reduce:transition-none" />;
   return externo ? (
@@ -145,12 +149,12 @@ function LinkDoCartao({ para, children, externo }: { para: string; children: Rea
   );
 }
 
-function Chip({ children, className }: { children: ReactNode; className?: string }) {
+export function Chip({ children, className }: { children: ReactNode; className?: string }) {
   return <span className={cn("inline-flex items-center rounded-full border bg-muted/40 px-2.5 py-0.5 text-xs text-foreground", className)}>{children}</span>;
 }
 
 /** Um número de destaque com o rótulo embaixo; conta quando o bloco aparece. */
-function Estatistica({ valor, formatar, rotulo, carregando }: { valor: number | undefined; formatar: (v: number | null | undefined) => string; rotulo: string; carregando?: boolean }) {
+export function Estatistica({ valor, formatar, rotulo, carregando }: { valor: number | undefined; formatar: (v: number | null | undefined) => string; rotulo: string; carregando?: boolean }) {
   const [ref, apareceu] = useApareceuNaTela<HTMLDivElement>();
   return (
     // dt antes de dd no DOM, como o <dl> exige; o número aparece em cima pelo flex-col-reverse.
@@ -249,36 +253,20 @@ function Dados() {
   const linhas = split ? Number(split.linhas_treino) + Number(split.linhas_teste) : undefined;
   const colunas = info.data ? info.data.n_features_entrada + 1 : undefined;
   return (
-    <Cartao icone={Database} sobretitulo="Dados" titulo="Duas bases públicas: uma fictícia, outra real e anonimizada" ordem={1}>
-      <div className="flex flex-col gap-2">
-        <h4 className="text-sm font-semibold text-foreground">Obesidade: dados fictícios</h4>
-        <dl className="grid grid-cols-3 gap-2">
-          <Estatistica valor={linhas} formatar={fmtInt} rotulo="registros" carregando={info.isPending} />
-          <Estatistica valor={colunas} formatar={fmtInt} rotulo="colunas, com o alvo" carregando={info.isPending} />
-          <Estatistica valor={77} formatar={(v) => `${fmtInt(v)}%`} rotulo="sintéticos" />
-        </dl>
-        <p>
-          Conjunto público do UCI Machine Learning Repository (id 544, licença CC BY 4.0). Os próprios autores geraram 77% dos registros
-          sinteticamente: nenhum registro corresponde a uma pessoa real, e nenhuma leitura epidemiológica das distribuições é válida.
-        </p>
-      </div>
-      <div className="flex flex-col gap-2 border-t pt-4">
-        <h4 className="text-sm font-semibold text-foreground">Diabetes: dados reais e anonimizados</h4>
-        <p>
-          Respostas reais da pesquisa telefônica de fatores de risco do CDC dos Estados Unidos (BRFSS 2015), no UCI Machine Learning Repository
-          (id 891, licença CC0), anonimizadas na origem: nenhum registro identifica uma pessoa. Sem pesos amostrais, a prevalência da base não
-          estima a da população.
-        </p>
-      </div>
+    <Cartao icone={Database} sobretitulo="Dados" titulo="Uma base pública, com dados fictícios" ordem={1}>
+      <dl className="grid grid-cols-3 gap-2">
+        <Estatistica valor={linhas} formatar={fmtInt} rotulo="registros" carregando={info.isPending} />
+        <Estatistica valor={colunas} formatar={fmtInt} rotulo="colunas, com o alvo" carregando={info.isPending} />
+        <Estatistica valor={77} formatar={(v) => `${fmtInt(v)}%`} rotulo="sintéticos" />
+      </dl>
+      <p>
+        Conjunto público do UCI Machine Learning Repository (id 544, licença CC BY 4.0). Os próprios autores geraram 77% dos registros
+        sinteticamente: nenhum registro corresponde a uma pessoa real, e nenhuma leitura epidemiológica das distribuições é válida.
+      </p>
       {URL_REPO ? (
-        <div className="mt-auto flex flex-wrap gap-x-4">
-          <LinkDoCartao para={repo("docs/dicionario-de-dados.md")} externo>
-            Dicionário · obesidade
-          </LinkDoCartao>
-          <LinkDoCartao para={repo("docs/dicionario-de-dados-diabetes.md")} externo>
-            Dicionário · diabetes
-          </LinkDoCartao>
-        </div>
+        <LinkDoCartao para={repo("docs/dicionario-de-dados.md")} externo>
+          Dicionário de dados
+        </LinkDoCartao>
       ) : null}
     </Cartao>
   );
@@ -559,23 +547,29 @@ function Auditoria() {
 }
 
 const LIMITES = [
-  "Triagem, não diagnóstico: a saída ordena prioridade de atenção.",
+  LIMITES_DO_SERVICO.triagem,
   "Base de obesidade majoritariamente sintética: nenhuma leitura epidemiológica é válida.",
-  "Base de diabetes real, mas autodeclarada e sem pesos amostrais: associação, não causa, e uma prevalência que não é a da população.",
-  "Sem login, por decisão: nada é salvo por pessoa, e o registro do simulador é anônimo.",
+  LIMITES_DO_SERVICO.semLogin,
 ];
+
+/** A lista de limites, com o marcador de alerta. */
+export function ListaDeLimites({ limites }: { limites: readonly string[] }) {
+  return (
+    <ul className="flex flex-col gap-2">
+      {limites.map((limite) => (
+        <li key={limite} className="flex gap-2">
+          <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-warning" />
+          <span>{limite}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function Limitacoes() {
   return (
     <Cartao icone={TriangleAlert} sobretitulo="Limitações" titulo="Os limites, ditos com clareza" tom="alerta" className="md:col-span-2 lg:col-span-1" ordem={1}>
-      <ul className="flex flex-col gap-2">
-        {LIMITES.map((limite) => (
-          <li key={limite} className="flex gap-2">
-            <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-warning" />
-            <span>{limite}</span>
-          </li>
-        ))}
-      </ul>
+      <ListaDeLimites limites={LIMITES} />
       <LinkDoCartao para={ROTA_DA_PRIVACIDADE}>Política de Privacidade</LinkDoCartao>
     </Cartao>
   );

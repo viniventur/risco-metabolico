@@ -11,11 +11,13 @@ import { SeletorDeTema } from "./SeletorDeTema";
 
 /**
  * Barra do topo, com a mesma altura (h-14) e a mesma borda do topo da barra lateral. No celular traz
- * o botão da gaveta e a marca; no desktop, a trilha "grupo › tela". À direita, o estado da API e o tema.
+ * o botão da gaveta e a marca; no desktop, a trilha "grupo › tela" — numa tela de projeto, o grupo é o
+ * projeto, com o ícone dele. À direita, o estado da API e o tema.
  */
 export function Topbar() {
   const { pathname } = useLocation();
   const local = localDaRota(pathname);
+  const IconeDoProjeto = local?.projeto?.icone;
   return (
     <header className="nao-imprimir sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b bg-background/85 px-2 backdrop-blur supports-[backdrop-filter]:bg-background/70 sm:px-4 lg:px-6">
       <SheetTrigger asChild>
@@ -29,6 +31,7 @@ export function Topbar() {
       </div>
       {local ? (
         <p className="hidden items-center gap-1.5 text-sm lg:flex">
+          {IconeDoProjeto ? <IconeDoProjeto aria-hidden="true" className="size-3.5 text-muted-foreground" /> : null}
           <span className="text-muted-foreground">{local.grupo}</span>
           {local.grupo !== local.item ? (
             <>

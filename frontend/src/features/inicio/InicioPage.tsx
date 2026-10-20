@@ -1,15 +1,19 @@
 import "./inicio.css";
 
 import { Code, ShieldCheck } from "lucide-react";
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { SecaoDiabetes } from "@/features/diabetes/inicio/SecaoDiabetes";
+import { SobreADiabetes } from "@/features/diabetes/inicio/SobreADiabetes";
 import { ROTA_DA_PRIVACIDADE } from "@/features/legal/rota";
 import { URL_REPO } from "@/shared/api/http";
 import { CreditosDoAutor } from "@/shared/autor/CreditosDoAutor";
 import { Revelar } from "@/shared/movimento/Revelar";
+import { DIABETES, OBESIDADE, type Projeto } from "@/shared/projetos";
 import { Button } from "@/shared/ui/button";
 
+import { CabecalhoObesidade } from "./CabecalhoObesidade";
 import { Explorar } from "./Explorar";
 import { Heroi } from "./Heroi";
 import { MetricasDoModelo } from "./MetricasDoModelo";
@@ -17,25 +21,50 @@ import { ModeloServido } from "./ModeloServido";
 import { SobreOProjeto } from "./SobreOProjeto";
 
 /**
- * O Início: o herói, as métricas do modelo contando até o valor, a visão geral do projeto (objetivo,
- * dados, entradas, métodos, validação, serviço, monitoramento, auditoria e limitações), o modelo
- * servido, a vertente diabetes (features/diabetes/inicio), os atalhos e a autoria. O movimento é todo
- * da casa (inicio.css e shared/movimento) e some com `prefers-reduced-motion`: o conteúdo já nasce no
- * lugar e os números, no valor final.
+ * O Início em dois projetos (ADR 0016): o herói, que apresenta os dois, e um bloco para cada um, com
+ * tudo o que é dele. A obesidade: o cabeçalho com "como funciona", as métricas contando até o valor, o
+ * modelo servido, os atalhos e a visão geral do projeto (objetivo, dados, entradas, métodos, validação,
+ * serviço, monitoramento, auditoria e limitações). A diabetes (features/diabetes/inicio): o cabeçalho,
+ * as métricas, o limiar e o artefato, as telas, os dados e os limites. No fim, a autoria. O movimento é
+ * todo da casa (inicio.css e shared/movimento) e some com `prefers-reduced-motion`: o conteúdo já nasce
+ * no lugar e os números, no valor final.
  */
 export function InicioPage() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-12">
-      <div className="flex flex-col gap-4">
-        <Heroi />
-        <MetricasDoModelo />
-      </div>
-      <SobreOProjeto />
-      <ModeloServido />
-      <SecaoDiabetes />
-      <Explorar />
+      <Heroi />
+      <BlocoDoProjeto projeto={OBESIDADE}>
+        <div className="flex flex-col gap-8">
+          <CabecalhoObesidade />
+          <MetricasDoModelo />
+        </div>
+        <ModeloServido />
+        <Explorar />
+        <SobreOProjeto />
+      </BlocoDoProjeto>
+      <BlocoDoProjeto projeto={DIABETES}>
+        <SecaoDiabetes />
+        <SobreADiabetes />
+      </BlocoDoProjeto>
       <Autoria />
     </div>
+  );
+}
+
+/**
+ * O bloco de um projeto: uma região com o nome dele ("Projeto 1: Obesidade"), num painel com borda e
+ * fundo próprios, para que a fronteira entre os dois projetos se veja de longe. O id é a âncora dos
+ * cartões do herói.
+ */
+function BlocoDoProjeto({ projeto, children }: { projeto: Projeto; children: ReactNode }) {
+  return (
+    <section
+      id={`projeto-${projeto.id}`}
+      aria-label={`Projeto ${projeto.numero}: ${projeto.nome}`}
+      className="flex scroll-mt-20 flex-col gap-12 rounded-3xl border bg-muted/30 p-4 sm:p-6 lg:p-8"
+    >
+      {children}
+    </section>
   );
 }
 

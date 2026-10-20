@@ -1,5 +1,7 @@
 import { Activity, BookOpen, Calculator, House, LayoutDashboard, Table2, type LucideIcon } from "lucide-react";
 
+import { DIABETES, OBESIDADE, type Projeto } from "@/shared/projetos";
+
 export type ItemDeNavegacao = {
   rotulo: string;
   para: string;
@@ -8,32 +10,33 @@ export type ItemDeNavegacao = {
   exato?: boolean;
 };
 
-export type GrupoDeNavegacao = { titulo: string; itens: ItemDeNavegacao[] };
+/** Um grupo do menu; o de um projeto traz o projeto, e o menu o desenha como um bloco próprio. */
+export type GrupoDeNavegacao = { titulo: string; itens: ItemDeNavegacao[]; projeto?: Projeto };
 
 /**
- * As 7 rotas de §7.1 em três grupos: o que se explora sobre a base, o que se faz com o modelo e o
- * estudo que o sustenta. Mora fora do `Sidebar.tsx` para o componente exportar só componente. A
- * vertente diabetes (decisão D5) é um grupo próprio, antes dos estudos, com as mesmas quatro telas; a
- * Visão Geral dela é `exato`, porque /diabetes é prefixo das outras três.
+ * O menu em dois projetos (ADR 0016): o Início, que fala dos dois; um bloco por projeto, com as mesmas
+ * quatro telas e os mesmos nomes; e os estudos, os notebooks dos dois. Mora fora do `Sidebar.tsx` para
+ * o componente exportar só componente. A Visão Geral da diabetes é `exato`, porque /diabetes é prefixo
+ * das outras três.
  */
 export const NAVEGACAO: GrupoDeNavegacao[] = [
   {
-    titulo: "Painel",
-    itens: [
-      { rotulo: "Início", para: "/", icone: House, exato: true },
-      { rotulo: "Visão Geral", para: "/painel", icone: LayoutDashboard },
-      { rotulo: "Consulta", para: "/consulta", icone: Table2 },
-    ],
+    titulo: "Início",
+    itens: [{ rotulo: "Início", para: "/", icone: House, exato: true }],
   },
   {
-    titulo: "Modelo",
+    titulo: OBESIDADE.nome,
+    projeto: OBESIDADE,
     itens: [
+      { rotulo: "Visão Geral", para: "/painel", icone: LayoutDashboard },
+      { rotulo: "Consulta", para: "/consulta", icone: Table2 },
       { rotulo: "Simulador", para: "/simulador", icone: Calculator },
       { rotulo: "Monitoramento", para: "/monitoramento", icone: Activity },
     ],
   },
   {
-    titulo: "Diabetes",
+    titulo: DIABETES.nome,
+    projeto: DIABETES,
     itens: [
       { rotulo: "Visão Geral", para: "/diabetes", icone: LayoutDashboard, exato: true },
       { rotulo: "Consulta", para: "/diabetes/consulta", icone: Table2 },
@@ -52,12 +55,12 @@ const FORA_DO_MENU: Record<string, { grupo: string; item: string }> = {
   "/privacidade": { grupo: "Sobre", item: "Política de Privacidade" },
 };
 
-/** O grupo e o item da rota atual, para a trilha da barra do topo. */
-export function localDaRota(caminho: string): { grupo: string; item: string } | null {
+/** O grupo, o item e o projeto da rota atual, para a trilha da barra do topo. */
+export function localDaRota(caminho: string): { grupo: string; item: string; projeto?: Projeto } | null {
   for (const grupo of NAVEGACAO) {
     for (const item of grupo.itens) {
       const casa = item.exato ? caminho === item.para : caminho === item.para || caminho.startsWith(`${item.para}/`);
-      if (casa) return { grupo: grupo.titulo, item: item.rotulo };
+      if (casa) return { grupo: grupo.titulo, item: item.rotulo, projeto: grupo.projeto };
     }
   }
   return FORA_DO_MENU[caminho] ?? null;

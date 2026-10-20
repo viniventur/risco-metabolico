@@ -239,3 +239,68 @@ test("o Início: a tabela com o limiar de cada grupo de idade e o limiar único 
   );
   await expect(page.getByText(/o limiar do grupo de idade encaminha quem fica nele ou acima dele/)).toBeVisible();
 });
+
+// Os dois projetos (ADR 0016): o menu com um bloco para cada um, o selo e a trilha de cada tela, o Início em dois
+// blocos e os estudos. Os números do Início vêm do /model/info de cada projeto, lidos da mesma resposta que a tela usa.
+
+/** O selo do projeto, em cima do título da tela. */
+const seloDaTela = (page: import("@playwright/test").Page) => page.getByRole("main").locator("header").getByText(/^Projeto \d · \S+$/);
+
+test("os dois projetos no menu: um bloco para cada um, com as mesmas quatro telas; o selo e a trilha dizem o projeto da tela", async ({ page }) => {
+  await page.goto("/");
+  const menu = page.getByRole("navigation", { name: "Menu principal" });
+  for (const nome of ["Obesidade", "Diabetes"]) {
+    await expect(menu.getByRole("list", { name: nome, exact: true }).getByRole("link")).toHaveText(["Visão Geral", "Consulta", "Simulador", "Monitoramento"]);
+  }
+  // o Início e os estudos são dos dois: sem selo
+  await expect(seloDaTela(page)).toHaveCount(0);
+
+  for (const [projeto, numero, url] of [
+    ["Obesidade", 1, /\/simulador$/],
+    ["Diabetes", 2, /\/diabetes\/simulador$/],
+  ] as const) {
+    await menu.getByRole("list", { name: projeto, exact: true }).getByRole("link", { name: "Simulador" }).click();
+    await expect(page).toHaveURL(url);
+    await expect(seloDaTela(page)).toHaveText(`Projeto ${numero} · ${projeto}`);
+    // a trilha da barra do topo começa pelo projeto
+    await expect(page.getByRole("banner").locator("p").filter({ hasText: "Simulador" })).toHaveText(`${projeto}Simulador`);
+  }
+});
+
+test("o Início em dois projetos: o herói leva a cada um, e cada bloco tem o que é dele", async ({ page }) => {
+  const lerObesidade = page.waitForResponse((r) => r.url().endsWith("/api/v1/model/info") && r.ok());
+  const lerDiabetes = page.waitForResponse((r) => r.url().endsWith("/api/v1/diabetes/model/info") && r.ok());
+  await page.goto("/");
+  const obesidade = (await (await lerObesidade).json()) as { n_features_entrada: number; ordem_clinica: string[]; versao: string };
+  const diabetes = (await (await lerDiabetes).json()) as { n_features_entrada: number; versao: string };
+
+  const projetos = page.getByRole("list", { name: "Os dois projetos" }).getByRole("link");
+  await expect(projetos).toHaveCount(2);
+  await expect(projetos.nth(0)).toContainText(`${obesidade.n_features_entrada} respostas → ${obesidade.ordem_clinica.length} faixas de composição corporal`);
+  await expect(projetos.nth(0)).toContainText(`modelo v${obesidade.versao}`);
+  await expect(projetos.nth(1)).toContainText(`${diabetes.n_features_entrada} respostas → a chance de já ter recebido o diagnóstico de diabetes`);
+  await expect(projetos.nth(1)).toContainText(`modelo v${diabetes.versao}`);
+
+  const blocoObesidade = page.getByRole("region", { name: "Projeto 1: Obesidade" });
+  await expect(blocoObesidade.getByLabel("Métricas do modelo em teste").locator("[data-numero]")).toHaveCount(3, { timeout: 60_000 });
+  await expect(blocoObesidade.getByRole("heading", { level: 2, name: "Objetivo, dados e métodos" })).toBeAttached();
+  await expect(blocoObesidade.getByText(/BRFSS/)).toHaveCount(0);
+  const blocoDiabetes = page.getByRole("region", { name: "Projeto 2: Diabetes" });
+  await expect(blocoDiabetes.getByRole("table", { name: "Limiar de cada grupo de idade" })).toBeAttached();
+  await expect(blocoDiabetes.getByRole("list", { name: "Dados e limites da triagem de diabetes" })).toContainText("BRFSS 2015");
+
+  // o cartão do herói leva ao bloco do projeto
+  await projetos.nth(1).click();
+  await expect(page).toHaveURL(/#projeto-diabetes$/);
+  await expect(blocoDiabetes.getByRole("heading", { level: 2, name: "Triagem de diabetes: o modelo em teste" })).toBeInViewport();
+});
+
+test("os estudos: cada notebook leva o selo do projeto dele, e o notebook aberto também", async ({ page }) => {
+  await page.goto("/estudos");
+  await expect(page.getByRole("link", { name: /Comparação de modelos/ })).toContainText("Projeto 1 · Obesidade", { timeout: 60_000 });
+  const diabetes = page.getByRole("link", { name: /Triagem de diabetes/ });
+  await expect(diabetes).toContainText("Projeto 2 · Diabetes");
+  await diabetes.click();
+  await expect(page).toHaveURL(/\/estudos\/triagem-de-diabetes$/);
+  await expect(seloDaTela(page)).toHaveText("Projeto 2 · Diabetes", { timeout: 60_000 });
+});

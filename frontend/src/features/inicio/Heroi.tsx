@@ -1,19 +1,16 @@
-import { ArrowDown, ArrowRight, Calculator } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { useEffect, useRef, type CSSProperties } from "react";
-import { Link } from "react-router-dom";
 
+import { useModelInfoDiabetes } from "@/features/diabetes/api/modelo";
 import { useModelInfo } from "@/shared/api/endpoints/modelo";
-import { fmtInt } from "@/shared/format/ptBR";
 import { pedeMovimentoReduzido } from "@/shared/movimento/movimento";
-import { NumeroQueConta } from "@/shared/movimento/NumeroQueConta";
-import { useApareceuNaTela } from "@/shared/movimento/useApareceuNaTela";
-import { Button } from "@/shared/ui/button";
+import { DIABETES, OBESIDADE, type Projeto } from "@/shared/projetos";
 import { Marca } from "@/shared/ui/Marca";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 const RESUMO =
-  "Dezesseis respostas sobre medidas corporais e hábitos viram, em milissegundos, a distribuição de probabilidade entre sete faixas de " +
-  "composição corporal e um risco metabólico acumulado. A saída ordena prioridade de atenção; ela não fecha diagnóstico.";
+  "Dois projetos de triagem no mesmo serviço, cada um com a sua base, o seu modelo e as suas telas: um estima a faixa de composição " +
+  "corporal; o outro, a chance de já ter recebido o diagnóstico de diabetes. A saída ordena prioridade de atenção; ela não fecha diagnóstico.";
 
 /**
  * O visor da balança no pé do herói (o conceito do símbolo Visor): uma fita métrica em arco, desenhada
@@ -41,13 +38,13 @@ const MARCAS_DO_VISOR = Array.from({ length: 251 }, (_, i) => {
 });
 
 /**
- * O topo do Início: o símbolo Visor, o nome com brilho, o resumo entrando palavra por palavra, os três
- * botões e, ao lado, "como funciona" — os três números vêm de GET /model/info e contam até o valor.
- * No pé, o visor da balança (FundoDoHeroi).
+ * O topo do Início: o símbolo Visor, o nome com brilho, o resumo entrando palavra por palavra e, ao
+ * lado, os dois projetos (ADR 0016), cada um com um atalho para a seção dele. No pé, o visor da
+ * balança (FundoDoHeroi).
  */
 export function Heroi() {
   return (
-    // O padding de baixo é a faixa do visor da balança (h-16): o desenho passa por baixo dos botões, não atrás deles.
+    // O padding de baixo é a faixa do visor da balança (h-16): o desenho passa por baixo do conteúdo, não atrás dele.
     <section aria-labelledby="inicio-titulo" className="relative isolate overflow-hidden rounded-2xl border bg-card px-5 pt-9 pb-16 shadow-sm sm:px-10 sm:pt-12 sm:pb-16">
       <FundoDoHeroi />
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center">
@@ -55,8 +52,8 @@ export function Heroi() {
           {/* O símbolo, com a área de proteção do manual (3 m = 3/19 do lado) até o selo ao lado. */}
           <div className="flex items-center gap-3">
             <Marca className="size-12" />
-            {/* A natureza das duas bases (obesidade fictícia, diabetes real e anonimizada) mora no cartão
-                "Dados" do Sobre o projeto; o selo fica com o que vale para o produto inteiro. */}
+            {/* A natureza de cada base (obesidade fictícia, diabetes real e anonimizada) mora nos cartões
+                dos dois projetos e no "Dados" de cada um; o selo fica com o que vale para o produto inteiro. */}
             <p className="inline-flex items-center gap-2 rounded-full border border-warning/30 bg-warning/8 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
             <span aria-hidden="true" className="relative flex size-2">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-warning/60 motion-reduce:animate-none" />
@@ -74,28 +71,8 @@ export function Heroi() {
           <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-[17px]">
             <PalavrasQueFocam texto={RESUMO} />
           </p>
-          <div className="flex flex-wrap gap-2.5 pt-1">
-            <Button asChild className="botao-brilho shadow-lg shadow-primary/30 transition-shadow hover:shadow-xl hover:shadow-primary/40">
-              <Link to="/simulador">
-                <Calculator aria-hidden="true" />
-                Abrir o simulador
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="group/botao">
-              <Link to="/painel">
-                Explorar o painel
-                <ArrowRight aria-hidden="true" className="transition-transform duration-200 group-hover/botao:translate-x-1 motion-reduce:transition-none" />
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" className="group/botao text-muted-foreground">
-              <a href="#sobre-o-projeto">
-                Sobre o projeto
-                <ArrowDown aria-hidden="true" className="transition-transform duration-200 group-hover/botao:translate-y-0.5 motion-reduce:transition-none" />
-              </a>
-            </Button>
-          </div>
         </div>
-        <ComoFunciona />
+        <OsDoisProjetos />
       </div>
     </section>
   );
@@ -113,38 +90,62 @@ function PalavrasQueFocam({ texto }: { texto: string }) {
   ));
 }
 
-function ComoFunciona() {
-  const info = useModelInfo();
-  const [ref, apareceu] = useApareceuNaTela<HTMLOListElement>("0px");
-  const d = info.data;
-  const passos = [
-    { chave: "entrada", valor: d?.n_features_entrada, texto: "respostas sobre medidas corporais e hábitos" },
-    { chave: "modelo", valor: d?.n_features_modelo, texto: "colunas que o pipeline monta: o IMC e o one-hot de domínio fechado" },
-    { chave: "saida", valor: d?.ordem_clinica.length, texto: "probabilidades em ordem clínica e um risco acumulado" },
+/**
+ * Os dois projetos no herói, cada um num cartão que leva à seção dele no Início: o ícone, o número, o
+ * nome, o que entra e o que sai do modelo e a natureza da base. Os números (respostas e faixas) e a
+ * versão vêm do /model/info de cada projeto; enquanto não chegam, a linha deles é um esqueleto.
+ */
+function OsDoisProjetos() {
+  const obesidade = useModelInfo().data;
+  const diabetes = useModelInfoDiabetes().data;
+  const cartoes: Array<{ projeto: Projeto; resumo: string | null; versao?: string }> = [
+    {
+      projeto: OBESIDADE,
+      resumo: obesidade ? `${obesidade.n_features_entrada} respostas → ${obesidade.ordem_clinica.length} faixas de composição corporal e um risco acumulado` : null,
+      versao: obesidade?.versao,
+    },
+    {
+      projeto: DIABETES,
+      resumo: diabetes ? `${diabetes.n_features_entrada} respostas → a chance de já ter recebido o diagnóstico de diabetes` : null,
+      versao: diabetes?.versao,
+    },
   ];
-
   return (
     <div className="borda-com-feixe rounded-2xl">
-      <div className="rounded-2xl border bg-card/75 p-5 shadow-xl shadow-primary/5 backdrop-blur-md sm:p-6">
-        <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Como funciona</p>
-        <ol ref={ref} aria-label="Como funciona" className="mt-4 flex flex-col">
-          {passos.map((passo, i) => (
-            <li key={passo.chave} className="relative flex items-center gap-4 pb-5 last:pb-0">
-              {i < passos.length - 1 ? (
-                <span
-                  aria-hidden="true"
-                  className="linha-com-feixe linha-com-feixe--vertical absolute top-12 bottom-0 left-6 w-px"
-                  style={{ "--atraso-feixe": `${i * 0.8}s` } as CSSProperties}
-                />
-              ) : null}
-              <span className="relative flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xl font-semibold text-primary ring-1 ring-primary/20 ring-inset">
-                {info.isPending ? <Skeleton className="h-6 w-7" /> : <NumeroQueConta valor={passo.valor} formatar={fmtInt} ativo={apareceu} duracaoMs={1200 + i * 300} />}
-              </span>
-              <span className="text-sm leading-snug">{passo.texto}</span>
-              {i < passos.length - 1 ? <span className="sr-only">, depois</span> : null}
-            </li>
-          ))}
-        </ol>
+      <div className="rounded-2xl border bg-card/75 p-4 shadow-xl shadow-primary/5 backdrop-blur-md sm:p-5">
+        <p className="px-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Dois projetos, um serviço</p>
+        <ul aria-label="Os dois projetos" className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          {cartoes.map(({ projeto, resumo, versao }) => {
+            const Icone = projeto.icone;
+            return (
+              <li key={projeto.id}>
+                <a
+                  href={`#projeto-${projeto.id}`}
+                  className="group flex h-full flex-col gap-2.5 rounded-xl border bg-card p-4 transition-[border-color,box-shadow] duration-200 hover:border-foreground/25 hover:shadow-md motion-reduce:transition-none"
+                >
+                  <span className="flex items-center gap-3">
+                    <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                      <Icone className="size-[18px]" />
+                    </span>
+                    <span className="flex min-w-0 flex-col leading-tight">
+                      <span className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Projeto {projeto.numero}</span>{" "}
+                      <span className="text-base font-semibold tracking-tight">{projeto.nome}</span>
+                    </span>
+                    <ArrowDown
+                      aria-hidden="true"
+                      className="ml-auto size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-y-0.5 group-hover:text-foreground motion-reduce:transition-none"
+                    />
+                  </span>
+                  {resumo ? <span className="text-sm leading-snug">{resumo}</span> : <Skeleton className="h-4 w-4/5" />}
+                  <span className="text-xs text-muted-foreground">
+                    {projeto.dados}
+                    {versao ? ` · modelo v${versao}` : null}
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div>
   );
