@@ -29,6 +29,13 @@ LEITURA_RISCO_BAIXO = (
     "A probabilidade estimada está abaixo do limiar de triagem. Isso não descarta a diabetes: o "
     "limiar deixa de fora parte das pessoas que têm a doença."
 )
+# Com o limiar por grupo de idade, as duas leituras acima continuam e ganham o grupo e o porquê: a
+# tela do simulador diz o mesmo (ResultadoDiabetes.tsx), e a linha do porquê é a mesma, literal.
+LIMIAR_DO_GRUPO = "O limiar de triagem aplicado é o do seu grupo de idade, {grupo}."
+POR_QUE_A_IDADE = (
+    "O limiar depende da idade porque a chance de diabetes cresce com ela: cada grupo tem o seu, o "
+    "que encaminha a mesma parcela de quem tem a doença em todas as idades."
+)
 NOTA_ESCALA = (
     "A probabilidade vale na escala da base — os respondentes de uma pesquisa telefônica dos "
     "Estados Unidos em 2015 —, não na população brasileira."
@@ -58,8 +65,13 @@ def montar_relatorio_html(
         f"<td>{html.escape(_valor_exibido(campo, valor))}</td></tr>"
         for campo, valor in entrada.valores_do_modelo().items()
     )
-    # O limiar que classificou é o do grupo de idade da pessoa (nenhum num modelo de limiar único).
+    # O limiar que classificou é o do grupo de idade da pessoa (nenhum num modelo de limiar único):
+    # o cartão do limiar e a leitura dizem qual, e uma linha diz por que ele depende da idade.
     grupo = f" ({html.escape(resposta.grupo_de_idade)})" if resposta.grupo_de_idade else ""
+    porque = ""
+    if resposta.grupo_de_idade:
+        leitura += " " + LIMIAR_DO_GRUPO.format(grupo=html.escape(resposta.grupo_de_idade))
+        porque = f"<p class='porque'>{POR_QUE_A_IDADE}</p>"
     extrapolou = ""
     if resposta.fora_do_dominio_treino:
         campos = ", ".join(html.escape(c) for c in resposta.fora_do_dominio_treino)
@@ -89,6 +101,7 @@ def montar_relatorio_html(
         table {{ width: 100%; border-collapse: collapse; margin-top: 16px; background: #fdfcfc; }}
         th, td {{ padding: 10px 12px; border-bottom: 1px solid #dcd8d7; text-align: left; }}
         .leitura {{ margin-top: 20px; }}
+        .porque {{ color: #615c5a; font-size: 13px; margin-top: 0; }}
         .nota {{ color: #615c5a; font-size: 13px; margin-top: 24px; }}
         @media print {{ body {{ margin: 12mm; background: #ffffff; }} }}
     </style>
@@ -116,6 +129,7 @@ def montar_relatorio_html(
         </div>
     </div>
     <p class="leitura">{leitura}</p>
+    {porque}
     <h3 style="margin-top:24px;">Dados informados</h3>
     <table>
         <tbody>

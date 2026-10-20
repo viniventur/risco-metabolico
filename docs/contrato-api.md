@@ -125,7 +125,7 @@ O primeiro caso de ouro (`backend/tests/diabetes/dados_ouro/entradas.json`), num
 
 - **O limiar:** é o do grupo de idade da pessoa, pela faixa etária: 18 a 44, 45 a 64 ou 65 anos ou mais. `grupo_de_idade` diz qual, e a mesma probabilidade pode classificar diferente noutra idade. O limiar único, o mesmo critério na base inteira, fica em `/diabetes/model/info` (`limiar`), só como referência ([ADR 0015](decisoes/0015-limiar-por-faixa-etaria.md)).
 - **Um artefato sem a tabela** de limiares por idade, como o da 1.0.0, aplica o limiar único a todas as idades, e `grupo_de_idade` sai nulo.
-- **O lote e o relatório** seguem a mesma regra: cada resultado do lote traz o limiar e o grupo dele, e o cartão do limiar do relatório diz o grupo.
+- **O lote e o relatório** seguem a mesma regra: cada resultado do lote traz o limiar e o grupo dele, e o relatório diz o grupo no cartão do limiar e na leitura, com uma linha sobre por que o limiar depende da idade.
 - **As escalas:** a faixa etária (1 = 18 a 24 anos … 13 = 80 ou mais) e a escolaridade (1 = nunca estudou … 6 = superior) viajam como inteiros, exatamente como o modelo foi treinado. Os rótulos estão em `/diabetes/metadata`.
 - **O IMC:** o contrato aceita de 10 a 100; o modelo o arredonda ao inteiro, como a pesquisa. No simulador, a calculadora usa peso e altura só na tela, e só o IMC vai à API.
 - **Um campo da outra vertente,** como `Peso`, é 422 `entrada_invalida` com `tipo: extra_forbidden`, nunca silêncio.

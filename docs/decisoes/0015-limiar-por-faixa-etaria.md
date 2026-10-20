@@ -82,7 +82,7 @@ O release `diabetes-v1.1.0` leva o `.pkl` e o mesmo snapshot (`dee1f27e9777`), c
 
 - **Simulador.** A régua marca o limiar do grupo, e o texto diz qual: "Limiar de triagem: 3,0% (o traço), o do grupo de 18 a 44 anos". A leitura fala no limiar do seu grupo de idade, e uma nota diz por que o limiar depende da idade.
 - **Início.** A seção da vertente mostra a tabela por grupo (limiar, recall e encaminhados fora da dobra, com o total) e o limiar único como referência.
-- **Relatório HTML.** O cartão do limiar diz o grupo.
+- **Relatório HTML.** O cartão do limiar diz o grupo. A leitura de antes continua e ganha, logo depois, "O limiar de triagem aplicado é o do seu grupo de idade" com o grupo, e a mesma linha da tela sobre por que o limiar depende da idade.
 - **Sem os campos novos** (um modelo de limiar único), as telas mostram os textos e o cartão de antes. Por isso os testes do front da F5 passam sem edição.
 
 ## O preço: mais encaminhados com o mesmo recall total
@@ -185,7 +185,7 @@ Na M2, com o ok do autor:
 - os quatro casos de ouro acima;
 - o snapshot do OpenAPI, que só ganha acréscimos.
 
-Na M3, nenhum: os testes novos do front entram como acréscimo.
+Na M3, nenhum: os testes novos do front entram como acréscimo. Na leitura do relatório com o grupo, que entrou depois da M4, também nenhum: as frases de antes continuam no HTML, e os testes novos estão em `test_relatorio_por_grupo.py`.
 
 ## Onde está
 
@@ -198,13 +198,14 @@ Na M3, nenhum: os testes novos do front entram como acréscimo.
 | A carga do artefato | `backend/app/diabetes/nucleo/artefato.py`: a tabela conferida e `limiar_de` |
 | O contrato | `backend/app/diabetes/esquemas/saida.py` e [`docs/contrato-api.md`](../contrato-api.md#vertente-diabetes) |
 | As telas | `frontend/src/features/diabetes/simulador/ResultadoDiabetes.tsx`, `SimuladorDiabetesPage.tsx` e `inicio/SecaoDiabetes.tsx` |
+| O relatório | `backend/app/diabetes/dominio/relatorio.py`: `LIMIAR_DO_GRUPO` e `POR_QUE_A_IDADE` |
 
 ## Consequências
 
 - **A mesma probabilidade classifica diferente conforme a idade.** "Risco elevado" quer dizer risco elevado para o grupo de idade da pessoa. Uma probabilidade entre 0,0297 e 0,1084 é "Risco elevado" de 18 a 44 anos e "Risco baixo" de 45 a 64. Entre 0,1084 e 0,1616, é elevada de 45 a 64 e baixa a partir dos 65. A resposta, a tela e o relatório dizem o grupo.
 - **A precisão cai entre os mais jovens.** Fora da dobra, 0,098 dos encaminhados de 18 a 44 anos têm diabetes, contra 0,300 dos de 65 ou mais. É o preço de achar a mesma parcela dos casos em cada idade.
 - **Entre os sexos, o recall continua próximo.** No teste, ele fica em 0,786 (feminino) e 0,815 (masculino) (`por-grupo.json`), contra 0,784 e 0,806 com o limiar único (ADR 0014).
-- **Um `.pkl` sem a tabela,** como o da 1.0.0, continua carregável e aplica o limiar único a todas as idades, com aviso no log. A resposta sai com `grupo_de_idade` nulo, e o front mostra os textos de antes. Voltar para a 1.0.0 é voltar para o limiar único.
+- **Um `.pkl` sem a tabela,** como o da 1.0.0, continua carregável e aplica o limiar único a todas as idades, com aviso no log. A resposta sai com `grupo_de_idade` nulo, e o front e o relatório mostram os textos de antes. Voltar para a 1.0.0 é voltar para o limiar único.
 - **A deriva conta só as linhas da versão servida.** As consultas filtram pela versão do modelo e dos dados (ADR 0014, decisão 3). As respostas da 1.0.0 não entram na janela da 1.1.0, e a tela mostra "amostra insuficiente" até chegarem as respostas mínimas da 1.1.0 (`N_MINIMO_DERIVA_DIABETES`).
 - **Mudar os grupos ou o critério** é mudar `CORTES_IDADE` e `GRUPOS_IDADE`, ou `CRITERIO_LIMIAR_POR_IDADE`, e treinar uma versão nova. O `verificar` compara o critério e os grupos do manifest com os do código.
 - **Um artefato novo** pede a remedição da reprodutibilidade. `test_a_tolerancia_dos_limiares_cobre_a_medicao_registrada` diz se 0,005 ainda cobre o registro.

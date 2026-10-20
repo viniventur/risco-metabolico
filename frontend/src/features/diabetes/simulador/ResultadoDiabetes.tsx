@@ -29,14 +29,14 @@ const LEITURA = {
 /**
  * As mesmas leituras quando a resposta traz `grupo_de_idade`: o risco elevado é elevado para a idade
  * da pessoa, e a tela precisa dizer isso (notebook 02, "Limiar por faixa etária"). O relatório diz o
- * grupo no cartão do limiar.
+ * grupo no cartão do limiar e na leitura.
  */
 const LEITURA_DO_GRUPO = {
   elevado: "No limiar do seu grupo de idade ou acima dele: a triagem sugere conversar com um profissional de saúde sobre o exame de glicemia.",
   baixo: "Abaixo do limiar do seu grupo de idade. Isso não descarta a diabetes: o limiar deixa de fora parte de quem tem a doença.",
 };
 
-/** Por que o limiar depende da idade: o critério de cada grupo, sem número (o alvo de recall está no Início). */
+/** Por que o limiar depende da idade: o critério de cada grupo, sem número (o alvo de recall está no Início). O relatório traz a mesma linha. */
 const POR_QUE_A_IDADE =
   "O limiar depende da idade porque a chance de diabetes cresce com ela: cada grupo tem o seu, o que encaminha a mesma parcela de quem tem a doença em todas as idades.";
 
