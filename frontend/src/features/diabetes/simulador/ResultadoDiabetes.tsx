@@ -27,6 +27,20 @@ const LEITURA = {
 };
 
 /**
+ * As mesmas leituras quando a resposta traz `grupo_de_idade`: o risco elevado é elevado para a idade
+ * da pessoa, e a tela precisa dizer isso (notebook 02, "Limiar por faixa etária"). O relatório diz o
+ * grupo no cartão do limiar.
+ */
+const LEITURA_DO_GRUPO = {
+  elevado: "No limiar do seu grupo de idade ou acima dele: a triagem sugere conversar com um profissional de saúde sobre o exame de glicemia.",
+  baixo: "Abaixo do limiar do seu grupo de idade. Isso não descarta a diabetes: o limiar deixa de fora parte de quem tem a doença.",
+};
+
+/** Por que o limiar depende da idade: o critério de cada grupo, sem número (o alvo de recall está no Início). */
+const POR_QUE_A_IDADE =
+  "O limiar depende da idade porque a chance de diabetes cresce com ela: cada grupo tem o seu, o que encaminha a mesma parcela de quem tem a doença em todas as idades.";
+
+/**
  * A probabilidade numa régua de 0 a 100%, com o traço do limiar: o leitor vê de que lado dele caiu. A
  * barra é o resultado da previsão — leva o magenta da marca (ADR 0011), como a barra da classe
  * estimada no simulador da obesidade.
@@ -58,7 +72,9 @@ type Props = { resposta?: RespostaDiabetes; entrada: EntradaDiabetes | null; nom
 /**
  * O resultado da triagem de diabetes (decisão D4): a classificação pelo limiar — o resultado da
  * previsão, em magenta — com a leitura curta, a probabilidade na régua com o traço do limiar, o IMC e
- * a faixa dele, o aviso dos valores fora da faixa da base e o relatório.
+ * a faixa dele, o aviso dos valores fora da faixa da base e o relatório. Com `grupo_de_idade` na
+ * resposta, o limiar é o do grupo de idade da pessoa, e os textos dizem qual; sem ele (um modelo de
+ * limiar único), os textos do limiar único.
  */
 export function ResultadoDiabetes({ resposta, entrada, nome, calculando }: Props) {
   if (calculando && !resposta) return <EsqueletoResultado />;
@@ -75,6 +91,8 @@ export function ResultadoDiabetes({ resposta, entrada, nome, calculando }: Props
     );
   }
   const faixa = classificarImc(resposta.imc);
+  const grupo = resposta.grupo_de_idade;
+  const leitura = grupo ? LEITURA_DO_GRUPO : LEITURA;
   return (
     <Card className={cn("flex flex-col", calculando && "refetching")}>
       <section className="flex flex-col" aria-live="polite" aria-label="Resultado da triagem de diabetes">
@@ -82,7 +100,7 @@ export function ResultadoDiabetes({ resposta, entrada, nome, calculando }: Props
           <div className="flex flex-col gap-1">
             <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Classificação</span>
             <p className="text-2xl leading-tight font-semibold tracking-tight text-previsao">{resposta.classificacao}</p>
-            <p className="text-sm leading-snug text-muted-foreground">{resposta.risco_elevado ? LEITURA.elevado : LEITURA.baixo}</p>
+            <p className="text-sm leading-snug text-muted-foreground">{resposta.risco_elevado ? leitura.elevado : leitura.baixo}</p>
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
             <div className="flex flex-col gap-2">
@@ -90,8 +108,13 @@ export function ResultadoDiabetes({ resposta, entrada, nome, calculando }: Props
               <span className="text-3xl leading-none font-semibold">{fmtPct(resposta.probabilidade)}</span>
               <ReguaDaProbabilidade probabilidade={resposta.probabilidade} limiar={resposta.limiar} />
               <span className="text-xs leading-snug text-muted-foreground">
-                Limiar de triagem: <span className="font-medium text-foreground tabular-nums">{fmtPct(resposta.limiar)}</span> (o traço). É a chance de já
-                ter recebido o diagnóstico, na escala da base — não na da população.
+                Limiar de triagem: <span className="font-medium text-foreground tabular-nums">{fmtPct(resposta.limiar)}</span> (o traço)
+                {grupo ? (
+                  <>
+                    , o do grupo de <span className="font-medium text-foreground">{grupo}</span>
+                  </>
+                ) : null}
+                . É a chance de já ter recebido o diagnóstico, na escala da base — não na da população.
               </span>
             </div>
             <div className="flex flex-col gap-2">
@@ -103,6 +126,7 @@ export function ResultadoDiabetes({ resposta, entrada, nome, calculando }: Props
               </span>
             </div>
           </div>
+          {grupo ? <p className="text-xs leading-snug text-muted-foreground">{POR_QUE_A_IDADE}</p> : null}
           <AvisoExtrapolacao campos={resposta.fora_do_dominio_treino} />
         </div>
         <Separator />

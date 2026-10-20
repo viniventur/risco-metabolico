@@ -63,3 +63,43 @@ describe("ResultadoDiabetes", () => {
     expect(screen.getByRole("status")).toHaveTextContent("IMC");
   });
 });
+
+// O modelo 1.1.0 (artifacts/diabetes/manifest.json, `limiares_por_idade`): a resposta traz o limiar do grupo de
+// idade da pessoa e o nome do grupo. A ENTRADA (60 a 64 anos) cai em "45 a 64 anos".
+const RESPOSTA_DO_GRUPO: RespostaDiabetes = { ...RESPOSTA, limiar: 0.10843631625175476, grupo_de_idade: "45 a 64 anos", versao_modelo: "1.1.0" };
+
+describe("ResultadoDiabetes com o limiar do grupo de idade", () => {
+  it("o limiar é o do grupo: o percentual num elemento só dele, o nome do grupo e por que o limiar depende da idade", () => {
+    render(comCliente(<ResultadoDiabetes resposta={RESPOSTA_DO_GRUPO} entrada={ENTRADA} nome="" calculando={false} />));
+    expect(screen.getByText("10,8%")).toBeInTheDocument();
+    expect(screen.getByText("45 a 64 anos")).toBeInTheDocument();
+    expect(screen.getByText(/^Limiar de triagem:/)).toHaveTextContent(
+      "Limiar de triagem: 10,8% (o traço), o do grupo de 45 a 64 anos. É a chance de já ter recebido o diagnóstico, na escala da base",
+    );
+    expect(screen.getByText(/^O limiar depende da idade porque a chance de diabetes cresce com ela/)).toBeInTheDocument();
+    // a resposta não traz o limiar único: ele não aparece
+    expect(screen.queryByText("12,6%")).toBeNull();
+  });
+
+  it("no limiar do grupo ou acima dele, a leitura fala no limiar do seu grupo de idade", () => {
+    render(comCliente(<ResultadoDiabetes resposta={RESPOSTA_DO_GRUPO} entrada={ENTRADA} nome="" calculando={false} />));
+    expect(screen.getByText("Risco elevado")).toHaveClass("text-previsao");
+    expect(
+      screen.getByText("No limiar do seu grupo de idade ou acima dele: a triagem sugere conversar com um profissional de saúde sobre o exame de glicemia."),
+    ).toBeInTheDocument();
+  });
+
+  it("abaixo dele, a leitura também fala no grupo e lembra que o limiar não descarta a doença", () => {
+    const baixo = { ...RESPOSTA_DO_GRUPO, probabilidade: 0.05, risco_elevado: false, classificacao: "Risco baixo" as const };
+    render(comCliente(<ResultadoDiabetes resposta={baixo} entrada={ENTRADA} nome="" calculando={false} />));
+    expect(screen.getByText("Risco baixo")).toHaveClass("text-previsao");
+    expect(screen.getByText(/^Abaixo do limiar do seu grupo de idade\. Isso não descarta a diabetes/)).toBeInTheDocument();
+  });
+
+  it("sem grupo_de_idade (um modelo de limiar único), nenhum texto fala em grupo de idade", () => {
+    render(comCliente(<ResultadoDiabetes resposta={RESPOSTA} entrada={ENTRADA} nome="" calculando={false} />));
+    expect(screen.getByText(/^Limiar de triagem:/)).toHaveTextContent("Limiar de triagem: 12,6% (o traço). É a chance de já ter recebido o diagnóstico");
+    expect(screen.queryByText(/grupo de idade/)).toBeNull();
+    expect(screen.queryByText(/O limiar depende da idade/)).toBeNull();
+  });
+});

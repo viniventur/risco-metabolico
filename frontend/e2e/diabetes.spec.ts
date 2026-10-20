@@ -179,3 +179,63 @@ test("o Início tem a seção da vertente com os números de /diabetes/model/inf
   await expect(page).toHaveURL(/\/diabetes\/simulador$/);
   await expect(page.getByRole("heading", { level: 1, name: "Simulador de triagem de diabetes" })).toBeVisible();
 });
+
+// O limiar por grupo de idade (modelo 1.1.0): os números vêm de /diabetes/model/info, que as duas telas leem;
+// o teste os confere contra a mesma resposta, nunca contra um valor escrito aqui.
+
+/** O percentual como o front o escreve (shared/format/ptBR.ts, fmtPct): uma casa, vírgula decimal. */
+const pct = (fracao: number) => `${(fracao * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+
+type PontoForaDaDobra = { recall: number; encaminhados: number };
+type GrupoDeIdade = { grupo: string; faixas_etarias: number[]; valor: number; fora_da_dobra: PontoForaDaDobra };
+type InfoComGrupos = { limiar: { valor: number; fora_da_dobra: PontoForaDaDobra }; limiares_por_idade: { grupos: GrupoDeIdade[]; fora_da_dobra: PontoForaDaDobra } };
+
+test("diabetes, simulador: o limiar é o do grupo de idade da pessoa, a tela diz o grupo e o porquê, e outra idade dá outro limiar", async ({ page }) => {
+  const lerInfo = page.waitForResponse((r) => r.url().endsWith("/api/v1/diabetes/model/info") && r.ok());
+  await page.goto("/diabetes/simulador");
+  const info = (await (await lerInfo).json()) as InfoComGrupos;
+  await expect(page.getByText(/o limiar do grupo de idade da pessoa a classifica em risco elevado ou baixo/)).toBeVisible();
+  await expect(page.getByRole("form", { name: "Formulário de triagem de diabetes" })).toBeVisible({ timeout: 60_000 });
+  const resultado = page.getByRole("region", { name: "Resultado da triagem de diabetes" });
+
+  const limiares = new Set<number>();
+  for (const [faixa, rotulo] of [
+    [10, "65 a 69 anos"],
+    [1, "18 a 24 anos"],
+  ] as const) {
+    await page.getByLabel("Faixa etária", { exact: true }).selectOption({ label: rotulo });
+    const resposta = page.waitForResponse((r) => r.url().endsWith("/api/v1/diabetes/predicoes") && r.request().method() === "POST");
+    await page.getByRole("button", { name: "Calcular probabilidade" }).click();
+    const corpo = (await (await resposta).json()) as { limiar: number; grupo_de_idade: string };
+    // a API classificou pelo limiar do grupo que contém a faixa escolhida...
+    const grupo = info.limiares_por_idade.grupos.find((g) => g.faixas_etarias.includes(faixa));
+    expect(grupo).toBeDefined();
+    expect(corpo.grupo_de_idade).toBe(grupo?.grupo);
+    expect(corpo.limiar).toBe(grupo?.valor);
+    limiares.add(corpo.limiar);
+    // ...e a tela diz qual, com o limiar dele no traço, a leitura do grupo e por que o limiar depende da idade
+    await expect(resultado.getByText(/^Limiar de triagem:/)).toContainText(`Limiar de triagem: ${pct(corpo.limiar)} (o traço), o do grupo de ${corpo.grupo_de_idade}.`);
+    await expect(resultado.getByText(/^(No limiar do seu grupo de idade ou acima dele|Abaixo do limiar do seu grupo de idade)/)).toBeVisible();
+    await expect(resultado.getByText(/^O limiar depende da idade/)).toBeVisible();
+  }
+  expect(limiares.size).toBe(2);
+});
+
+test("o Início: a tabela com o limiar de cada grupo de idade e o limiar único como referência, de /diabetes/model/info", async ({ page }) => {
+  const lerInfo = page.waitForResponse((r) => r.url().endsWith("/api/v1/diabetes/model/info") && r.ok());
+  await page.goto("/");
+  const info = (await (await lerInfo).json()) as InfoComGrupos;
+  const tabela = page.getByRole("table", { name: "Limiar de cada grupo de idade" });
+  await expect(tabela).toBeVisible({ timeout: 60_000 });
+  const linhas = tabela.locator("tbody tr");
+  await expect(linhas).toHaveCount(info.limiares_por_idade.grupos.length);
+  for (const [i, g] of info.limiares_por_idade.grupos.entries()) {
+    await expect(linhas.nth(i).locator("th, td")).toHaveText([g.grupo, pct(g.valor), pct(g.fora_da_dobra.recall), pct(g.fora_da_dobra.encaminhados)]);
+  }
+  const total = info.limiares_por_idade.fora_da_dobra;
+  await expect(tabela.locator("tfoot tr").locator("th, td")).toHaveText(["Todas as idades", pct(total.recall), pct(total.encaminhados)]);
+  await expect(page.getByText(/^Um limiar só, para todas as idades, seria/)).toContainText(
+    `seria ${pct(info.limiar.valor)}: no total, recall de ${pct(info.limiar.fora_da_dobra.recall)} e ${pct(info.limiar.fora_da_dobra.encaminhados)} das respostas encaminhadas.`,
+  );
+  await expect(page.getByText(/o limiar do grupo de idade encaminha quem fica nele ou acima dele/)).toBeVisible();
+});

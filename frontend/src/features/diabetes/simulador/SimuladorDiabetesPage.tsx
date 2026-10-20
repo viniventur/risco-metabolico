@@ -6,7 +6,7 @@ import { PageHeader } from "@/shared/layout/PageHeader";
 import { avisar } from "@/shared/ui/avisos";
 import { Skeleton } from "@/shared/ui/skeleton";
 
-import { useMetadataDiabetes } from "../api/modelo";
+import { useMetadataDiabetes, useModelInfoDiabetes } from "../api/modelo";
 import { usePreverDiabetes } from "../api/predicoes";
 import type { EntradaDiabetes } from "../api/tipos";
 import { FormularioDiabetes } from "./FormularioDiabetes";
@@ -31,14 +31,17 @@ function EsqueletoFormulario() {
 /**
  * O simulador da vertente (o desenho do simulador da obesidade): o formulário de /diabetes/metadata à
  * esquerda e o resultado à direita, FIXO na rolagem a partir de 1280 px. Abaixo disso o resultado vem
- * depois do formulário, e a página rola até ele quando a resposta chega.
+ * depois do formulário, e a página rola até ele quando a resposta chega. A descrição diz qual limiar
+ * classifica: o do grupo de idade, se /diabetes/model/info traz `limiares_por_idade`.
  */
 export function SimuladorDiabetesPage() {
   const metadata = useMetadataDiabetes();
+  const info = useModelInfoDiabetes();
   const prever = usePreverDiabetes();
   const [ultimaEntrada, setUltimaEntrada] = useState<EntradaDiabetes | null>(null);
   const [nome, setNome] = useState("");
   const respostas = metadata.data?.grupos.reduce((soma, g) => soma + g.campos.length, 0);
+  const limiar = info.data?.limiares_por_idade ? "o limiar do grupo de idade da pessoa" : "o limiar do modelo";
 
   function aoEnviar(entrada: EntradaDiabetes) {
     setUltimaEntrada(entrada);
@@ -59,7 +62,7 @@ export function SimuladorDiabetesPage() {
     <>
       <PageHeader
         titulo="Simulador de triagem de diabetes"
-        descricao={`${respostas ? `${respostas} respostas viram` : "As respostas viram"} a probabilidade de já ter recebido o diagnóstico de diabetes; o limiar do modelo a classifica em risco elevado ou baixo. Triagem, não diagnóstico.`}
+        descricao={`${respostas ? `${respostas} respostas viram` : "As respostas viram"} a probabilidade de já ter recebido o diagnóstico de diabetes; ${limiar} a classifica em risco elevado ou baixo. Triagem, não diagnóstico.`}
       />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] xl:items-start">
         <QueryState
