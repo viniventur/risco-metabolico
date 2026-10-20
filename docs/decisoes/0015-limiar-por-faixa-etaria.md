@@ -68,7 +68,7 @@ O release `diabetes-v1.1.0` leva o `.pkl` e o mesmo snapshot (`dee1f27e9777`), c
 
 **D4 — O contrato, só com acréscimos.**
 
-- **A resposta.** Nas três rotas de predição (individual, lote e relatório), `limiar` continua um número: agora, o do grupo de idade da pessoa. O campo novo e opcional `grupo_de_idade` diz qual, e `risco_elevado` continua `probabilidade >= limiar`.
+- **A resposta.** Nas três rotas de predição (individual, lote e relatório), `limiar` continua um número: agora, o do grupo de idade da pessoa. O campo novo e opcional `grupo_de_idade` diz qual, e `risco_elevado` continua `probabilidade >= limiar`. No JSON, `grupo_de_idade` vem depois de `classificacao`, e não ao lado do limiar: o aceite do ambiente (`scripts/verificar-stack.sh`, o passo do CI que libera a publicação) lê `limiar` seguido de `risco_elevado` no texto da resposta. A M5 achou o campo entre os dois; `test_aceite_do_ambiente.py` confere a ordem contra o próprio script.
 - **O modelo.** `/diabetes/model/info` ganha `limiares_por_idade`, com o critério, o alvo, os grupos e o total fora da dobra. Cada grupo traz o rótulo, as faixas, o valor e o ponto fora da dobra. O bloco `limiar` mantém a forma e passa a ser a referência: o limiar único na base inteira.
 - **O manifest e as métricas.** O manifest ganha o mesmo bloco. Os `*_no_limiar` de `metricas_teste`, `matriz-confusao.json` e `por-grupo.json` medem a regra que classifica. A métrica nova, `limiares-por-idade.json`, guarda:
   - a escolha;
@@ -185,7 +185,7 @@ Na M2, com o ok do autor:
 - os quatro casos de ouro acima;
 - o snapshot do OpenAPI, que só ganha acréscimos.
 
-Na M3, nenhum: os testes novos do front entram como acréscimo. Na leitura do relatório com o grupo, que entrou depois da M4, também nenhum: as frases de antes continuam no HTML, e os testes novos estão em `test_relatorio_por_grupo.py`.
+Na M3, nenhum: os testes novos do front entram como acréscimo. Na leitura do relatório com o grupo, que entrou depois da M4, também nenhum: as frases de antes continuam no HTML, e os testes novos estão em `test_relatorio_por_grupo.py`. Na M5, também nenhum: a ordem dos campos voltou a casar com o aceite do ambiente, e o teste novo está em `test_aceite_do_ambiente.py`.
 
 ## Onde está
 

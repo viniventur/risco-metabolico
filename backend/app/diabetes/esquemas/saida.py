@@ -36,6 +36,12 @@ class RespostaDiabetes(BaseModel):
             "/diabetes/model/info, `limiares_por_idade`)"
         ),
     )
+    risco_elevado: bool = Field(
+        description="probabilidade >= limiar: a triagem sugere o exame de glicemia"
+    )
+    classificacao: Classificacao
+    # Depois da classificação, não ao lado do limiar: a ordem dos campos chega ao texto do JSON, e o
+    # aceite do ambiente (scripts/verificar-stack.sh) confere `limiar` seguido de `risco_elevado`.
     grupo_de_idade: str | None = Field(
         default=None,
         description=(
@@ -43,10 +49,6 @@ class RespostaDiabetes(BaseModel):
             "modelo de limiar único"
         ),
     )
-    risco_elevado: bool = Field(
-        description="probabilidade >= limiar: a triagem sugere o exame de glicemia"
-    )
-    classificacao: Classificacao
     imc: float
     faixa_imc: str
     fora_do_dominio_treino: list[str] = Field(

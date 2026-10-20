@@ -112,14 +112,14 @@ O primeiro caso de ouro (`backend/tests/diabetes/dados_ouro/entradas.json`), num
 {
   "probabilidade": 0.4705495834350586, // de 0 a 1, na escala da base (respondentes do BRFSS 2015): não é a da população
   "limiar": 0.16155649721622467,       // o do grupo de idade da pessoa; o critério e a tabela em /diabetes/model/info
-  "grupo_de_idade": "65 anos ou mais", // o grupo cujo limiar classificou; nulo num artefato de limiar único
   "risco_elevado": true,               // probabilidade >= limiar: a triagem sugere o exame de glicemia
   "classificacao": "Risco elevado",    // ou "Risco baixo"
+  "grupo_de_idade": "65 anos ou mais", // o grupo cujo limiar classificou; nulo num artefato de limiar único
   "imc": 38.4,
   "faixa_imc": "Obesidade Grau II",    // as 6 faixas de IMC, as mesmas da vertente de obesidade
   "fora_do_dominio_treino": [],        // campos fora da faixa da base, como o modelo os vê (o IMC arredondado)
   "versao_modelo": "1.1.0",
-  "latencia_ms": 5.57
+  "latencia_ms": 3.75
 }
 ```
 
