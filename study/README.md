@@ -87,12 +87,18 @@ Depois do que fica congelado, a seção **Limiar por faixa etária** aplica o cr
 | 32 | a avaliação final, uma vez, no teste | `treino/avaliacao.py::avaliar_teste` e `matriz_confusao` → `metricas_teste` do manifest e `metricas/matriz-confusao.json` |
 | 34 | o desempenho por sexo e por idade | `treino/avaliacao.py::por_grupo` → `metricas/por-grupo.json` |
 | 38 | `CONGELADO` | o contrato dos números do CLI (`python -m app.diabetes.treino`): as constantes de `treino/pipeline.py` e `treino/avaliacao.py` |
+| 40 | `GRUPOS_IDADE`, `limiares_por_grupo`, `limiar_por_linha` e `recall_cruzado`; as divisões das 13 faixas | `treino/avaliacao.py::FAIXAS_POR_GRUPO`, que sai dos cortes da célula 34, e `limiares_por_grupo` e `limiar_por_linha`, com os mesmos nomes; o recall cruzado vira `estabilidade_por_idade`. As outras divisões ficam no notebook |
+| 42 | os três grupos no alvo: o limiar, o ponto fora da dobra e a estabilidade entre as dobras | `treino/avaliacao.py::tabela_por_idade` → `limiares_por_idade` do manifest; `estabilidade_por_idade` e `treino/__main__.py::registro_por_idade` → `artifacts/diabetes/metricas/limiares-por-idade.json` |
+| 43 | o preço de cada alvo de recall, com o limiar único e com o limiar por grupo | `treino/avaliacao.py::pontos_por_idade` → `pontos` de `metricas/limiares-por-idade.json`; o do limiar único continua em `metricas/pontos-de-operacao.json` (célula 29) |
+| 44 | o piso e o mesmo orçamento | só no notebook: o CLI não os refaz |
+| 46 | a regra escolhida, uma vez, no teste, ao lado do limiar único | `treino/avaliacao.py::avaliar_teste`, `matriz_confusao` e `por_grupo`, com um limiar por linha → `metricas_teste`, `metricas/matriz-confusao.json` e `metricas/por-grupo.json`; `teste` e `teste_limiar_unico` de `metricas/limiares-por-idade.json`. Quem muda de classificação fica no notebook |
+| 49 | `CONGELADO_POR_IDADE` | `treino/avaliacao.py::CRITERIO_LIMIAR_POR_IDADE` e `FAIXAS_POR_GRUPO`; os valores servidos são os do manifest (`limiares_por_idade`) |
 
-As métricas publicadas da vertente não são as deste notebook: são as do manifest (`artifacts/diabetes/manifest.json`), que o CLI escreve ao treinar sobre o snapshot congelado do banco. Os critérios e as tabelas de cada escolha estão em `docs/modelagem-diabetes.md`; o limiar, a deriva e a reprodutibilidade entre plataformas, na ADR 0014.
+As métricas publicadas da vertente não são as deste notebook: são as do manifest (`artifacts/diabetes/manifest.json`), que o CLI escreve ao treinar sobre o snapshot congelado do banco. Os critérios e as tabelas de cada escolha estão em `docs/modelagem-diabetes.md`; o limiar, a deriva e a reprodutibilidade entre plataformas, na ADR 0014; o limiar por grupo de idade, na ADR 0015.
 
 ### O que está congelado (contrato dos números)
 
-A célula 38 imprime o que o CLI reproduz. O `verificar` compara com o manifest as entradas, o algoritmo, os hiperparâmetros, o desbalanceamento, a calibração e o critério do limiar.
+As células 38 e 49 imprimem o que o CLI reproduz. O `verificar` compara com o manifest as entradas, o algoritmo, os hiperparâmetros, o desbalanceamento, a calibração e o critério de cada limiar, o único e o por grupo, com os grupos.
 
 - As 10 entradas, na ordem de `ENTRADAS`, que é a ordem das colunas que o XGBoost vê.
 - `train_test_split(test_size=0.2, random_state=42, stratify=y)` e `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` no treino.
@@ -100,9 +106,10 @@ A célula 38 imprime o que o CLI reproduz. O `verificar` compara com o manifest 
 - O desbalanceamento: `nenhum`. A calibração: `nenhuma`.
 - O critério do limiar: o maior com recall ≥ 0,80 nas predições fora da dobra do treino. O teste dá um segundo ponto de leitura com a precisão fixa em 0,30.
 - Os três grupos de idade da célula 34: 18 a 44, 45 a 64, 65 ou mais.
+- O limiar por grupo de idade (célula 49, `CONGELADO_POR_IDADE`): o mesmo critério do limiar, dentro de cada grupo. Os grupos levam as faixas do BRFSS: 1 a 5, 6 a 9 e 10 a 13. Os valores que a célula imprime são só a referência daquela execução; os servidos são os do manifest.
 
 ### Paridade com o backend
 
 - **A preparação.** A célula 3 prova por `assert_frame_equal` que a preparação do notebook e a de `preparar_base` produzem o mesmo DataFrame, e que o arredondamento do IMC dos dois lados é o mesmo. Fora do venv do backend, ela avisa que a paridade não foi conferida naquela execução.
-- **O modelo.** O `python -m app.diabetes.treino verificar` roda no CI e retreina a configuração congelada sobre o snapshot do banco. Ele exige o mesmo limiar, as mesmas métricas e as mesmas predições de ouro do manifest. Na plataforma do treino, o critério é o sha256 exato; noutra, as tolerâncias medidas da ADR 0014.
-- **O que fica no notebook.** As baselines, o A/B das entradas, os tratamentos do desbalanceamento e a calibração isotônica são estudo: o CLI não os refaz.
+- **O modelo.** O `python -m app.diabetes.treino verificar` roda no CI e retreina a configuração congelada sobre o snapshot do banco. Ele exige os mesmos limiares (o único e o de cada grupo de idade), as mesmas métricas e as mesmas predições de ouro do manifest. Na plataforma do treino, o critério é o sha256 exato; noutra, as tolerâncias medidas das ADRs 0014 e 0015.
+- **O que fica no notebook.** As baselines, o A/B das entradas, os tratamentos do desbalanceamento, a calibração isotônica e, no limiar por idade, as outras divisões das 13 faixas e os critérios do piso e do mesmo orçamento são estudo: o CLI não os refaz.

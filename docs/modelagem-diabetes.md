@@ -3,7 +3,7 @@
 A modelagem da segunda vertente (ADR 0013), do estudo ao artefato servido.
 
 - **O estudo** é o notebook `study/02_triagem_de_diabetes.ipynb`.
-- **O modelo servido** sai do CLI `python -m app.diabetes.treino` (`backend/app/diabetes/treino/`), que reproduz a configuração que o notebook congelou na célula 38.
+- **O modelo servido** sai do CLI `python -m app.diabetes.treino` (`backend/app/diabetes/treino/`), que reproduz a configuração que o notebook congelou nas células 38 e 49 (a 49 é o limiar por grupo de idade).
 
 Nenhuma métrica publicada aparece escrita à mão: tudo vem de `artifacts/diabetes/manifest.json`, servido por `GET /api/v1/diabetes/model/info`. As tabelas abaixo copiam as saídas das células citadas, registradas como evidência de cada escolha; o *Run All* do notebook as regenera.
 
@@ -45,7 +45,7 @@ Sem *sampler* e sem calibração: o notebook mediu os dois, e nenhum reduziu o B
 ## Split e validação cruzada (congelados)
 
 - `train_test_split(test_size=0.2, random_state=42, stratify=y)`. As linhas de treino e de teste e a prevalência de cada lado ficam no `split` do manifest.
-- `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` sobre o treino. As mesmas cinco dobras servem à escolha do modelo, ao desbalanceamento, à calibração e ao limiar.
+- `StratifiedKFold(n_splits=5, shuffle=True, random_state=42)` sobre o treino. As mesmas cinco dobras servem à escolha do modelo, ao desbalanceamento, à calibração e aos limiares.
 
 ## Candidatos e critério de escolha
 
@@ -105,23 +105,29 @@ A regressão isotônica (`CalibratedClassifierCV`, `cv=3`, ajustada dentro de ca
 
 A probabilidade é calibrada **na escala da base**: frequência entre os respondentes da pesquisa, não na população. O Brier do teste e o de chutar a prevalência estão no manifest (`metricas_teste.brier` e `brier_da_prevalencia`).
 
-## Limiar de triagem (D4)
+## Limiar de triagem (D4 e ADR 0015)
 
-O limiar é o maior com recall ≥ 0,80 nas predições fora da dobra do treino (célula 28; `avaliacao.py::CRITERIO_LIMIAR`). O `treinar` o recalcula sobre o snapshot, e o valor servido está no manifest (`limiar.valor`). A justificativa, o preço de cada alvo de recall e o efeito de um limiar só para todas as idades estão na ADR 0014.
+O critério foi escrito antes de ver os números (célula 28): o maior limiar com recall ≥ 0,80 nas predições fora da dobra do treino. Ele é aplicado em dois níveis:
+
+- **Na base inteira,** ele dá o limiar único (`avaliacao.py::CRITERIO_LIMIAR`). Foi o que classificou na versão 1.0.0, e o manifest o guarda como referência (`limiar`).
+- **Dentro de cada grupo de idade** (18 a 44, 45 a 64 e 65 anos ou mais), ele dá um limiar por grupo (células 39 a 49; `avaliacao.py::CRITERIO_LIMIAR_POR_IDADE` e `FAIXAS_POR_GRUPO`). É o que classifica desde a 1.1.0. O manifest o guarda em `limiares_por_idade`, e a API responde o limiar do grupo da pessoa, com `grupo_de_idade`.
+
+O `treinar` recalcula os dois sobre o snapshot, e os valores servidos estão no manifest. Com um limiar só, o recall chegava ao alvo na média, mas ficava baixo entre os mais jovens. Com um limiar por grupo, ele chega ao alvo em cada idade, com mais encaminhados para o mesmo recall total. A justificativa, as alternativas medidas e o preço estão na ADR 0015; o preço de cada alvo com o limiar único, na ADR 0014.
 
 ## Avaliação, uma vez, no teste
 
-Com tudo decidido, o modelo é ajustado no treino inteiro e avaliado **uma única vez** no teste, no limiar:
+Com tudo decidido, o modelo é ajustado no treino inteiro e avaliado **uma única vez** no teste, cada pessoa no limiar do grupo de idade dela:
 
 - ROC-AUC, PR-AUC, Brier e o Brier da prevalência;
 - o recall com precisão fixa de 0,30;
-- recall, precisão, especificidade e a fração encaminhada no limiar.
+- recall, precisão, especificidade e a fração encaminhada no limiar do grupo de cada pessoa.
 
 Os números estão no `metricas_teste` do manifest, servidos por `/diabetes/model/info`, e a seção "Triagem de diabetes" do Início os mostra. Os artefatos ao lado do manifest:
 
-- `artifacts/diabetes/metricas/matriz-confusao.json`: a matriz no limiar;
-- `artifacts/diabetes/metricas/pontos-de-operacao.json`: o preço de cada alvo de recall, fora da dobra;
-- `artifacts/diabetes/metricas/por-grupo.json`: o desempenho por sexo e por três grupos de idade.
+- `artifacts/diabetes/metricas/matriz-confusao.json`: a matriz, cada pessoa no limiar do grupo dela;
+- `artifacts/diabetes/metricas/pontos-de-operacao.json`: o preço de cada alvo de recall com o limiar único, fora da dobra;
+- `artifacts/diabetes/metricas/limiares-por-idade.json`: a escolha dos limiares por grupo, com cada grupo fora da dobra e no teste ao lado do limiar único, a estabilidade entre as dobras e o preço de cada alvo;
+- `artifacts/diabetes/metricas/por-grupo.json`: o desempenho por sexo e pelos três grupos de idade, com o limiar de cada grupo.
 
 A importância por ganho (célula 35) se concentra em pressão alta, IMC, faixa etária e colesterol alto. A probabilidade média prevista acompanha a observada por faixa de IMC e por faixa etária, inclusive no recuo das idades mais altas: o modelo não aprendeu nenhuma direção invertida.
 
@@ -139,27 +145,33 @@ Pop-Location
 
 Um modelo novo sai de `python -m app.diabetes.treino treinar --versao X.Y.Z`, que escreve o `.pkl`, o manifest, as métricas e as saídas de ouro (README, seção 18). Retreinar a versão publicada trocaria o sha256 do `.pkl`, que deixaria de bater com o asset do release.
 
-O `verificar` retreina sobre o **mesmo** snapshot. Ele compara a configuração (entradas, algoritmo, hiperparâmetros, desbalanceamento, calibração e o critério do limiar), o limiar, as métricas e as predições sobre `backend/tests/diabetes/dados_ouro/entradas.json`. O sha256 do `.pkl` fica de fora, porque nunca é byte a byte igual.
+O `verificar` retreina sobre o **mesmo** snapshot. Ele compara:
+
+- a configuração: entradas, algoritmo, hiperparâmetros, desbalanceamento, calibração, o critério do limiar único e o do limiar por grupo, com os grupos;
+- os limiares e as métricas;
+- as predições sobre `backend/tests/diabetes/dados_ouro/entradas.json`, cada caso classificado pelo limiar do grupo dele.
+
+O sha256 do `.pkl` fica de fora, porque nunca é byte a byte igual.
 
 - **Na plataforma do treino:** o sha256 exato das predições de ouro.
-- **Noutra plataforma:** a mesma classificação nos casos de ouro e as tolerâncias medidas entre Windows e Linux. O XGBoost não dá o mesmo modelo nas duas (ADR 0014, decisão 4).
+- **Noutra plataforma:** a mesma classificação nos casos de ouro e as tolerâncias medidas entre Windows e Linux. O XGBoost não dá o mesmo modelo nas duas (ADR 0014, decisão 4). Os limiares têm tolerância própria, mais estreita que a das métricas (ADR 0015).
 
 ## Limitações
 
 - **Autodeclarado.** Diagnósticos, hábitos e o próprio IMC (calculado de peso e altura informados ao telefone) são o que a pessoa respondeu.
 - **Transversal.** É uma resposta por pessoa, num momento só: associação, não causa. Quem já tem o diagnóstico pode ter mudado os hábitos depois dele.
 - **O alvo é o diagnóstico recebido.** Quem tem diabetes e não sabe está entre os negativos, e o modelo aprende "ter sido diagnosticado". O pré-diabetes conta como "não", e a pergunta do BRFSS não separa o tipo 1 do tipo 2. As entradas foram escolhidas para reduzir esse viés, não para eliminá-lo.
-- **Um limiar para todas as idades.** Os mais jovens quase não são encaminhados, e a maioria dos mais velhos é (ADR 0014).
+- **Um limiar por grupo de idade.** O recall chega ao alvo em cada idade, mas a mesma probabilidade passa a ter classificações diferentes conforme a idade. O total encaminhado é maior que o de um limiar único com o mesmo recall (ADR 0015).
 - **Sem pesos e só casos completos.** A probabilidade está na escala da base. Ela não vale para a população dos Estados Unidos, e menos ainda para a do Brasil, onde hábitos, escolaridade e o sistema de saúde são outros. Nenhuma validação externa foi feita.
 
 ## Diferenças para a modelagem da obesidade
 
 | | Obesidade (`docs/modelagem.md`) | Diabetes |
 |---|---|---|
-| Alvo | 7 faixas, multiclasse | binário, com limiar |
+| Alvo | 7 faixas, multiclasse | binário, com um limiar por grupo de idade |
 | Base | majoritariamente sintética | respostas reais e anonimizadas |
 | Critério de escolha | recall das classes de risco no teste | PR-AUC média na validação cruzada do treino |
 | Desbalanceamento | SMOTE no pipeline | nenhum (o limiar resolve) |
 | Escalas ordinais | one-hot, por lista explícita | como número (árvores) |
 | Calibração | — | medida e descartada (Brier igual) |
-| Tolerância entre plataformas | probabilidades a 0,03 (ADR 0004) | probabilidades a 0,10 e métricas a 0,01 (ADR 0014) |
+| Tolerância entre plataformas | probabilidades a 0,03 (ADR 0004) | probabilidades a 0,10 e métricas a 0,01 (ADR 0014); limiares a 0,005 (ADR 0015) |

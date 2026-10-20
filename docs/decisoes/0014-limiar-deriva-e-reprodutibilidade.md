@@ -1,6 +1,6 @@
 # ADR 0014 — Vertente diabetes: limiar de triagem, deriva e reprodutibilidade entre plataformas
 
-**Data:** 2026-10-19 · **Estado:** aceita · **Fases:** F2 a F4 da vertente diabetes · **Cita:** ADR 0004, ADR 0008, ADR 0013
+**Data:** 2026-10-19 · **Estado:** aceita · **Fases:** F2 a F4 da vertente diabetes · **Cita:** ADR 0004, ADR 0008, ADR 0013, ADR 0015
 
 ## Contexto
 
@@ -13,6 +13,8 @@ A vertente diabetes (ADR 0013) devolve uma probabilidade e a classifica por um l
 Além disso, o log de predição é um só para as duas vertentes, e a deriva e a consolidação do log precisaram de quatro decisões de desenho.
 
 Nenhum dos números abaixo é escrito à mão na interface. O limiar e as métricas vêm do manifest, por `GET /api/v1/diabetes/model/info`. As tabelas desta ADR copiam quatro registros de `artifacts/diabetes/metricas/`: `pontos-de-operacao.json` e `por-grupo.json`, gravados pelo `treinar`, e `n-minimo-deriva.json` e `reprodutibilidade.json`, gravados pelas ferramentas de medição.
+
+As tabelas são as da versão 1.0.0. A 1.1.0 trocou o limiar único por um limiar por grupo de idade (ADR 0015) e refez os registros. Dois deles mudaram de conteúdo: `por-grupo.json` passou a medir a regra por grupo, e `reprodutibilidade.json` ganhou os limiares de cada grupo. As decisões 1 e 4 dizem onde ficou cada número.
 
 ## Decisão 1 — o limiar: o maior com recall ≥ 0,80 fora da dobra
 
@@ -34,7 +36,7 @@ O preço de cada alvo de recall, nas predições fora da dobra do treino (`ponto
 
 Cada passo de recall custa mais encaminhamentos que o anterior, e o salto cresce depois de 0,80.
 
-**Um limiar para todas as idades.** O risco cresce com a idade. Com um limiar só, quase ninguém entre os mais jovens passa dele, e a maioria dos mais velhos passa. Os números são do teste, no limiar (`por-grupo.json`):
+**Um limiar para todas as idades.** O risco cresce com a idade. Com um limiar só, quase ninguém entre os mais jovens passa dele, e a maioria dos mais velhos passa. Os números são do teste, no limiar único (o `por-grupo.json` da 1.0.0). Na 1.1.0, esse registro mede a regra por grupo, e as linhas de idade do limiar único ficam em `limiares-por-idade.json` (`teste_limiar_unico`):
 
 | Grupo | n | Prevalência | ROC-AUC | Recall | Precisão | Encaminhados |
 |---|---|---|---|---|---|---|
@@ -44,9 +46,9 @@ Cada passo de recall custa mais encaminhamentos que o anterior, e o salto cresce
 | Feminino | 28.531 | 12,9 % | 0,810 | 0,784 | 0,269 | 37,6 % |
 | Masculino | 22.205 | 15,2 % | 0,779 | 0,806 | 0,268 | 45,9 % |
 
-Um limiar por faixa etária seria uma decisão de política de triagem, fora do escopo do estudo. Fica registrado como limitação (README, seção 18; `docs/modelagem-diabetes.md`). Entre os sexos, recall e precisão ficam próximos.
+Um limiar por faixa etária seria uma decisão de política de triagem, e esta ADR o deixou como limitação. A versão 1.1.0 tomou essa decisão: um limiar por grupo de idade, com o mesmo critério dentro de cada grupo. Os grupos, o critério, o preço e as alternativas medidas estão na [ADR 0015](0015-limiar-por-faixa-etaria.md). Entre os sexos, recall e precisão ficam próximos.
 
-**Na API.** O `limiar` vai em cada resposta e em `/diabetes/model/info`, com o critério e o ponto fora da dobra. `risco_elevado` é `probabilidade >= limiar`, e a classificação sai em magenta (ADR 0011). A probabilidade vale na escala da base, não na da população: o `description` do contrato diz isso, e a tela também.
+**Na API.** O `limiar` vai em cada resposta e em `/diabetes/model/info`, com o critério e o ponto fora da dobra. `risco_elevado` é `probabilidade >= limiar`, e a classificação sai em magenta (ADR 0011). A probabilidade vale na escala da base, não na da população: o `description` do contrato diz isso, e a tela também. Desde a 1.1.0, o `limiar` de cada resposta é o do grupo de idade da pessoa, e o de `/diabetes/model/info` fica como referência (ADR 0015).
 
 ## Decisão 2 — `N_MINIMO_DERIVA_DIABETES = 300`, medido
 
@@ -106,6 +108,8 @@ A medição é de `tools/medir_reprodutibilidade_diabetes.py`, com registro em `
 
 Os 24 casos de ouro mantêm a classificação em todos os treinos medidos. O mais próximo do limiar fica a 0,0411 dele.
 
+Esta é a medição da 1.0.0. A 1.1.0 a refez com o limiar de cada grupo e com quatro casos de ouro trocados: os desvios das probabilidades são os mesmos, e os das métricas novas, a margem do ouro e a tolerância dos limiares estão na ADR 0015.
+
 **A regra do `verificar`** (`python -m app.diabetes.treino verificar`, que roda no CI):
 
 - **Na plataforma do treino** (`ambiente.sistema` do manifest, hoje Windows): o sha256 exato das predições de ouro e as métricas a `1e-6`.
@@ -120,8 +124,8 @@ A tolerância da obesidade (0,03, ADR 0004) não serviria aqui: só entre plataf
 
 ## Consequências
 
-- **Mudar o critério do limiar** é mudar `CRITERIO_LIMIAR` e retreinar: o `verificar` compara o critério do manifest com o do código.
+- **Mudar o critério do limiar** é mudar `CRITERIO_LIMIAR` e retreinar: o `verificar` compara o critério do manifest com o do código. Desde a 1.1.0, o que classifica é o limiar de cada grupo de idade, e o mesmo vale para o critério e os grupos dele (ADR 0015).
 - **Um modelo ou um snapshot novo** pede a remedição do mínimo e o valor novo no compose e no `.env.example`: o registro guarda a versão do modelo e a dos dados, e `test_n_minimo_registrado.py` falha enquanto eles divergirem do manifest. Um snapshot novo também pede `distribuicao --escrever`.
-- **Um artefato novo, treinado noutra plataforma ou com outra versão do XGBoost,** pede a remedição da reprodutibilidade. O teste das tolerâncias diz se as constantes ainda cobrem o registro.
+- **Um artefato novo, treinado noutra plataforma ou com outra versão do XGBoost,** pede a remedição da reprodutibilidade. O teste das tolerâncias diz se as constantes ainda cobrem o registro, inclusive a dos limiares (ADR 0015).
 - **Até haver 300 respostas da vertente na janela,** a tela de monitoramento mostra "amostra insuficiente" e esconde a coluna de PSI, como a da obesidade abaixo do mínimo dela.
 - **Ao voltar para uma versão sem a vertente,** a consolidação antiga volta a misturar as linhas de diabetes nas faixas NULL da obesidade, mas só para linhas mais velhas que `RETENCAO_DIAS` (ADR 0013, "Por que o deploy continua reversível").

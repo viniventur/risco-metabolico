@@ -1,6 +1,6 @@
 # ADR 0013 — Segunda vertente: a triagem de diabetes ao lado da de obesidade
 
-**Data:** 2026-10-19 (decidida pelo autor em 2026-10-18) · **Estado:** aceita · **Fases:** F0 a F6 da vertente diabetes · **Cita:** ADR 0003, ADR 0004, ADR 0005, ADR 0006, ADR 0011, ADR 0012, ADR 0014
+**Data:** 2026-10-19 (decidida pelo autor em 2026-10-18) · **Estado:** aceita · **Fases:** F0 a F6 da vertente diabetes · **Cita:** ADR 0003, ADR 0004, ADR 0005, ADR 0006, ADR 0011, ADR 0012, ADR 0014, ADR 0015
 
 ## Contexto
 
@@ -88,7 +88,7 @@ O selo do herói do Início passa a dizer só "Triagem, não diagnóstico", o qu
 - os campos fora do domínio da base;
 - a versão e a latência.
 
-O critério, o preço de cada alvo de recall e o limiar único para todas as idades estão na ADR 0014.
+O critério, o preço de cada alvo de recall e o limiar único para todas as idades estão na ADR 0014. Desde a versão 1.1.0, o limiar é o do grupo de idade da pessoa: ADR 0015.
 
 **D5 — Nomes e versões próprios.**
 

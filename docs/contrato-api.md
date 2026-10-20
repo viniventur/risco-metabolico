@@ -81,11 +81,11 @@ Os componentes próprios levam o sufixo `Diabetes`. Os genéricos são os mesmos
 
 | Método | Caminho | Entrada | Resposta 200 | Cache | Banco |
 |---|---|---|---|---|---|
-| GET | `/diabetes/model/info` | `?versao=` | `InfoModeloDiabetes`: o manifest da vertente normalizado — versão, `release`, algoritmo, `treinado_em`, `versao_dados`, entradas, hiperparâmetros, desbalanceamento, calibração, split, validação cruzada, `limiar` (critério, alvo de recall, valor e o ponto fora da dobra), métricas de teste, ambiente e o `aviso` | `max-age=300`, ETag | não |
+| GET | `/diabetes/model/info` | `?versao=` | `InfoModeloDiabetes`: o manifest da vertente normalizado — versão, `release`, algoritmo, `treinado_em`, `versao_dados`, entradas, hiperparâmetros, desbalanceamento, calibração, split, validação cruzada, `limiar` (o limiar único, de referência: critério, alvo de recall, valor e o ponto fora da dobra), `limiares_por_idade` (o que classifica: critério, alvo de recall, cada grupo de idade com as faixas, o valor e o ponto fora da dobra, e o total fora da dobra; nulo num artefato de limiar único), métricas de teste, ambiente e o `aviso` | `max-age=300`, ETag | não |
 | GET | `/diabetes/metadata` | — | `{grupos:[{id, titulo, campos[]}], versao_modelo, aviso}`: as 10 entradas em três grupos (`dados-iniciais`, `saude`, `habitos`), com rótulos, opções, padrões e ajuda | `max-age=3600`, ETag | não |
 | POST | `/diabetes/predicoes` | `EntradaDiabetes` (10 campos, `extra=forbid`) | `RespostaDiabetes` | não | escrita assíncrona (log) |
 | POST | `/diabetes/predicoes/lote` | `{itens:[dict]}` (teto `LIMITE_LOTE`, 413 acima) | `{total, sucesso, resultados[], falhas[{indice, campo, mensagem}], versao_modelo}` | não | escrita assíncrona |
-| POST | `/diabetes/predicoes/relatorio` | `{entrada: EntradaDiabetes, nome?}` | `text/html` autocontido | não | escrita assíncrona (sem o `nome`) |
+| POST | `/diabetes/predicoes/relatorio` | `{entrada: EntradaDiabetes, nome?}` | `text/html` autocontido, com o limiar do grupo de idade | não | escrita assíncrona (sem o `nome`) |
 | GET | `/diabetes/dimensoes` | — | os 6 filtros, cada valor com rótulo e contagem na base inteira | `max-age=3600`, ETag | não |
 | GET | `/diabetes/painel/resumo` | filtros | `ResumoDiabetes`: respostas, com diabetes, prevalência e IMC médio do recorte, e os mesmos números da base inteira (`*_global`) | `max-age=60`, ETag | não |
 | GET | `/diabetes/painel/por-categoria` | `campo`, `serie?`, filtros | `AgregadoDiabetes`: tabela longa com `contagem`, `pct`, `n_diabetes` e `prevalencia` por grupo, domínio completo, e os `campos` com os rótulos | `max-age=60`, ETag | não |
@@ -102,7 +102,7 @@ Os componentes próprios levam o sufixo `Diabetes`. Os genéricos são os mesmos
 
 ### `RespostaDiabetes`
 
-O primeiro caso de ouro (`backend/tests/diabetes/dados_ouro/entradas.json`), numa chamada local ao modelo 1.0.0:
+O primeiro caso de ouro (`backend/tests/diabetes/dados_ouro/entradas.json`), numa chamada local ao modelo 1.1.0:
 
 ```json
 {"Faixa_Etaria": 11, "Sexo": "Feminino", "IMC": 38.4, "Pressao_Alta": "Sim", "Colesterol_Alto": "Sim", "Fumou_100_Cigarros": "Sim", "Atividade_Fisica_30_Dias": "Sim", "Fruta_Diaria": "Sim", "Verdura_Diaria": "Sim", "Escolaridade": 4}
@@ -111,17 +111,21 @@ O primeiro caso de ouro (`backend/tests/diabetes/dados_ouro/entradas.json`), num
 ```jsonc
 {
   "probabilidade": 0.4705495834350586, // de 0 a 1, na escala da base (respondentes do BRFSS 2015): não é a da população
-  "limiar": 0.12554778158664703,       // o do modelo servido; critério e valor em /diabetes/model/info
+  "limiar": 0.16155649721622467,       // o do grupo de idade da pessoa; o critério e a tabela em /diabetes/model/info
+  "grupo_de_idade": "65 anos ou mais", // o grupo cujo limiar classificou; nulo num artefato de limiar único
   "risco_elevado": true,               // probabilidade >= limiar: a triagem sugere o exame de glicemia
   "classificacao": "Risco elevado",    // ou "Risco baixo"
   "imc": 38.4,
   "faixa_imc": "Obesidade Grau II",    // as 6 faixas de IMC, as mesmas da vertente de obesidade
   "fora_do_dominio_treino": [],        // campos fora da faixa da base, como o modelo os vê (o IMC arredondado)
-  "versao_modelo": "1.0.0",
-  "latencia_ms": 5.98
+  "versao_modelo": "1.1.0",
+  "latencia_ms": 5.57
 }
 ```
 
+- **O limiar:** é o do grupo de idade da pessoa, pela faixa etária: 18 a 44, 45 a 64 ou 65 anos ou mais. `grupo_de_idade` diz qual, e a mesma probabilidade pode classificar diferente noutra idade. O limiar único, o mesmo critério na base inteira, fica em `/diabetes/model/info` (`limiar`), só como referência ([ADR 0015](decisoes/0015-limiar-por-faixa-etaria.md)).
+- **Um artefato sem a tabela** de limiares por idade, como o da 1.0.0, aplica o limiar único a todas as idades, e `grupo_de_idade` sai nulo.
+- **O lote e o relatório** seguem a mesma regra: cada resultado do lote traz o limiar e o grupo dele, e o cartão do limiar do relatório diz o grupo.
 - **As escalas:** a faixa etária (1 = 18 a 24 anos … 13 = 80 ou mais) e a escolaridade (1 = nunca estudou … 6 = superior) viajam como inteiros, exatamente como o modelo foi treinado. Os rótulos estão em `/diabetes/metadata`.
 - **O IMC:** o contrato aceita de 10 a 100; o modelo o arredonda ao inteiro, como a pesquisa. No simulador, a calculadora usa peso e altura só na tela, e só o IMC vai à API.
 - **Um campo da outra vertente,** como `Peso`, é 422 `entrada_invalida` com `tipo: extra_forbidden`, nunca silêncio.

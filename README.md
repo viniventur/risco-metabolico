@@ -6,10 +6,10 @@
 
 [![ci](https://github.com/viniventur/risco-metabolico/actions/workflows/ci.yml/badge.svg)](https://github.com/viniventur/risco-metabolico/actions/workflows/ci.yml)
 [![modelo](https://img.shields.io/badge/modelo-2.0.0-blue)](https://github.com/viniventur/risco-metabolico/releases/tag/v2.0.0)
-[![diabetes](https://img.shields.io/badge/diabetes-1.0.0-blue)](https://github.com/viniventur/risco-metabolico/releases/tag/diabetes-v1.0.0)
+[![diabetes](https://img.shields.io/badge/diabetes-1.1.0-blue)](https://github.com/viniventur/risco-metabolico/releases/tag/diabetes-v1.1.0)
 [![licença](https://img.shields.io/badge/licen%C3%A7a-MIT-green)](LICENSE)
 
-Um microserviço de machine learning em duas vertentes, lado a lado. A de **obesidade** recebe **16 respostas** sobre medidas corporais e hábitos e devolve, em milissegundos, a **distribuição de probabilidade entre 7 faixas** de composição corporal mais um **risco metabólico acumulado**, sobre uma base pública majoritariamente sintética. A de **diabetes** recebe **10 respostas** que se sabem antes de qualquer diagnóstico e devolve a **probabilidade de já ter recebido o diagnóstico**, comparada a um **limiar de triagem**, sobre respostas reais e anonimizadas do BRFSS 2015 ([seção 18](#18-a-vertente-diabetes)) — daí as duas frases acima. Nas duas, a saída **ordena prioridade de atenção**; ela não fecha diagnóstico.
+Um microserviço de machine learning em duas vertentes, lado a lado. A de **obesidade** recebe **16 respostas** sobre medidas corporais e hábitos e devolve, em milissegundos, a **distribuição de probabilidade entre 7 faixas** de composição corporal mais um **risco metabólico acumulado**, sobre uma base pública majoritariamente sintética. A de **diabetes** recebe **10 respostas** que se sabem antes de qualquer diagnóstico e devolve a **probabilidade de já ter recebido o diagnóstico**, comparada ao **limiar de triagem do grupo de idade** da pessoa, sobre respostas reais e anonimizadas do BRFSS 2015 ([seção 18](#18-a-vertente-diabetes)) — daí as duas frases acima. Nas duas, a saída **ordena prioridade de atenção**; ela não fecha diagnóstico.
 
 Em volta dos dois modelos: uma API FastAPI com contrato versionado; um front React com, para cada vertente, simulador, painel analítico, notebook de estudo renderizado e tela de monitoramento de deriva; um Postgres que guarda as duas bases de origem e o log de predições; e o SQL do projeto (schema, agregados do painel, consultas de deriva) versionado em `sql/`. **O diferencial não é o modelo — é o serviço em volta dele**, e a auditoria do modelo herdado que motivou cada decisão (seção 7).
 
@@ -367,7 +367,7 @@ docs/         contrato da API, modelagem, dicionário, agregados, auditoria do l
 |---|---|
 | [`docs/contrato-api.md`](docs/contrato-api.md) | endpoints, `RespostaTriagem`, envelope de erro, cabeçalhos, o que o log guarda e não guarda; as 12 rotas de `/diabetes` e `RespostaDiabetes` |
 | [`docs/modelagem.md`](docs/modelagem.md) | pipeline, candidatos, critério de escolha, os dois A/B |
-| [`docs/modelagem-diabetes.md`](docs/modelagem-diabetes.md) | a vertente diabetes: entradas, baselines e candidatos, desbalanceamento, calibração, limiar, avaliação e limitações |
+| [`docs/modelagem-diabetes.md`](docs/modelagem-diabetes.md) | a vertente diabetes: entradas, baselines e candidatos, desbalanceamento, calibração, limiar por grupo de idade, avaliação e limitações |
 | [`docs/dicionario-de-dados.md`](docs/dicionario-de-dados.md) | as 17 colunas nas três convenções de nome |
 | [`docs/dicionario-de-dados-diabetes.md`](docs/dicionario-de-dados-diabetes.md) | as 22 colunas da vertente diabetes, com a variável do BRFSS 2015 de cada uma |
 | [`docs/agregados.md`](docs/agregados.md) | contrato dos agregados em SQL e a tabela de divergências; os 5 da vertente diabetes e a paridade deles |
@@ -377,7 +377,7 @@ docs/         contrato da API, modelagem, dicionário, agregados, auditoria do l
 | [`study/README.md`](study/README.md) | como reexecutar os dois notebooks e o mapa célula → função do backend de cada um |
 | [`docs/deploy-vps.md`](docs/deploy-vps.md) | como a VPS é publicada: chave presa ao `deploy.sh`, segredos, Caddy, aceite; o que a vertente diabetes muda no deploy |
 
-Decisões registradas (`docs/decisoes/`): [0001 nome](docs/decisoes/0001-nome-do-projeto.md) · [0002 binning desligado](docs/decisoes/0002-binning-ligado-ou-desligado.md) · [0003 IMC como feature](docs/decisoes/0003-imc-como-feature.md) · [0004 artefato fora do git](docs/decisoes/0004-artefato-fora-do-git.md) · [0005 filtros no servidor](docs/decisoes/0005-filtros-no-servidor.md) · [0006 agregados em SQL](docs/decisoes/0006-agregados-em-sql.md) · [0007 Postgres sem autenticação](docs/decisoes/0007-postgres-sem-autenticacao.md) · [0008 limiares de PSI](docs/decisoes/0008-limiares-de-psi.md) · [0009 provedor de hospedagem](docs/decisoes/0009-provedor-de-hospedagem.md) · [0010 redesenho do front](docs/decisoes/0010-redesenho-do-front.md) · [0011 marca Visor](docs/decisoes/0011-marca-visor.md) · [0012 Visão Geral como história](docs/decisoes/0012-visao-geral-como-historia.md) · [0013 segunda vertente](docs/decisoes/0013-segunda-vertente.md) · [0014 limiar, deriva e reprodutibilidade da vertente diabetes](docs/decisoes/0014-limiar-deriva-e-reprodutibilidade.md).
+Decisões registradas (`docs/decisoes/`): [0001 nome](docs/decisoes/0001-nome-do-projeto.md) · [0002 binning desligado](docs/decisoes/0002-binning-ligado-ou-desligado.md) · [0003 IMC como feature](docs/decisoes/0003-imc-como-feature.md) · [0004 artefato fora do git](docs/decisoes/0004-artefato-fora-do-git.md) · [0005 filtros no servidor](docs/decisoes/0005-filtros-no-servidor.md) · [0006 agregados em SQL](docs/decisoes/0006-agregados-em-sql.md) · [0007 Postgres sem autenticação](docs/decisoes/0007-postgres-sem-autenticacao.md) · [0008 limiares de PSI](docs/decisoes/0008-limiares-de-psi.md) · [0009 provedor de hospedagem](docs/decisoes/0009-provedor-de-hospedagem.md) · [0010 redesenho do front](docs/decisoes/0010-redesenho-do-front.md) · [0011 marca Visor](docs/decisoes/0011-marca-visor.md) · [0012 Visão Geral como história](docs/decisoes/0012-visao-geral-como-historia.md) · [0013 segunda vertente](docs/decisoes/0013-segunda-vertente.md) · [0014 limiar, deriva e reprodutibilidade da vertente diabetes](docs/decisoes/0014-limiar-deriva-e-reprodutibilidade.md) · [0015 limiar por grupo de idade](docs/decisoes/0015-limiar-por-faixa-etaria.md).
 
 ## 18. A vertente diabetes
 
@@ -391,21 +391,24 @@ Uma segunda triagem, **paralela** à de obesidade e sem tocá-la ([ADR 0013](doc
 - se come fruta e verdura todo dia;
 - escolaridade.
 
-Com elas, estima a **probabilidade de essa pessoa já ter ouvido que tem diabetes**. Se a probabilidade fica no **limiar de triagem** ou acima dele, a classificação é "Risco elevado", e a triagem sugere o exame de glicemia.
+Com elas, estima a **probabilidade de essa pessoa já ter ouvido que tem diabetes**. Se a probabilidade fica no **limiar de triagem do grupo de idade** dela ou acima dele, a classificação é "Risco elevado", e a triagem sugere o exame de glicemia. São três grupos: 18 a 44, 45 a 64 e 65 anos ou mais.
 
 A base é real: respostas anonimizadas do BRFSS 2015, a pesquisa telefônica de fatores de risco do CDC dos Estados Unidos. O alvo da obesidade é quase uma faixa de IMC, com altura e peso entre as entradas ([ADR 0003](docs/decisoes/0003-imc-como-feature.md)). O da diabetes não se calcula a partir das entradas, é caro de obter na hora da triagem e vem de dados reais. As duas vertentes convivem, e a junção das previsões fica para depois, com o autor.
 
 ### Métricas
 
-Como na seção 3, nenhuma é escrita à mão. O treino grava em `artifacts/diabetes/manifest.json` as métricas da validação cruzada, o limiar com o critério e as do teste. A API as serve em `GET /api/v1/diabetes/model/info`, e a seção "Triagem de diabetes" do Início lê dali.
+Como na seção 3, nenhuma é escrita à mão. O treino grava em `artifacts/diabetes/manifest.json` as métricas da validação cruzada, os limiares com o critério e as do teste. Os limiares são dois: o de cada grupo de idade, que classifica, e o único, que fica como referência. A API serve tudo em `GET /api/v1/diabetes/model/info`, e a seção "Triagem de diabetes" do Início lê dali.
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:8000/api/v1/diabetes/model/info | Select-Object -ExpandProperty metricas_teste
 # campos: roc_auc, pr_auc, brier, brier_da_prevalencia, recall_na_precisao_fixa e recall, precisão,
-# especificidade e encaminhados no limiar — medidos uma vez, no teste (20 %, estratificado)
+# especificidade e encaminhados no limiar do grupo de idade de cada pessoa — medidos uma vez, no
+# teste (20 %, estratificado)
+(Invoke-RestMethod http://127.0.0.1:8000/api/v1/diabetes/model/info).limiares_por_idade.grupos
+# cada grupo: o rótulo, as faixas etárias do BRFSS, o limiar e o ponto fora da dobra
 ```
 
-O critério de cada escolha está em [`docs/modelagem-diabetes.md`](docs/modelagem-diabetes.md): as entradas, o modelo contra três baselines, a recusa do SMOTE e da calibração e o limiar.
+O critério de cada escolha está em [`docs/modelagem-diabetes.md`](docs/modelagem-diabetes.md): as entradas, o modelo contra três baselines, a recusa do SMOTE e da calibração e os limiares.
 
 ### Telas e API
 
@@ -426,23 +429,23 @@ $env:BANCO_URL = "postgresql://postgres:postgres@127.0.0.1:55432/app_local"
 Push-Location backend
 uv run --extra treino python -m app.diabetes.treino snapshot                  # 1. congela dados.registros_diabetes; o sha256 vira versao_dados
 uv run --extra treino python -m app.diabetes.treino.agregar                   # 2. agregados SQL + data/processado/diabetes/base_painel.parquet
-uv run --extra treino python -m app.diabetes.treino treinar --versao 1.1.0    # 3. a configuração do notebook 02 (célula 38): limiar, métricas, manifest
+uv run --extra treino python -m app.diabetes.treino treinar --versao 1.2.0    # 3. a configuração do notebook 02 (células 38 e 49): limiares, métricas, manifest
 uv run --extra treino python -m app.diabetes.treino verificar                 # 4. retreina sobre o MESMO snapshot e compara; não escreve nada
 uv run --extra treino python -m app.diabetes.treino.distribuicao --escrever   # 5. o perfil de deriva do snapshot, com a versão nova
 uv run --extra treino python -m app.diabetes.treino.distribuicao --carregar   #    e a referência no banco
 Pop-Location
-gh release create diabetes-v1.1.0 models\modelo-diabetes-1.1.0.pkl (Get-Item data\processado\diabetes\snapshot-*.parquet) --title "modelo de diabetes 1.1.0" --latest=false   # 6. o release da vertente
+gh release create diabetes-v1.2.0 models\modelo-diabetes-1.2.0.pkl (Get-Item data\processado\diabetes\snapshot-*.parquet) --title "modelo de diabetes 1.2.0" --latest=false   # 6. o release da vertente
 ```
 
-`--latest=false` mantém o release da obesidade como o mais recente. Um modelo novo pede também a remedição de `N_MINIMO_DERIVA_DIABETES` (`tools/medir_n_minimo_deriva.py --vertente diabetes`): o registro guarda a versão do modelo e a dos dados, e um teste confere os dois contra o manifest.
+A versão do exemplo é a seguinte à servida (`versao` do manifest): retreinar uma versão publicada trocaria o sha256 do `.pkl`, que deixaria de bater com o asset do release. `--latest=false` mantém o release da obesidade como o mais recente. Um modelo novo pede também a remedição de `N_MINIMO_DERIVA_DIABETES` (`tools/medir_n_minimo_deriva.py --vertente diabetes`): o registro guarda a versão do modelo e a dos dados, e um teste confere os dois contra o manifest.
 
 ### Limiar, deriva e reprodutibilidade
 
-O que está na [ADR 0014](docs/decisoes/0014-limiar-deriva-e-reprodutibilidade.md):
+O que está nas ADRs [0014](docs/decisoes/0014-limiar-deriva-e-reprodutibilidade.md) e [0015](docs/decisoes/0015-limiar-por-faixa-etaria.md):
 
-- **O limiar** é o maior com recall ≥ 0,80 nas predições fora da dobra do treino.
-- **A deriva** da vertente lê só as linhas `/diabetes/...` do log e compara o IMC arredondado, como o modelo o vê. Ela pede `N_MINIMO_DERIVA_DIABETES` respostas, um mínimo medido.
-- **O `verificar`** exige o sha256 exato das predições de ouro na plataforma do treino. Noutra, exige a mesma classificação e tolerâncias medidas: o XGBoost não dá o mesmo modelo em Windows e em Linux.
+- **O limiar** é o do grupo de idade da pessoa: em cada grupo, o maior com recall ≥ 0,80 nas predições fora da dobra do treino (ADR 0015). O mesmo critério na base inteira dá o limiar único, que classificava na versão 1.0.0 e fica como referência (ADR 0014). Com o mesmo recall total, a regra por grupo encaminha mais gente, e esse preço está medido na ADR 0015.
+- **A deriva** da vertente lê só as linhas `/diabetes/...` do log e compara o IMC arredondado, como o modelo o vê. Ela pede `N_MINIMO_DERIVA_DIABETES` respostas da versão servida, um mínimo medido.
+- **O `verificar`** exige o sha256 exato das predições de ouro na plataforma do treino. Noutra, exige a mesma classificação e tolerâncias medidas, com uma própria para os limiares: o XGBoost não dá o mesmo modelo em Windows e em Linux.
 
 ### Onde está o SQL
 
@@ -463,5 +466,5 @@ O conjunto é o *CDC Diabetes Health Indicators* (UCI Machine Learning Repositor
 - **Autodeclarado e transversal.** Diagnósticos, hábitos e o próprio IMC são o que a pessoa respondeu ao telefone, num momento só. É associação, não causa: quem já tem o diagnóstico pode ter mudado os hábitos depois dele.
 - **O alvo é o diagnóstico recebido.** Quem tem diabetes e não sabe responde "não". O pré-diabetes também fica no "não", e a pergunta não separa o tipo 1 do tipo 2.
 - **Escala da base, não da população.** Sem pesos amostrais e só com casos completos, a probabilidade e a prevalência do painel valem para quem respondeu à pesquisa. Não valem para a população dos Estados Unidos, nem para a do Brasil, e nenhuma validação externa foi feita.
-- **Um limiar para todas as idades.** Entre os mais jovens quase ninguém passa do limiar; entre os mais velhos, a maioria passa (`artifacts/diabetes/metricas/por-grupo.json`). Um limiar por faixa etária seria uma decisão de política de triagem.
+- **Um limiar por grupo de idade.** O recall chega ao alvo em cada idade, mas a mesma probabilidade classifica diferente conforme a idade: "Risco elevado" é elevado para o grupo da pessoa. O total encaminhado é maior que o de um limiar único com o mesmo recall (`artifacts/diabetes/metricas/limiares-por-idade.json`, ADR 0015).
 - **O que este README ainda não tem da vertente:** medição de latência própria e capturas de tela.
