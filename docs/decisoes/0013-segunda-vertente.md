@@ -103,7 +103,7 @@ O critério, o preço de cada alvo de recall e o limiar único para todas as ida
 | Notebook | `study/02_triagem_de_diabetes.ipynb`, em `/estudos/triagem-de-diabetes` |
 | Código | `backend/app/diabetes/`, `frontend/src/features/diabetes/`, `sql/diabetes/` |
 
-O menu e o Início mudaram de forma na ADR 0016: um bloco por projeto, a obesidade e a diabetes, cada um com as mesmas quatro telas.
+O menu e o Início mudaram de forma na ADR 0016: um bloco por projeto, a diabetes e a obesidade, cada um com as mesmas quatro telas.
 
 ## Como as duas vertentes convivem
 

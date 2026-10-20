@@ -22,17 +22,22 @@ import { SobreOProjeto } from "./SobreOProjeto";
 
 /**
  * O Início em dois projetos (ADR 0016): o herói, que apresenta os dois, e um bloco para cada um, com
- * tudo o que é dele. A obesidade: o cabeçalho com "como funciona", as métricas contando até o valor, o
- * modelo servido, os atalhos e a visão geral do projeto (objetivo, dados, entradas, métodos, validação,
- * serviço, monitoramento, auditoria e limitações). A diabetes (features/diabetes/inicio): o cabeçalho,
- * as métricas, o limiar e o artefato, as telas, os dados e os limites. No fim, a autoria. O movimento é
- * todo da casa (inicio.css e shared/movimento) e some com `prefers-reduced-motion`: o conteúdo já nasce
- * no lugar e os números, no valor final.
+ * tudo o que é dele, na ordem de shared/projetos (a diabetes primeiro). A diabetes
+ * (features/diabetes/inicio): o cabeçalho com "como funciona", as métricas com o velocímetro, o limiar
+ * e o artefato, as telas, os dados e os limites. A obesidade: o cabeçalho, as métricas contando até o
+ * valor, o modelo servido, os atalhos e a visão geral do projeto (objetivo, dados, entradas, métodos,
+ * validação, serviço, monitoramento, auditoria e limitações). No fim, a autoria. O movimento é todo da
+ * casa (inicio.css e shared/movimento) e some com `prefers-reduced-motion`: o conteúdo já nasce no
+ * lugar e os números, no valor final.
  */
 export function InicioPage() {
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-12">
       <Heroi />
+      <BlocoDoProjeto projeto={DIABETES}>
+        <SecaoDiabetes />
+        <SobreADiabetes />
+      </BlocoDoProjeto>
       <BlocoDoProjeto projeto={OBESIDADE}>
         <div className="flex flex-col gap-8">
           <CabecalhoObesidade />
@@ -41,10 +46,6 @@ export function InicioPage() {
         <ModeloServido />
         <Explorar />
         <SobreOProjeto />
-      </BlocoDoProjeto>
-      <BlocoDoProjeto projeto={DIABETES}>
-        <SecaoDiabetes />
-        <SobreADiabetes />
       </BlocoDoProjeto>
       <Autoria />
     </div>

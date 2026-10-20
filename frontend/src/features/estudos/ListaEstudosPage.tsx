@@ -8,11 +8,13 @@ import { QueryState } from "@/shared/estados/QueryState";
 import { fmtDataHora, fmtInt } from "@/shared/format/ptBR";
 import { PageHeader } from "@/shared/layout/PageHeader";
 import { SeloDoProjeto } from "@/shared/layout/SeloDoProjeto";
-import { projetoDoNotebook } from "@/shared/projetos";
+import { PROJETOS, projetoDoNotebook } from "@/shared/projetos";
 import { Badge } from "@/shared/ui/badge";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 import type { EntradaManifesto } from "./tipos";
+
+const ordemDoNotebook = (slug: string) => projetoDoNotebook(slug)?.numero ?? PROJETOS.length + 1;
 
 /** Rota /estudos — lê public/study/manifest.json e lista os notebooks renderizados, cada um com o selo do projeto dele. */
 export function ListaEstudosPage() {
@@ -36,7 +38,8 @@ export function ListaEstudosPage() {
         esqueleto={<Skeleton className="h-36 w-full max-w-xl" />}
       >
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {(q.data ?? []).map((e) => {
+          {/* Na ordem dos projetos (a diabetes primeiro); um notebook sem projeto fica no fim. */}
+          {[...(q.data ?? [])].sort((a, b) => ordemDoNotebook(a.slug) - ordemDoNotebook(b.slug)).map((e) => {
             const projeto = projetoDoNotebook(e.slug);
             return (
               <li key={e.slug}>

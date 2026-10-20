@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { CabecalhoDoProjeto } from "@/features/inicio/CabecalhoDoProjeto";
 import { ComoFunciona, type PassoDoModelo } from "@/features/inicio/ComoFunciona";
 import { seguirOPonteiro } from "@/features/inicio/seguirOPonteiro";
+import { Velocimetro } from "@/features/inicio/Velocimetro";
 import { ErroInline } from "@/shared/estados/ErroInline";
 import { fmtDataHora, fmtNum, fmtPct } from "@/shared/format/ptBR";
 import { NumeroQueConta } from "@/shared/movimento/NumeroQueConta";
@@ -20,9 +21,24 @@ import type { InfoModeloDiabetes } from "../api/tipos";
 type ChaveDaMetrica = keyof InfoModeloDiabetes["metricas_teste"];
 type LimiaresPorIdade = NonNullable<InfoModeloDiabetes["limiares_por_idade"]>;
 
+/** A marca de referência do velocímetro de uma métrica: onde ela fica na régua e o que o cartão escreve. */
+type Referencia = { valor: number; texto: string };
+
+/** A ROC-AUC de uma ordenação ao acaso: o valor da definição, não uma medida. */
+const ROC_AUC_DO_ACASO = 0.5;
+
+/** A prevalência do conjunto de teste (`split.prevalencia_teste`); sem ela no manifest, as marcas que dependem dela não aparecem. */
+function prevalenciaDoTeste(d: InfoModeloDiabetes): number | undefined {
+  const prevalencia = Number(d.split.prevalencia_teste);
+  return Number.isFinite(prevalencia) ? prevalencia : undefined;
+}
+
 /**
  * As métricas do teste que dizem o que a triagem faz: a ordenação (ROC-AUC) e o ponto de operação no limiar.
  * Com `limiares_por_idade`, o ponto de operação é o da regra por grupo, e o texto de apoio é o `detalheDoGrupo`.
+ * Cada uma tem o velocímetro dos indicadores da obesidade e uma marca que dá sentido ao ponteiro, com os
+ * números de /diabetes/model/info: o acaso na ROC-AUC (régua de 0 a 1) e na precisão (a prevalência: quem
+ * encaminhasse ao acaso acertaria nessa proporção), o alvo no recall e o ideal nos encaminhados (só os casos).
  */
 const METRICAS: Array<{
   chave: ChaveDaMetrica;
@@ -30,14 +46,27 @@ const METRICAS: Array<{
   detalhe: string;
   detalheDoGrupo?: string;
   formatar: (v: number | null | undefined) => string;
+  rotulos?: readonly [string, string];
+  referencia: (d: InfoModeloDiabetes) => Referencia | undefined;
 }> = [
-  { chave: "roc_auc", rotulo: "ROC-AUC", detalhe: "no conjunto de teste", formatar: (v) => fmtNum(v, 3) },
+  {
+    chave: "roc_auc",
+    rotulo: "ROC-AUC",
+    detalhe: "no conjunto de teste",
+    formatar: (v) => fmtNum(v, 3),
+    rotulos: ["0", "1"],
+    referencia: () => ({ valor: ROC_AUC_DO_ACASO, texto: `acaso: ${fmtNum(ROC_AUC_DO_ACASO, 1)}` }),
+  },
   {
     chave: "recall_no_limiar",
     rotulo: "Recall no limiar",
     detalhe: "dos casos de diabetes, os que o limiar encaminha",
     detalheDoGrupo: "dos casos de diabetes, os que o limiar do grupo de idade encaminha",
     formatar: fmtPct,
+    referencia: (d) => {
+      const alvo = d.limiares_por_idade?.recall_alvo ?? d.limiar.recall_alvo;
+      return { valor: alvo, texto: `alvo: ${fmtPct(alvo)}` };
+    },
   },
   {
     chave: "precisao_no_limiar",
@@ -45,6 +74,10 @@ const METRICAS: Array<{
     detalhe: "dos encaminhados, os que têm diabetes",
     detalheDoGrupo: "dos encaminhados pelo limiar do grupo de idade, os que têm diabetes",
     formatar: fmtPct,
+    referencia: (d) => {
+      const prevalencia = prevalenciaDoTeste(d);
+      return prevalencia === undefined ? undefined : { valor: prevalencia, texto: `acaso: ${fmtPct(prevalencia)} (a base)` };
+    },
   },
   {
     chave: "encaminhados_no_limiar",
@@ -52,6 +85,10 @@ const METRICAS: Array<{
     detalhe: "das respostas, as que o limiar encaminha",
     detalheDoGrupo: "das respostas, as que o limiar do grupo de idade encaminha",
     formatar: fmtPct,
+    referencia: (d) => {
+      const prevalencia = prevalenciaDoTeste(d);
+      return prevalencia === undefined ? undefined : { valor: prevalencia, texto: `ideal: ${fmtPct(prevalencia)} (só os casos)` };
+    },
   },
 ];
 
@@ -78,28 +115,68 @@ const CLASSE_DO_CARTAO =
   "cartao-holofote group flex h-full flex-col gap-3 rounded-2xl border bg-card p-5 text-card-foreground shadow-sm transition-[translate,box-shadow] duration-300 " +
   "hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 motion-reduce:transition-none";
 
-function Metrica({ rotulo, detalhe, valor, formatar, carregando }: { rotulo: string; detalhe: string; valor: number | undefined; formatar: (v: number | null | undefined) => string; carregando: boolean }) {
-  const [ref, apareceu] = useApareceuNaTela<HTMLLIElement>();
+/** O traço tracejado da referência, em miniatura, antes do texto dela: liga o texto à marca do velocímetro. */
+function TracoDaReferencia() {
   return (
-    <li
-      ref={ref}
-      onPointerMove={seguirOPonteiro}
-      aria-busy={carregando || undefined}
-      className="cartao-holofote flex flex-col gap-2 rounded-xl border bg-card p-5 text-card-foreground shadow-sm transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none"
-    >
-      <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{rotulo}</span>
-      {carregando ? (
-        <>
-          <span className="sr-only">Carregando…</span>
-          <Skeleton className="h-9 w-24" />
-        </>
-      ) : (
-        <p className="text-3xl leading-none font-semibold tracking-tight">
-          <NumeroQueConta valor={valor} formatar={formatar} ativo={apareceu} />
-        </p>
-      )}
-      <span className="text-xs leading-snug text-muted-foreground">{detalhe}</span>
-    </li>
+    <svg viewBox="0 0 4 12" className="h-3 w-1 shrink-0 text-foreground" fill="none" aria-hidden="true">
+      <line x1={2} y1={1} x2={2} y2={11} stroke="currentColor" strokeWidth={1.6} strokeDasharray="2.2 1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+type PropsDaMetrica = {
+  rotulo: string;
+  detalhe: string;
+  valor: number | undefined;
+  formatar: (v: number | null | undefined) => string;
+  carregando: boolean;
+  /** A posição na fileira, para a entrada em sequência (Revelar). */
+  ordem: number;
+  referencia?: Referencia;
+  rotulos?: readonly [string, string];
+};
+
+/**
+ * O cartão de uma métrica, no desenho dos indicadores da obesidade (MetricasDoModelo): entra subindo, em
+ * sequência, e, quando chega à tela, o número conta até o valor e o ponteiro do velocímetro sobe junto. A
+ * referência fica escrita embaixo do texto de apoio e marcada na régua.
+ */
+function Metrica({ rotulo, detalhe, valor, formatar, carregando, ordem, referencia, rotulos }: PropsDaMetrica) {
+  const [ref, apareceu] = useApareceuNaTela<HTMLDivElement>();
+  return (
+    <Revelar as="li" ordem={ordem} className="min-w-0">
+      <div
+        ref={ref}
+        onPointerMove={seguirOPonteiro}
+        aria-busy={carregando || undefined}
+        className="cartao-holofote @container h-full rounded-xl border bg-card p-5 text-card-foreground shadow-sm transition-[translate,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none"
+      >
+        {/* Lado a lado quando o cartão tem largura (16rem de conteúdo); espremido, o velocímetro desce. */}
+        <div className="flex h-full flex-col gap-3 @3xs:flex-row @3xs:items-center @3xs:justify-between @3xs:gap-4">
+          <div className="flex min-w-0 flex-col gap-2">
+            <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{rotulo}</span>
+            {carregando ? (
+              <>
+                <span className="sr-only">Carregando…</span>
+                <Skeleton className="h-9 w-24" />
+              </>
+            ) : (
+              <p className="text-3xl leading-none font-semibold tracking-tight">
+                <NumeroQueConta valor={valor} formatar={formatar} ativo={apareceu} />
+              </p>
+            )}
+            <span className="text-xs leading-snug text-muted-foreground">{detalhe}</span>
+            {referencia ? (
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <TracoDaReferencia />
+                {referencia.texto}
+              </span>
+            ) : null}
+          </div>
+          <Velocimetro fracao={valor} ativo={apareceu && !carregando} referencia={referencia?.valor} rotulos={rotulos} className="self-center" />
+        </div>
+      </div>
+    </Revelar>
   );
 }
 
@@ -266,8 +343,9 @@ export function SecaoDiabetes() {
         versao={d?.versao}
         lado={<ComoFunciona rotulo="Como funciona a triagem de diabetes" passos={passosDoModelo(d)} carregando={info.isPending} />}
       />
-      <ul aria-label="Desempenho da triagem de diabetes no teste" className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {METRICAS.map((m) => (
+      {/* Dois por linha: com o velocímetro, quatro numa linha espremeriam o texto (os da obesidade são três). */}
+      <ul aria-label="Desempenho da triagem de diabetes no teste" className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {METRICAS.map((m, i) => (
           <Metrica
             key={m.chave}
             rotulo={m.rotulo}
@@ -275,6 +353,9 @@ export function SecaoDiabetes() {
             valor={d?.metricas_teste[m.chave]}
             formatar={m.formatar}
             carregando={info.isPending}
+            ordem={i}
+            referencia={d ? m.referencia(d) : undefined}
+            rotulos={m.rotulos}
           />
         ))}
       </ul>

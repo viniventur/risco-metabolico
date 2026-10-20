@@ -27,13 +27,16 @@ export function RodapeAvisoDadosReais({ className }: { className?: string }) {
   );
 }
 
-/** O rodapé da tela: a frase de cada vertente que a rota mostra (avisosDaRota), uma vez cada. */
+/**
+ * O rodapé da tela: a frase de cada vertente que a rota mostra (avisosDaRota), uma vez cada. Nas telas
+ * comuns, na ordem dos projetos (shared/projetos): a da diabetes primeiro.
+ */
 export function RodapeDaRota({ caminho }: { caminho: string }) {
   const avisos = avisosDaRota(caminho);
   return (
     <>
-      {avisos.includes("ficticios") ? <RodapeAviso /> : null}
       {avisos.includes("reais") ? <RodapeAvisoDadosReais /> : null}
+      {avisos.includes("ficticios") ? <RodapeAviso /> : null}
     </>
   );
 }

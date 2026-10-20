@@ -412,7 +412,7 @@ O critério de cada escolha está em [`docs/modelagem-diabetes.md`](docs/modelag
 
 ### Telas e API
 
-**No front**, o menu tem um bloco por projeto ([ADR 0016](docs/decisoes/0016-dois-projetos-no-front.md)), e o da diabetes tem a Visão Geral (`/diabetes`), a Consulta (`/diabetes/consulta`), o Simulador (`/diabetes/simulador`) e o Monitoramento (`/diabetes/monitoramento`). Há também o bloco "Projeto 2 · Diabetes" no Início, com a seção "Triagem de diabetes", e o notebook em `/estudos/triagem-de-diabetes`. O rodapé escolhe a frase de dados pela rota:
+**No front**, o menu tem um bloco por projeto ([ADR 0016](docs/decisoes/0016-dois-projetos-no-front.md)), e o da diabetes tem a Visão Geral (`/diabetes`), a Consulta (`/diabetes/consulta`), o Simulador (`/diabetes/simulador`) e o Monitoramento (`/diabetes/monitoramento`). Há também o bloco "Projeto 1 · Diabetes" no Início, com a seção "Triagem de diabetes", e o notebook em `/estudos/triagem-de-diabetes`. O rodapé escolhe a frase de dados pela rota:
 
 - as telas da vertente mostram a das respostas reais;
 - as da obesidade, a dos dados fictícios;

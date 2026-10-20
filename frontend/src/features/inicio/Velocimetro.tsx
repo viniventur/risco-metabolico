@@ -29,20 +29,35 @@ const MARCAS = Array.from({ length: 51 }, (_, i) => {
 const ZERO = pontoNoArco(0, RAIO);
 const CEM = pontoNoArco(100, RAIO);
 
+type Props = {
+  fracao: number | undefined;
+  ativo: boolean;
+  /**
+   * Uma marca de referência, na mesma escala de `fracao`: um traço tracejado que passa da régua e dá
+   * sentido ao ponteiro (o acaso, o alvo, o ideal). O texto dela fica escrito no cartão.
+   */
+  referencia?: number;
+  /** Os números das pontas da régua; a escala é sempre a de `fracao` (0 a 1) vezes 100. */
+  rotulos?: readonly [string, string];
+  className?: string;
+};
+
 /**
  * O velocímetro das métricas do Início, no desenho do visor da balança: os traços da régua do herói
  * num arco de 0 a 100 e o ponteiro magenta do símbolo — o traço que, na marca, marca o que o modelo
  * calcula. Quando `ativo` liga, o ponteiro sai do zero junto com o número ao lado, passa um pouco do
  * ponto e assenta; as marcas por onde ele passou ficam em tinta cheia. Só desenho (`aria-hidden`): o
- * valor está escrito ao lado. Com `prefers-reduced-motion`, nasce no valor.
+ * valor e a referência estão escritos ao lado. Com `prefers-reduced-motion`, nasce no valor.
  */
-export function Velocimetro({ fracao, ativo, className }: { fracao: number | undefined; ativo: boolean; className?: string }) {
+export function Velocimetro({ fracao, ativo, referencia, rotulos = ["0", "100"], className }: Props) {
   const bruto = useContagem(fracao === undefined ? undefined : fracao * 100, ativo, DURACAO_DA_CONTAGEM_MS, assentar);
   // O balanço passa do ponto: perto do fim da escala, o ponteiro bate no batente do 100 e volta.
   const atual = Math.min(Math.max(bruto, 0), 100);
   const giro = ((atual / 100) * 2 - 1) * ABERTURA;
+  // A referência passa um pouco da régua por fora e entra até o fim dos traços longos.
+  const marca = referencia === undefined ? null : { fora: pontoNoArco(referencia * 100, RAIO + 3.5), dentro: pontoNoArco(referencia * 100, RAIO - 12) };
   return (
-    <svg viewBox="0 0 104 92" className={cn("h-[92px] w-[104px] shrink-0 text-foreground", className)} fill="none" aria-hidden="true">
+    <svg data-velocimetro="" viewBox="0 0 104 92" className={cn("h-[92px] w-[104px] shrink-0 text-foreground", className)} fill="none" aria-hidden="true">
       <g strokeLinecap="round" stroke="currentColor">
         {MARCAS.map((m) => {
           const passou = ativo && m.valor <= atual;
@@ -59,11 +74,24 @@ export function Velocimetro({ fracao, ativo, className }: { fracao: number | und
           );
         })}
       </g>
+      {marca ? (
+        <line
+          data-referencia=""
+          x1={marca.fora.x}
+          y1={marca.fora.y}
+          x2={marca.dentro.x}
+          y2={marca.dentro.y}
+          strokeWidth={1.6}
+          strokeDasharray="2.2 1.8"
+          strokeLinecap="round"
+          className="stroke-foreground"
+        />
+      ) : null}
       <text x={ZERO.x} y={ZERO.y + 15} textAnchor="middle" fontSize={11} className="fill-muted-foreground">
-        0
+        {rotulos[0]}
       </text>
       <text x={CEM.x} y={CEM.y + 15} textAnchor="middle" fontSize={11} className="fill-muted-foreground">
-        100
+        {rotulos[1]}
       </text>
       {/* O ponteiro em pé (do centro até passar da régua) e girado até o valor; o rabo curto do outro lado do eixo. */}
       <g transform={`rotate(${giro.toFixed(2)} ${CENTRO.x} ${CENTRO.y})`} opacity={ativo ? 1 : 0}>

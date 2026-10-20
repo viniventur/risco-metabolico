@@ -18,12 +18,12 @@ const selo = () => screen.getByRole("heading", { level: 1 }).previousElementSibl
 describe("o selo do projeto no cabeçalho das telas (ADR 0016)", () => {
   it("nas telas e no notebook de um projeto, o selo diz o número e o nome dele, em cima do título", () => {
     for (const [caminho, texto] of [
-      ["/simulador", "Projeto 1 · Obesidade"],
-      ["/painel", "Projeto 1 · Obesidade"],
-      ["/estudos/comparacao-de-modelos", "Projeto 1 · Obesidade"],
-      ["/diabetes", "Projeto 2 · Diabetes"],
-      ["/diabetes/monitoramento", "Projeto 2 · Diabetes"],
-      ["/estudos/triagem-de-diabetes", "Projeto 2 · Diabetes"],
+      ["/diabetes", "Projeto 1 · Diabetes"],
+      ["/diabetes/monitoramento", "Projeto 1 · Diabetes"],
+      ["/estudos/triagem-de-diabetes", "Projeto 1 · Diabetes"],
+      ["/simulador", "Projeto 2 · Obesidade"],
+      ["/painel", "Projeto 2 · Obesidade"],
+      ["/estudos/comparacao-de-modelos", "Projeto 2 · Obesidade"],
     ] as const) {
       const { unmount } = renderizar(caminho);
       expect(selo()).toHaveTextContent(texto);

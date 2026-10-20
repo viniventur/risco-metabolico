@@ -105,17 +105,24 @@ function renderizar() {
 const finais = (bloco: HTMLElement) => [...bloco.querySelectorAll("[data-numero]")].map((n) => n.textContent);
 
 describe("o Início em dois projetos (ADR 0016)", () => {
-  it("o herói apresenta os dois projetos, cada um com o que entra e o que sai do modelo, a base e a versão, e leva à seção dele", () => {
+  it("o herói apresenta os dois projetos, a diabetes primeiro, cada um com o que entra e o que sai do modelo, a base e a versão, e leva à seção dele", () => {
     renderizar();
     const projetos = within(screen.getByRole("list", { name: "Os dois projetos" })).getAllByRole("link");
-    expect(projetos.map((a) => a.getAttribute("href"))).toEqual(["#projeto-obesidade", "#projeto-diabetes"]);
-    expect(projetos[0]).toHaveTextContent("Projeto 1 Obesidade16 respostas → 7 faixas de composição corporal e um risco acumuladodados fictícios · modelo v2.0.0");
-    expect(projetos[1]).toHaveTextContent("Projeto 2 Diabetes10 respostas → a chance de já ter recebido o diagnóstico de diabetesdados reais e anonimizados · modelo v1.1.0");
+    expect(projetos.map((a) => a.getAttribute("href"))).toEqual(["#projeto-diabetes", "#projeto-obesidade"]);
+    expect(projetos[0]).toHaveTextContent("Projeto 1 Diabetes10 respostas → a chance de já ter recebido o diagnóstico de diabetesdados reais e anonimizados · modelo v1.1.0");
+    expect(projetos[1]).toHaveTextContent("Projeto 2 Obesidade16 respostas → 7 faixas de composição corporal e um risco acumuladodados fictícios · modelo v2.0.0");
+  });
+
+  it("os blocos seguem a mesma ordem: a diabetes primeiro", () => {
+    renderizar();
+    const diabetes = screen.getByRole("region", { name: "Projeto 1: Diabetes" });
+    const obesidade = screen.getByRole("region", { name: "Projeto 2: Obesidade" });
+    expect(diabetes.compareDocumentPosition(obesidade) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("o bloco da obesidade tem tudo o que é dela, e nada da diabetes", () => {
     renderizar();
-    const obesidade = screen.getByRole("region", { name: "Projeto 1: Obesidade" });
+    const obesidade = screen.getByRole("region", { name: "Projeto 2: Obesidade" });
     expect(within(obesidade).getByRole("heading", { level: 2, name: "Triagem de obesidade: o modelo em teste" })).toBeInTheDocument();
     expect(finais(within(obesidade).getByRole("list", { name: "Como funciona" }))).toEqual(["16", "44", "7"]);
     expect(finais(within(obesidade).getByLabelText("Métricas do modelo em teste"))).toEqual(["98,8%", "98,8%", "99,4%"]);
@@ -131,7 +138,7 @@ describe("o Início em dois projetos (ADR 0016)", () => {
 
   it("o bloco da diabetes tem o cabeçalho, as métricas, o limiar, as telas, a base e os limites dela", () => {
     renderizar();
-    const diabetes = screen.getByRole("region", { name: "Projeto 2: Diabetes" });
+    const diabetes = screen.getByRole("region", { name: "Projeto 1: Diabetes" });
     expect(within(diabetes).getByRole("heading", { level: 2, name: "Triagem de diabetes: o modelo em teste" })).toBeInTheDocument();
     expect(finais(within(diabetes).getByRole("list", { name: "Como funciona a triagem de diabetes" }))).toEqual(["10", "3"]);
     expect(within(diabetes).getByRole("list", { name: "Desempenho da triagem de diabetes no teste" })).toBeInTheDocument();
@@ -147,5 +154,55 @@ describe("o Início em dois projetos (ADR 0016)", () => {
     // nada da obesidade
     expect(within(diabetes).queryByText(/Base de obesidade/)).toBeNull();
     expect(within(diabetes).queryByRole("list", { name: "Como funciona" })).toBeNull();
+  });
+
+  it("as quatro métricas da diabetes têm o velocímetro da obesidade, com a marca de referência escrita e desenhada", () => {
+    renderizar();
+    const metricas = screen.getByRole("list", { name: "Desempenho da triagem de diabetes no teste" });
+    const cartoes = within(metricas).getAllByRole("listitem");
+    expect(cartoes).toHaveLength(4);
+    for (const cartao of cartoes) {
+      expect(cartao.querySelectorAll("svg[data-velocimetro]")).toHaveLength(1);
+      expect(cartao.querySelectorAll("line[data-referencia]")).toHaveLength(1);
+    }
+    // o acaso na ROC-AUC (régua de 0 a 1), o alvo no recall, o acaso e o ideal na prevalência do teste
+    expect(cartoes.map((c) => c.textContent)).toEqual([
+      expect.stringContaining("acaso: 0,5"),
+      expect.stringContaining("alvo: 80,0%"),
+      expect.stringContaining("acaso: 13,9% (a base)"),
+      expect.stringContaining("ideal: 13,9% (só os casos)"),
+    ]);
+    expect([...(cartoes[0]?.querySelectorAll("svg[data-velocimetro] text") ?? [])].map((t) => t.textContent)).toEqual(["0", "1"]);
+    expect([...(cartoes[1]?.querySelectorAll("svg[data-velocimetro] text") ?? [])].map((t) => t.textContent)).toEqual(["0", "100"]);
+    // os números que contam continuam os quatro de antes
+    expect(finais(metricas)).toEqual(["0,797", "80,0%", "25,0%", "44,7%"]);
+  });
+
+  it("o velocímetro da obesidade não muda: sem marca de referência e com a régua de 0 a 100", () => {
+    renderizar();
+    const metricas = screen.getByLabelText("Métricas do modelo em teste");
+    expect(metricas.querySelectorAll("svg[data-velocimetro]")).toHaveLength(3);
+    expect(metricas.querySelectorAll("line[data-referencia]")).toHaveLength(0);
+  });
+});
+
+describe("as marcas de referência sem a prevalência no manifest", () => {
+  it("sem `split.prevalencia_teste`, a precisão e os encaminhados ficam sem marca; a ROC-AUC e o recall, com", () => {
+    const cliente = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    cliente.setQueryData(chaves.modelo(), INFO);
+    cliente.setQueryData(chaves.metadata, METADATA);
+    cliente.setQueryData(chavesDiabetes.modelo, { ...INFO_DIABETES, split: { linhas_treino: 202944, linhas_teste: 50736 } });
+    render(
+      <QueryClientProvider client={cliente}>
+        <MemoryRouter>
+          <TooltipProvider>
+            <InicioPage />
+          </TooltipProvider>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    const cartoes = within(screen.getByRole("list", { name: "Desempenho da triagem de diabetes no teste" })).getAllByRole("listitem");
+    expect(cartoes.map((c) => c.querySelectorAll("line[data-referencia]").length)).toEqual([1, 1, 0, 0]);
+    expect(screen.queryByText(/\(a base\)|\(só os casos\)/)).toBeNull();
   });
 });

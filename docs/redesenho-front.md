@@ -282,7 +282,7 @@ Princípio: **cada tela responde uma pergunta na dobra, e cada controle fica ao 
 |---|---|---|
 | navegação | barra lateral **15rem**, recolhível para **3.5rem** (trilho de ícones com dica); escolha no `localStorage` em try/catch, padrão expandido | gaveta modal (Radix Dialog) aberta por um botão na barra do topo |
 | marca | símbolo + "Triagem Metabólica" no topo da barra lateral | na barra do topo |
-| grupos | o **Início** · um bloco por projeto, **Obesidade** e **Diabetes**, cada um com Visão Geral, Consulta, Simulador e Monitoramento · **Estudos** ([ADR 0016](decisoes/0016-dois-projetos-no-front.md); antes, Painel, Modelo e Estudos) | idem |
+| grupos | o **Início** · um bloco por projeto, **Diabetes** e **Obesidade**, cada um com Visão Geral, Consulta, Simulador e Monitoramento · **Estudos** ([ADR 0016](decisoes/0016-dois-projetos-no-front.md); antes, Painel, Modelo e Estudos) | idem |
 | barra do topo | *sticky*, `h-14`: estado da API (selo) e tema | + botão do menu e marca |
 | cabeçalho da tela | `PageHeader` dentro do conteúdo: o selo do projeto da tela (ADR 0016), título, descrição, ações à direita | ações quebram abaixo do título |
 | rodapé | `RodapeAviso` (a frase, **uma** vez por tela) | idem |

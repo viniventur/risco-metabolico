@@ -29,7 +29,7 @@ const MANIFESTO: EntradaManifesto[] = [
 ];
 
 describe("a lista de estudos (ADR 0016)", () => {
-  it("cada notebook leva o selo do projeto dele", () => {
+  it("cada notebook leva o selo do projeto dele, na ordem dos projetos (a diabetes primeiro)", () => {
     const cliente = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
     cliente.setQueryData(chaves.estudos, MANIFESTO);
     render(
@@ -39,7 +39,9 @@ describe("a lista de estudos (ADR 0016)", () => {
         </MemoryRouter>
       </QueryClientProvider>,
     );
-    expect(screen.getByRole("link", { name: /Comparação de modelos/ })).toHaveTextContent(/^Projeto 1 · Obesidade/);
-    expect(screen.getByRole("link", { name: /Triagem de diabetes/ })).toHaveTextContent(/^Projeto 2 · Diabetes/);
+    const notebooks = screen.getAllByRole("link");
+    expect(notebooks.map((a) => a.getAttribute("href"))).toEqual(["/estudos/triagem-de-diabetes", "/estudos/comparacao-de-modelos"]);
+    expect(notebooks[0]).toHaveTextContent(/^Projeto 1 · Diabetes/);
+    expect(notebooks[1]).toHaveTextContent(/^Projeto 2 · Obesidade/);
   });
 });

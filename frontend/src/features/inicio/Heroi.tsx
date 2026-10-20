@@ -4,13 +4,13 @@ import { useEffect, useRef, type CSSProperties } from "react";
 import { useModelInfoDiabetes } from "@/features/diabetes/api/modelo";
 import { useModelInfo } from "@/shared/api/endpoints/modelo";
 import { pedeMovimentoReduzido } from "@/shared/movimento/movimento";
-import { DIABETES, OBESIDADE, type Projeto } from "@/shared/projetos";
+import { PROJETOS, type IdProjeto } from "@/shared/projetos";
 import { Marca } from "@/shared/ui/Marca";
 import { Skeleton } from "@/shared/ui/skeleton";
 
 const RESUMO =
-  "Dois projetos de triagem no mesmo serviço, cada um com a sua base, o seu modelo e as suas telas: um estima a faixa de composição " +
-  "corporal; o outro, a chance de já ter recebido o diagnóstico de diabetes. A saída ordena prioridade de atenção; ela não fecha diagnóstico.";
+  "Dois projetos de triagem no mesmo serviço, cada um com a sua base, o seu modelo e as suas telas: um estima a chance de já ter recebido " +
+  "o diagnóstico de diabetes; o outro, a faixa de composição corporal. A saída ordena prioridade de atenção; ela não fecha diagnóstico.";
 
 /**
  * O visor da balança no pé do herói (o conceito do símbolo Visor): uma fita métrica em arco, desenhada
@@ -98,18 +98,18 @@ function PalavrasQueFocam({ texto }: { texto: string }) {
 function OsDoisProjetos() {
   const obesidade = useModelInfo().data;
   const diabetes = useModelInfoDiabetes().data;
-  const cartoes: Array<{ projeto: Projeto; resumo: string | null; versao?: string }> = [
-    {
-      projeto: OBESIDADE,
-      resumo: obesidade ? `${obesidade.n_features_entrada} respostas → ${obesidade.ordem_clinica.length} faixas de composição corporal e um risco acumulado` : null,
-      versao: obesidade?.versao,
-    },
-    {
-      projeto: DIABETES,
+  const doProjeto: Record<IdProjeto, { resumo: string | null; versao?: string }> = {
+    diabetes: {
       resumo: diabetes ? `${diabetes.n_features_entrada} respostas → a chance de já ter recebido o diagnóstico de diabetes` : null,
       versao: diabetes?.versao,
     },
-  ];
+    obesidade: {
+      resumo: obesidade ? `${obesidade.n_features_entrada} respostas → ${obesidade.ordem_clinica.length} faixas de composição corporal e um risco acumulado` : null,
+      versao: obesidade?.versao,
+    },
+  };
+  // Na ordem dos projetos (shared/projetos): a diabetes primeiro.
+  const cartoes = PROJETOS.map((projeto) => ({ projeto, ...doProjeto[projeto.id] }));
   return (
     <div className="borda-com-feixe rounded-2xl">
       <div className="rounded-2xl border bg-card/75 p-4 shadow-xl shadow-primary/5 backdrop-blur-md sm:p-5">

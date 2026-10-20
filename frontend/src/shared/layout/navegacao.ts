@@ -14,25 +14,15 @@ export type ItemDeNavegacao = {
 export type GrupoDeNavegacao = { titulo: string; itens: ItemDeNavegacao[]; projeto?: Projeto };
 
 /**
- * O menu em dois projetos (ADR 0016): o Início, que fala dos dois; um bloco por projeto, com as mesmas
- * quatro telas e os mesmos nomes; e os estudos, os notebooks dos dois. Mora fora do `Sidebar.tsx` para
- * o componente exportar só componente. A Visão Geral da diabetes é `exato`, porque /diabetes é prefixo
- * das outras três.
+ * O menu em dois projetos (ADR 0016): o Início, que fala dos dois; um bloco por projeto, na ordem de
+ * shared/projetos (a diabetes primeiro), com as mesmas quatro telas e os mesmos nomes; e os estudos, os
+ * notebooks dos dois. Mora fora do `Sidebar.tsx` para o componente exportar só componente. A Visão
+ * Geral da diabetes é `exato`, porque /diabetes é prefixo das outras três.
  */
 export const NAVEGACAO: GrupoDeNavegacao[] = [
   {
     titulo: "Início",
     itens: [{ rotulo: "Início", para: "/", icone: House, exato: true }],
-  },
-  {
-    titulo: OBESIDADE.nome,
-    projeto: OBESIDADE,
-    itens: [
-      { rotulo: "Visão Geral", para: "/painel", icone: LayoutDashboard },
-      { rotulo: "Consulta", para: "/consulta", icone: Table2 },
-      { rotulo: "Simulador", para: "/simulador", icone: Calculator },
-      { rotulo: "Monitoramento", para: "/monitoramento", icone: Activity },
-    ],
   },
   {
     titulo: DIABETES.nome,
@@ -42,6 +32,16 @@ export const NAVEGACAO: GrupoDeNavegacao[] = [
       { rotulo: "Consulta", para: "/diabetes/consulta", icone: Table2 },
       { rotulo: "Simulador", para: "/diabetes/simulador", icone: Calculator },
       { rotulo: "Monitoramento", para: "/diabetes/monitoramento", icone: Activity },
+    ],
+  },
+  {
+    titulo: OBESIDADE.nome,
+    projeto: OBESIDADE,
+    itens: [
+      { rotulo: "Visão Geral", para: "/painel", icone: LayoutDashboard },
+      { rotulo: "Consulta", para: "/consulta", icone: Table2 },
+      { rotulo: "Simulador", para: "/simulador", icone: Calculator },
+      { rotulo: "Monitoramento", para: "/monitoramento", icone: Activity },
     ],
   },
   {

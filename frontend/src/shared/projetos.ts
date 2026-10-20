@@ -1,11 +1,12 @@
 import { Droplet, Weight, type LucideIcon } from "lucide-react";
 
 /**
- * Os dois projetos do produto, lado a lado: a triagem de obesidade e a de diabetes, cada um com a sua
+ * Os dois projetos do produto, lado a lado: a triagem de diabetes e a de obesidade, cada um com a sua
  * base, o seu modelo, as suas quatro telas e o seu notebook. É a fonte única de "que tela é de que
  * projeto": o menu, a trilha da barra do topo, o selo do cabeçalho de cada tela, os estudos e a frase
  * de dados do rodapé leem daqui. A identidade é o número, o nome e o ícone, sem cor nova: a marca
- * reserva a cor (ADR 0016).
+ * reserva a cor (ADR 0016). A ordem é a de PROJETOS, a diabetes primeiro (pedido do autor), e o número
+ * de cada projeto é a posição dele nela.
  */
 export type IdProjeto = "obesidade" | "diabetes";
 
@@ -27,22 +28,9 @@ export type Projeto = {
   notebook: string;
 };
 
-export const OBESIDADE: Projeto = {
-  id: "obesidade",
-  numero: 1,
-  nome: "Obesidade",
-  dados: "dados fictícios",
-  dadosCurto: "dados fictícios",
-  icone: Weight,
-  telas: ["/painel", "/consulta", "/simulador", "/monitoramento"],
-  visaoGeral: "/painel",
-  simulador: "/simulador",
-  notebook: "comparacao-de-modelos",
-};
-
 export const DIABETES: Projeto = {
   id: "diabetes",
-  numero: 2,
+  numero: 1,
   nome: "Diabetes",
   dados: "dados reais e anonimizados",
   dadosCurto: "dados reais",
@@ -53,7 +41,20 @@ export const DIABETES: Projeto = {
   notebook: "triagem-de-diabetes",
 };
 
-export const PROJETOS: readonly Projeto[] = [OBESIDADE, DIABETES];
+export const OBESIDADE: Projeto = {
+  id: "obesidade",
+  numero: 2,
+  nome: "Obesidade",
+  dados: "dados fictícios",
+  dadosCurto: "dados fictícios",
+  icone: Weight,
+  telas: ["/painel", "/consulta", "/simulador", "/monitoramento"],
+  visaoGeral: "/painel",
+  simulador: "/simulador",
+  notebook: "comparacao-de-modelos",
+};
+
+export const PROJETOS: readonly Projeto[] = [DIABETES, OBESIDADE];
 
 const dentroDe = (caminho: string, tela: string) => caminho === tela || caminho.startsWith(`${tela}/`);
 
