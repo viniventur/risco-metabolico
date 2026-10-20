@@ -1,5 +1,5 @@
 {
-  "medido_em": "2026-10-19",
+  "medido_em": "2026-10-20",
   "versao_dados": "dee1f27e9777",
   "base": {
     "sistema": "Windows",
@@ -67,6 +67,82 @@
       "plataforma": 0.000423762220119861,
       "sementes": 0.0013353437401451007
     },
+    "limiares_por_idade.18 a 44 anos.valor": {
+      "plataforma": 0.00019224919378757477,
+      "sementes": 0.00042764097452163696
+    },
+    "limiares_por_idade.18 a 44 anos.fora_da_dobra.recall": {
+      "plataforma": 0.0,
+      "sementes": 0.0
+    },
+    "limiares_por_idade.18 a 44 anos.fora_da_dobra.precisao": {
+      "plataforma": 0.0011816457483537074,
+      "sementes": 0.001174974592380279
+    },
+    "limiares_por_idade.18 a 44 anos.fora_da_dobra.especificidade": {
+      "plataforma": 0.004197750005996759,
+      "sementes": 0.004173762863105335
+    },
+    "limiares_por_idade.18 a 44 anos.fora_da_dobra.encaminhados": {
+      "plataforma": 0.004028637859987527,
+      "sementes": 0.004005617072216194
+    },
+    "limiares_por_idade.45 a 64 anos.valor": {
+      "plataforma": 0.0007196143269538879,
+      "sementes": 0.0012785568833351135
+    },
+    "limiares_por_idade.45 a 64 anos.fora_da_dobra.recall": {
+      "plataforma": 0.0,
+      "sementes": 0.0
+    },
+    "limiares_por_idade.45 a 64 anos.fora_da_dobra.precisao": {
+      "plataforma": 0.00017675228764846285,
+      "sementes": 0.0007585944049310345
+    },
+    "limiares_por_idade.45 a 64 anos.fora_da_dobra.especificidade": {
+      "plataforma": 0.0003400115080818278,
+      "sementes": 0.0014646649578908821
+    },
+    "limiares_por_idade.45 a 64 anos.fora_da_dobra.encaminhados": {
+      "plataforma": 0.0002942707743848749,
+      "sementes": 0.0012676279511963373
+    },
+    "limiares_por_idade.65 anos ou mais.valor": {
+      "plataforma": 0.0009019523859024048,
+      "sementes": 0.0008473396301269531
+    },
+    "limiares_por_idade.65 anos ou mais.fora_da_dobra.recall": {
+      "plataforma": 0.0,
+      "sementes": 0.0
+    },
+    "limiares_por_idade.65 anos ou mais.fora_da_dobra.precisao": {
+      "plataforma": 0.0002769609031518794,
+      "sementes": 0.0007333299517870429
+    },
+    "limiares_por_idade.65 anos ou mais.fora_da_dobra.especificidade": {
+      "plataforma": 0.0006370553884267327,
+      "sementes": 0.00168111838612639
+    },
+    "limiares_por_idade.65 anos ou mais.fora_da_dobra.encaminhados": {
+      "plataforma": 0.0005059661845934205,
+      "sementes": 0.0013351885426767796
+    },
+    "limiares_por_idade.fora_da_dobra.recall": {
+      "plataforma": 0.0,
+      "sementes": 0.0
+    },
+    "limiares_por_idade.fora_da_dobra.precisao": {
+      "plataforma": 0.0005074047491251676,
+      "sementes": 0.000570343207917684
+    },
+    "limiares_por_idade.fora_da_dobra.especificidade": {
+      "plataforma": 0.001059158284049011,
+      "sementes": 0.001190837422065938
+    },
+    "limiares_por_idade.fora_da_dobra.encaminhados": {
+      "plataforma": 0.0009115815200252397,
+      "sementes": 0.001024913276568895
+    },
     "validacao_cruzada.roc_auc": {
       "plataforma": 0.0001559341710359874,
       "sementes": 0.00012436134022963952
@@ -108,26 +184,26 @@
       "sementes": 0.006365822605743365
     },
     "metricas_teste.recall_no_limiar": {
-      "plataforma": 0.00028292544914421125,
-      "sementes": 0.0008487763474324117
+      "plataforma": 0.00028292544914410023,
+      "sementes": 0.0016975526948649344
     },
     "metricas_teste.precisao_no_limiar": {
-      "plataforma": 1.8547644622446402e-05,
-      "sementes": 0.0004468259272523145
+      "plataforma": 0.0009207863460721777,
+      "sementes": 0.000858563965596193
     },
     "metricas_teste.especificidade_no_limiar": {
-      "plataforma": 9.160235418048668e-05,
-      "sementes": 0.0011679300158013994
+      "plataforma": 0.002061052969061339,
+      "sementes": 0.0011221288387111006
     },
     "metricas_teste.encaminhados_no_limiar": {
-      "plataforma": 0.00011825922421948576,
-      "sementes": 0.0011234626300851702
+      "plataforma": 0.0018133081046988186,
+      "sementes": 0.0009854935351624183
     }
   },
   "ouro": {
     "n": 24,
     "classificacao_estavel": true,
-    "margem_minima": 0.041103482246398926,
+    "margem_minima": 0.016557528637349606,
     "desvio_max_plataforma": 0.03761754930019379,
     "desvio_max_sementes": 0.053793132305145264
   }

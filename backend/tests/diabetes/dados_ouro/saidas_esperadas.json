@@ -1,121 +1,169 @@
 [
   {
     "probabilidade": 0.47055,
+    "limiar": 0.16155649721622467,
+    "grupo_de_idade": "65 anos ou mais",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
-    "probabilidade": 0.044303,
-    "risco_elevado": false,
-    "classificacao": "Risco baixo"
+    "probabilidade": 0.099126,
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.24695,
+    "limiar": 0.16155649721622467,
+    "grupo_de_idade": "65 anos ou mais",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.064992,
+    "limiar": 0.16155649721622467,
+    "grupo_de_idade": "65 anos ou mais",
     "risco_elevado": false,
     "classificacao": "Risco baixo"
   },
   {
     "probabilidade": 0.359649,
+    "limiar": 0.16155649721622467,
+    "grupo_de_idade": "65 anos ou mais",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.166651,
+    "limiar": 0.10843631625175476,
+    "grupo_de_idade": "45 a 64 anos",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
-    "probabilidade": 0.037202,
-    "risco_elevado": false,
-    "classificacao": "Risco baixo"
+    "probabilidade": 0.065708,
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.009998,
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
     "risco_elevado": false,
     "classificacao": "Risco baixo"
   },
   {
     "probabilidade": 0.622394,
+    "limiar": 0.10843631625175476,
+    "grupo_de_idade": "45 a 64 anos",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.069406,
-    "risco_elevado": false,
-    "classificacao": "Risco baixo"
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.293239,
+    "limiar": 0.10843631625175476,
+    "grupo_de_idade": "45 a 64 anos",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.446965,
+    "limiar": 0.10843631625175476,
+    "grupo_de_idade": "45 a 64 anos",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.053778,
-    "risco_elevado": false,
-    "classificacao": "Risco baixo"
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.060153,
+    "limiar": 0.10843631625175476,
+    "grupo_de_idade": "45 a 64 anos",
     "risco_elevado": false,
     "classificacao": "Risco baixo"
   },
   {
-    "probabilidade": 0.027709,
+    "probabilidade": 0.011455,
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
     "risco_elevado": false,
     "classificacao": "Risco baixo"
   },
   {
     "probabilidade": 0.383581,
+    "limiar": 0.16155649721622467,
+    "grupo_de_idade": "65 anos ou mais",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
-    "probabilidade": 0.030965,
-    "risco_elevado": false,
-    "classificacao": "Risco baixo"
+    "probabilidade": 0.075209,
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.346763,
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.069292,
-    "risco_elevado": false,
-    "classificacao": "Risco baixo"
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.228176,
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.070635,
-    "risco_elevado": false,
-    "classificacao": "Risco baixo"
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
+    "risco_elevado": true,
+    "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.188,
+    "limiar": 0.029653484001755714,
+    "grupo_de_idade": "18 a 44 anos",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.325261,
+    "limiar": 0.16155649721622467,
+    "grupo_de_idade": "65 anos ou mais",
     "risco_elevado": true,
     "classificacao": "Risco elevado"
   },
   {
     "probabilidade": 0.076101,
+    "limiar": 0.10843631625175476,
+    "grupo_de_idade": "45 a 64 anos",
     "risco_elevado": false,
     "classificacao": "Risco baixo"
   }

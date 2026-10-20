@@ -10,6 +10,7 @@ from app.diabetes.dominio.relatorio import FRASE_DADOS_REAIS
 from app.diabetes.esquemas.saida import (
     InfoModeloDiabetes,
     LimiarDiabetes,
+    LimiaresPorIdadeDiabetes,
     MetricasTesteDiabetes,
     ValidacaoCruzadaDiabetes,
 )
@@ -20,8 +21,9 @@ roteador = APIRouter(prefix="/model", tags=["diabetes"])
 
 
 def info_de(artefato: ArtefatoDiabetes) -> InfoModeloDiabetes:
-    """O manifest da vertente normalizado: nenhuma métrica escrita à mão, nem o limiar."""
+    """O manifest da vertente normalizado: nenhuma métrica escrita à mão, nem os limiares."""
     m = artefato.manifest
+    por_idade = m.get("limiares_por_idade")
     return InfoModeloDiabetes(
         nome=CONFIG.nome_app,
         vertente="diabetes",
@@ -40,6 +42,7 @@ def info_de(artefato: ArtefatoDiabetes) -> InfoModeloDiabetes:
         split=dict(m["split"] or {}),
         validacao_cruzada=ValidacaoCruzadaDiabetes(**m["validacao_cruzada"]),
         limiar=LimiarDiabetes(**m["limiar"]),
+        limiares_por_idade=LimiaresPorIdadeDiabetes(**por_idade) if por_idade else None,
         metricas_teste=MetricasTesteDiabetes(**m["metricas_teste"]),
         ambiente=dict(m["ambiente"] or {}),
         notebook_origem=str(m["notebook_origem"]),
@@ -50,10 +53,10 @@ def info_de(artefato: ArtefatoDiabetes) -> InfoModeloDiabetes:
 @roteador.get(
     "/info",
     response_model=InfoModeloDiabetes,
-    summary="Manifest da vertente diabetes: versão, limiar, métricas de validação e de teste",
+    summary="Manifest da vertente diabetes: versão, limiares, métricas de validação e de teste",
 )
 def model_info_diabetes(
     request: Request, artefato: ArtefatoDiabetes = Depends(obter_artefato_diabetes)
 ) -> Response:
-    """Versão, release, hiperparâmetros, o limiar com o critério e as métricas do manifest."""
+    """Versão, release, hiperparâmetros, os limiares com o critério e as métricas do manifest."""
     return resposta_cacheavel(request, info_de(artefato).model_dump(), max_age=300)

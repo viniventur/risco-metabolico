@@ -7,10 +7,11 @@ todo default relativo à raiz do repositório, resolvido em código.
   REPEATABLE READ, e registra o congelado no manifest da vertente
   (artifacts/diabetes/manifest.json) — o `versao_dados` que o treino vai citar.
 - `treinar --versao X.Y.Z`: treina sobre o snapshot a configuração que o notebook 02 congelou
-  (célula 38) — validação cruzada no treino, o limiar fora da dobra, o modelo no treino inteiro e a
-  avaliação, uma vez, no teste —, serializa com joblib e escreve o manifest, as métricas e as
+  (célula 38 e `CONGELADO_POR_IDADE`) — validação cruzada no treino, os limiares fora da dobra (o
+  único, de referência, e o de cada grupo de idade, que classifica), o modelo no treino inteiro e
+  a avaliação, uma vez, no teste —, serializa com joblib e escreve o manifest, as métricas e as
   saídas de ouro.
-- `verificar`: retreina sobre o MESMO snapshot e compara configuração, limiar, métricas e
+- `verificar`: retreina sobre o MESMO snapshot e compara configuração, limiares, métricas e
   predições de ouro com o manifest. Não escreve nada. É o que roda no CI.
 
 O manifest da vertente é outro arquivo, e não uma chave no da obesidade: as duas vertentes são
@@ -60,10 +61,21 @@ TOLERANCIA_METRICAS = 1e-6
 # da biblioteca padrão do C++, que cada compilador implementa a seu modo. A diferença é do tamanho
 # da que uma troca de semente produz na mesma plataforma. Na MESMA plataforma do treino o critério
 # é o sha256 exato das predições de ouro; noutra, a mesma classificação nos casos de ouro (todos
-# longe do limiar) e estas tolerâncias, que cobrem com folga o registro — o teste
-# test_tolerancias_cobrem_a_medicao_registrada confere.
+# longe do limiar do grupo deles) e estas tolerâncias, que cobrem com folga o registro — o teste
+# test_tolerancias_cobrem_a_medicao_registrada confere. Os limiares (o único e o de cada grupo de
+# idade, remedidos na versão 1.1.0) têm tolerância própria, mais estreita: o de 18 a 44 anos fica
+# perto de 0,03, e a das métricas deixaria passar um terço dele; test_limiares_por_idade confere
+# que ela cobre o registro.
 TOLERANCIA_PROBAS_ENTRE_PLATAFORMAS = 0.10
 TOLERANCIA_METRICAS_ENTRE_PLATAFORMAS = 0.01
+TOLERANCIA_LIMIARES_ENTRE_PLATAFORMAS = 0.005
+
+
+def e_limiar(chave: str) -> bool:
+    """A chave achatada de `metricas_comparaveis` é o valor de um limiar (único ou de grupo)."""
+    return chave == "limiar.valor" or (
+        chave.startswith("limiares_por_idade.") and chave.endswith(".valor")
+    )
 
 
 def _relativo(caminho: Path) -> str:
@@ -127,10 +139,26 @@ def manifest_vazio() -> dict[str, Any]:
         "hiperparametros": None,
         "desbalanceamento": None,
         "calibracao": None,
+        # O limiar único: o critério da D4 na base inteira. Desde a versão 1.1.0 é referência — a
+        # classificação usa `limiares_por_idade`, o mesmo critério dentro de cada grupo de idade.
         "limiar": {
             "criterio": avaliacao.CRITERIO_LIMIAR,
             "recall_alvo": avaliacao.RECALL_ALVO,
             "valor": None,
+            "fora_da_dobra": None,
+        },
+        "limiares_por_idade": {
+            "criterio": avaliacao.CRITERIO_LIMIAR_POR_IDADE,
+            "recall_alvo": avaliacao.RECALL_ALVO,
+            "grupos": [
+                {
+                    "grupo": grupo,
+                    "faixas_etarias": list(faixas),
+                    "valor": None,
+                    "fora_da_dobra": None,
+                }
+                for grupo, faixas in avaliacao.FAIXAS_POR_GRUPO.items()
+            ],
             "fora_da_dobra": None,
         },
         "metricas_teste": None,
@@ -226,27 +254,43 @@ class Treino:
     prevalencia_treino: float
     prevalencia_teste: float
     validacao: dict[str, float]
+    # O limiar único (referência) e o ponto dele fora da dobra, com a tabela de cada alvo.
     limiar: float
     no_limiar_fora: dict[str, float | int]
     pontos: list[dict[str, float | int]]
+    # As predições fora da dobra do treino e a faixa etária de cada linha: a base dos limiares.
+    y_treino: np.ndarray
+    fora_da_dobra: np.ndarray
+    idade_treino: np.ndarray
+    # O limiar de cada grupo de idade (o que classifica), a tabela do manifest, o ponto total
+    # fora da dobra com esses limiares e a estabilidade deles entre as dobras.
+    limiares_idade: dict[str, float]
+    grupos_idade: list[dict[str, Any]]
+    no_limiares_idade_fora: dict[str, float | int]
+    estabilidade_idade: dict[str, dict[str, list[float]]]
     metricas_teste: dict[str, float]
     probas_ouro: np.ndarray
+    limiares_ouro: np.ndarray
+    grupos_ouro: list[str]
     segundos: float
 
 
 def treinar_configuracao(quadro: pd.DataFrame, casos_ouro: list[dict[str, Any]]) -> Treino:
-    """Split, validação cruzada, limiar fora da dobra, modelo no treino inteiro e o teste."""
+    """Split, validação cruzada, limiares fora da dobra, modelo no treino inteiro e o teste."""
     inicio = time.perf_counter()
     X, y = pipe.separar(quadro)
     X_treino, X_teste, y_treino, y_teste = pipe.dividir(X, y)
-    fora_da_dobra, validacao = avaliacao.validar(
-        pipe.montar_pipeline, X_treino, y_treino, pipe.dobras(X_treino, y_treino)
-    )
+    dobras = pipe.dobras(X_treino, y_treino)
+    fora_da_dobra, validacao = avaliacao.validar(pipe.montar_pipeline, X_treino, y_treino, dobras)
     limiar = avaliacao.limiar_para_recall(y_treino, fora_da_dobra, avaliacao.RECALL_ALVO)
+    idade_treino = X_treino["Faixa_Etaria"].to_numpy()
+    limiares_idade = avaliacao.limiares_por_grupo(y_treino, fora_da_dobra, idade_treino)
     modelo = pipe.montar_pipeline().fit(X_treino, y_treino)
     p_teste = np.asarray(modelo.predict_proba(X_teste)[:, 1], dtype="float64")
     prevalencia_treino = float(y_treino.mean())
-    probas_ouro = np.asarray(modelo.predict_proba(montar_quadro(casos_ouro))[:, 1], dtype="float64")
+    quadro_ouro = montar_quadro(casos_ouro)
+    probas_ouro = np.asarray(modelo.predict_proba(quadro_ouro)[:, 1], dtype="float64")
+    idade_ouro = quadro_ouro["Faixa_Etaria"].to_numpy()
     return Treino(
         pipeline=modelo,
         X_teste=X_teste,
@@ -259,8 +303,28 @@ def treinar_configuracao(quadro: pd.DataFrame, casos_ouro: list[dict[str, Any]])
         limiar=limiar,
         no_limiar_fora=avaliacao.ponto_de_operacao(y_treino, fora_da_dobra, limiar),
         pontos=avaliacao.pontos_de_operacao(y_treino, fora_da_dobra),
-        metricas_teste=avaliacao.avaliar_teste(y_teste, p_teste, limiar, prevalencia_treino),
+        y_treino=y_treino,
+        fora_da_dobra=fora_da_dobra,
+        idade_treino=idade_treino,
+        limiares_idade=limiares_idade,
+        grupos_idade=avaliacao.tabela_por_idade(
+            y_treino, fora_da_dobra, idade_treino, limiares_idade
+        ),
+        no_limiares_idade_fora=avaliacao.contagens(
+            y_treino, fora_da_dobra >= avaliacao.limiar_por_linha(idade_treino, limiares_idade)
+        ),
+        estabilidade_idade=avaliacao.estabilidade_por_idade(
+            y_treino, fora_da_dobra, idade_treino, dobras
+        ),
+        metricas_teste=avaliacao.avaliar_teste(
+            y_teste,
+            p_teste,
+            avaliacao.limiar_por_linha(X_teste["Faixa_Etaria"].to_numpy(), limiares_idade),
+            prevalencia_treino,
+        ),
         probas_ouro=probas_ouro,
+        limiares_ouro=avaliacao.limiar_por_linha(idade_ouro, limiares_idade),
+        grupos_ouro=[avaliacao.grupo_da_faixa(int(f)) for f in idade_ouro],
         segundos=round(time.perf_counter() - inicio, 1),
     )
 
@@ -270,34 +334,122 @@ def sha_probas(probas: np.ndarray) -> str:
     return hashlib.sha256(np.round(np.asarray(probas, dtype="float64"), 6).tobytes()).hexdigest()
 
 
-def saidas_de_ouro(probas: np.ndarray, limiar: float) -> list[dict[str, Any]]:
-    """O que a API tem de devolver para cada caso de ouro: probabilidade e classificação."""
+def saidas_de_ouro(
+    probas: np.ndarray, limiares: np.ndarray, grupos: list[str]
+) -> list[dict[str, Any]]:
+    """O que a API tem de devolver para cada caso de ouro: probabilidade, limiar e classificação.
+
+    O limiar de cada caso é o do grupo de idade dele.
+    """
     return [
         {
             "probabilidade": round(float(p), 6),
-            "risco_elevado": bool(p >= limiar),
-            "classificacao": classificar(float(p), limiar),
+            "limiar": float(t),
+            "grupo_de_idade": grupo,
+            "risco_elevado": bool(p >= t),
+            "classificacao": classificar(float(p), float(t)),
         }
-        for p in probas
+        for p, t, grupo in zip(probas, limiares, grupos, strict=True)
     ]
 
 
 def fora_da_dobra_publicado(ponto: dict[str, float | int]) -> dict[str, float]:
     """O ponto de operação fora da dobra como o manifest o publica: só as quatro frações."""
-    return {k: float(ponto[k]) for k in ("recall", "precisao", "especificidade", "encaminhados")}
+    return {k: float(ponto[k]) for k in avaliacao.FRACOES}
 
 
 def metricas_comparaveis(manifest: dict[str, Any]) -> dict[str, float]:
-    """Os números que `verificar` confere, achatados como `secao.chave` (limiar incluído)."""
+    """Os números que `verificar` confere, achatados como `secao.chave` (limiares incluídos)."""
     numeros = {"limiar.valor": float(manifest["limiar"]["valor"])}
     for chave, valor in (manifest["limiar"]["fora_da_dobra"] or {}).items():
         numeros[f"limiar.fora_da_dobra.{chave}"] = float(valor)
+    por_idade = manifest.get("limiares_por_idade") or {}
+    for grupo in por_idade.get("grupos") or []:
+        if grupo.get("valor") is None:
+            continue
+        numeros[f"limiares_por_idade.{grupo['grupo']}.valor"] = float(grupo["valor"])
+        for chave, valor in (grupo.get("fora_da_dobra") or {}).items():
+            numeros[f"limiares_por_idade.{grupo['grupo']}.fora_da_dobra.{chave}"] = float(valor)
+    for chave, valor in (por_idade.get("fora_da_dobra") or {}).items():
+        numeros[f"limiares_por_idade.fora_da_dobra.{chave}"] = float(valor)
     for chave in ("roc_auc", "roc_auc_dp", "pr_auc", "pr_auc_dp", "brier"):
         numeros[f"validacao_cruzada.{chave}"] = float(manifest["validacao_cruzada"][chave])
     for chave, valor in (manifest["metricas_teste"] or {}).items():
         if chave != "precisao_fixa":  # parâmetro de leitura, não medida
             numeros[f"metricas_teste.{chave}"] = float(valor)
     return numeros
+
+
+def numeros_do_treino(t: Treino) -> dict[str, Any]:
+    """O esqueleto do manifest com o que um treino mede: a base de `metricas_comparaveis`."""
+    numeros = manifest_vazio()
+    numeros["validacao_cruzada"].update(t.validacao)
+    numeros["limiar"].update(
+        {"valor": t.limiar, "fora_da_dobra": fora_da_dobra_publicado(t.no_limiar_fora)}
+    )
+    numeros["limiares_por_idade"].update(
+        {
+            "grupos": t.grupos_idade,
+            "fora_da_dobra": fora_da_dobra_publicado(t.no_limiares_idade_fora),
+        }
+    )
+    numeros["metricas_teste"] = t.metricas_teste
+    return numeros
+
+
+def registro_por_idade(t: Treino, versao: str) -> dict[str, Any]:
+    """`metricas/limiares-por-idade.json`: a escolha dos limiares por grupo e o preço dela.
+
+    Cada grupo fora da dobra (a base da escolha) e no teste (uma vez, para medir), com o limiar
+    único ao lado; a estabilidade entre as dobras; e o preço de cada alvo de recall.
+    """
+    idade_teste = t.X_teste["Faixa_Etaria"].to_numpy()
+    grupos: list[dict[str, Any]] = []
+    for linha in t.grupos_idade:
+        nome, valor = linha["grupo"], float(linha["valor"])
+        no_treino = np.isin(t.idade_treino, linha["faixas_etarias"])
+        no_teste = np.isin(idade_teste, linha["faixas_etarias"])
+        y_tr, p_tr = t.y_treino[no_treino], t.fora_da_dobra[no_treino]
+        y_te, p_te = t.y_teste[no_teste], t.p_teste[no_teste]
+        grupos.append(
+            {
+                "grupo": nome,
+                "faixas_etarias": linha["faixas_etarias"],
+                "n_treino": int(no_treino.sum()),
+                "casos_treino": int(y_tr.sum()),
+                "prevalencia_treino": float(y_tr.mean()),
+                "probabilidade_media_fora_da_dobra": float(p_tr.mean()),
+                "limiar": valor,
+                "fora_da_dobra": fora_da_dobra_publicado(avaliacao.contagens(y_tr, p_tr >= valor)),
+                "fora_da_dobra_limiar_unico": fora_da_dobra_publicado(
+                    avaliacao.contagens(y_tr, p_tr >= t.limiar)
+                ),
+                "estabilidade": t.estabilidade_idade[nome],
+                "teste": fora_da_dobra_publicado(avaliacao.contagens(y_te, p_te >= valor)),
+                "teste_limiar_unico": fora_da_dobra_publicado(
+                    avaliacao.contagens(y_te, p_te >= t.limiar)
+                ),
+            }
+        )
+    limiares_teste = avaliacao.limiar_por_linha(idade_teste, t.limiares_idade)
+    return {
+        "versao": versao,
+        "criterio": avaliacao.CRITERIO_LIMIAR_POR_IDADE,
+        "base": "predições fora da dobra do treino (a escolha); o teste, uma vez, para medir",
+        "limiar_unico": t.limiar,
+        "grupos": grupos,
+        "total": {
+            "fora_da_dobra": fora_da_dobra_publicado(t.no_limiares_idade_fora),
+            "fora_da_dobra_limiar_unico": fora_da_dobra_publicado(t.no_limiar_fora),
+            "teste": fora_da_dobra_publicado(
+                avaliacao.contagens(t.y_teste, t.p_teste >= limiares_teste)
+            ),
+            "teste_limiar_unico": fora_da_dobra_publicado(
+                avaliacao.contagens(t.y_teste, t.p_teste >= t.limiar)
+            ),
+        },
+        "pontos": avaliacao.pontos_por_idade(t.y_treino, t.fora_da_dobra, t.idade_treino),
+    }
 
 
 def ambiente_do_treino() -> dict[str, str]:
@@ -413,20 +565,24 @@ def cmd_treinar(args: argparse.Namespace) -> int:
             "prevalencia_teste": t.prevalencia_teste,
         }
     )
-    manifest["validacao_cruzada"].update(t.validacao)
-    manifest["limiar"].update(
-        {"valor": t.limiar, "fora_da_dobra": fora_da_dobra_publicado(t.no_limiar_fora)}
-    )
+    medidos = numeros_do_treino(t)
+    for secao in ("validacao_cruzada", "limiar", "limiares_por_idade"):
+        manifest[secao] = medidos[secao]
 
     escrever_json(
-        args.dados_ouro / "saidas_esperadas.json", saidas_de_ouro(t.probas_ouro, t.limiar)
+        args.dados_ouro / "saidas_esperadas.json",
+        saidas_de_ouro(t.probas_ouro, t.limiares_ouro, t.grupos_ouro),
     )
     # O manifest embutido torna o artefato autodescritivo fora do repositório; ele não pode
-    # conter o hash do próprio arquivo (circular), então viaja com `sha256: null`.
+    # conter o hash do próprio arquivo (circular), então viaja com `sha256: null`. A tabela dos
+    # limiares por idade viaja no artefato: é ela que classifica (o `limiar` único é referência).
     objeto = {
         "pipeline": t.pipeline,
         "colunas": list(ENTRADAS),
         "limiar": t.limiar,
+        "limiares_por_idade": [
+            {k: g[k] for k in ("grupo", "faixas_etarias", "valor")} for g in t.grupos_idade
+        ],
         "manifest": dict(manifest),
     }
     args.saida.mkdir(parents=True, exist_ok=True)
@@ -435,22 +591,32 @@ def cmd_treinar(args: argparse.Namespace) -> int:
     manifest["sha256"] = dados.sha256_de(destino)
     escrever_manifest(args.manifesto, manifest)
 
+    # O limiar único segue com a tabela de preço dele; matriz e grupos medem a regra que
+    # classifica (o limiar do grupo de idade de cada pessoa), e a escolha dela tem registro próprio.
+    limiares_teste = avaliacao.limiar_por_linha(
+        t.X_teste["Faixa_Etaria"].to_numpy(), t.limiares_idade
+    )
     escrever_json(
         args.metricas / "pontos-de-operacao.json",
         {"versao": args.versao, "base": "predições fora da dobra do treino", "pontos": t.pontos},
     )
     escrever_json(
         args.metricas / "matriz-confusao.json",
-        {"versao": args.versao, **avaliacao.matriz_confusao(t.y_teste, t.p_teste, t.limiar)},
+        {
+            "versao": args.versao,
+            "limiares": t.limiares_idade,
+            **avaliacao.matriz_confusao(t.y_teste, t.p_teste, limiares_teste),
+        },
     )
     escrever_json(
         args.metricas / "por-grupo.json",
         {
             "versao": args.versao,
-            "limiar": t.limiar,
-            "grupos": avaliacao.por_grupo(t.X_teste, t.y_teste, t.p_teste, t.limiar),
+            "limiares": t.limiares_idade,
+            "grupos": avaliacao.por_grupo(t.X_teste, t.y_teste, t.p_teste, limiares_teste),
         },
     )
+    escrever_json(args.metricas / "limiares-por-idade.json", registro_por_idade(t, args.versao))
     if args.anotar_banco:
         _anotar_versao_no_snapshot(
             args.banco_url or CONFIG.banco_url, args.versao, manifest["dataset"]["versao_dados"]
@@ -461,9 +627,14 @@ def cmd_treinar(args: argparse.Namespace) -> int:
         f"pr_auc={t.validacao['pr_auc']:.4f} brier={t.validacao['brier']:.4f} ({t.segundos}s)"
     )
     print(
-        f"limiar={t.limiar:.6f} (recall fora da dobra {t.no_limiar_fora['recall']:.4f}) | teste: "
-        f"roc_auc={m['roc_auc']:.4f} pr_auc={m['pr_auc']:.4f} brier={m['brier']:.4f} "
-        f"recall={m['recall_no_limiar']:.4f} precisao={m['precisao_no_limiar']:.4f}"
+        f"limiar único={t.limiar:.6f} (referência) | por idade: "
+        + ", ".join(f"{g} {v:.6f}" for g, v in t.limiares_idade.items())
+        + f" (recall fora da dobra {t.no_limiares_idade_fora['recall']:.4f})"
+    )
+    print(
+        f"teste: roc_auc={m['roc_auc']:.4f} pr_auc={m['pr_auc']:.4f} brier={m['brier']:.4f} "
+        f"recall={m['recall_no_limiar']:.4f} precisao={m['precisao_no_limiar']:.4f} "
+        f"encaminhados={m['encaminhados_no_limiar']:.4f}"
     )
     print(
         f"artefato: {_relativo(destino)} sha256={manifest['sha256'][:12]}… "
@@ -474,9 +645,12 @@ def cmd_treinar(args: argparse.Namespace) -> int:
 
 
 def _comparar_com_saidas_esperadas(
-    probas: np.ndarray, limiar: float, saidas_esperadas: Path
+    probas: np.ndarray, limiares: np.ndarray, saidas_esperadas: Path
 ) -> list[str]:
-    """Critério entre plataformas: mesma classificação e probabilidade dentro da tolerância."""
+    """Critério entre plataformas: mesma classificação e probabilidade dentro da tolerância.
+
+    Cada caso é classificado pelo limiar do grupo de idade dele, como a API o classifica.
+    """
     if not saidas_esperadas.exists():
         return [f"{saidas_esperadas.name} ausente ao lado de entradas.json: rode `treinar` antes"]
     esperadas = json.loads(saidas_esperadas.read_text(encoding="utf-8"))
@@ -484,9 +658,9 @@ def _comparar_com_saidas_esperadas(
         return [f"saidas_esperadas.json tem {len(esperadas)} casos; entradas.json, {len(probas)}"]
     falhas: list[str] = []
     desvio_max = 0.0
-    for i, (p, esperado) in enumerate(zip(probas, esperadas, strict=True)):
-        if bool(p >= limiar) != bool(esperado["risco_elevado"]):
-            falhas.append(f"caso {i}: risco_elevado {bool(p >= limiar)} ≠ esperado")
+    for i, (p, t, esperado) in enumerate(zip(probas, limiares, esperadas, strict=True)):
+        if bool(p >= t) != bool(esperado["risco_elevado"]):
+            falhas.append(f"caso {i}: risco_elevado {bool(p >= t)} ≠ esperado")
         desvio_max = max(desvio_max, abs(float(p) - float(esperado["probabilidade"])))
     if desvio_max > TOLERANCIA_PROBAS_ENTRE_PLATAFORMAS:
         falhas.append(
@@ -520,11 +694,20 @@ def cmd_verificar(args: argparse.Namespace) -> int:
             falhas.append(f"{chave}: manifest {manifest.get(chave)!r} ≠ código {no_codigo!r}")
     if manifest["limiar"].get("criterio") != avaliacao.CRITERIO_LIMIAR:
         falhas.append("limiar.criterio do manifest ≠ o critério do código")
+    por_idade = manifest.get("limiares_por_idade") or {}
+    if por_idade.get("criterio") != avaliacao.CRITERIO_LIMIAR_POR_IDADE:
+        falhas.append("limiares_por_idade.criterio do manifest ≠ o critério do código")
+    grupos = {g["grupo"]: g["faixas_etarias"] for g in por_idade.get("grupos") or []}
+    if grupos != avaliacao.FAIXAS_POR_GRUPO:
+        falhas.append(
+            f"limiares_por_idade.grupos: manifest {grupos!r} ≠ código "
+            f"{avaliacao.FAIXAS_POR_GRUPO!r}"
+        )
 
     t = treinar_configuracao(_carregar(manifest, args.snapshot), _casos_de_ouro(args.dados_ouro))
     sistema_do_treino = str((manifest.get("ambiente") or {}).get("sistema") or "")
     if platform.system() == sistema_do_treino:
-        tolerancia = TOLERANCIA_METRICAS
+        tolerancia = tolerancia_limiares = TOLERANCIA_METRICAS
         criterio = "sha256 exato das predições de ouro (mesma plataforma do treino)"
         sha = sha_probas(t.probas_ouro)
         if sha != manifest["sha256_predicoes_ouro"]:
@@ -534,28 +717,26 @@ def cmd_verificar(args: argparse.Namespace) -> int:
             )
     else:
         tolerancia = TOLERANCIA_METRICAS_ENTRE_PLATAFORMAS
+        tolerancia_limiares = TOLERANCIA_LIMIARES_ENTRE_PLATAFORMAS
         criterio = (
-            f"classificação igual, probabilidades a {TOLERANCIA_PROBAS_ENTRE_PLATAFORMAS} e "
-            f"métricas a {TOLERANCIA_METRICAS_ENTRE_PLATAFORMAS} "
+            f"classificação igual, probabilidades a {TOLERANCIA_PROBAS_ENTRE_PLATAFORMAS}, "
+            f"limiares a {TOLERANCIA_LIMIARES_ENTRE_PLATAFORMAS} e métricas a "
+            f"{TOLERANCIA_METRICAS_ENTRE_PLATAFORMAS} "
             f"({sistema_do_treino or 'plataforma desconhecida'} → {platform.system()})"
         )
         falhas += _comparar_com_saidas_esperadas(
-            t.probas_ouro, t.limiar, args.dados_ouro / "saidas_esperadas.json"
+            t.probas_ouro, t.limiares_ouro, args.dados_ouro / "saidas_esperadas.json"
         )
 
-    retreino = manifest_vazio()
-    retreino["validacao_cruzada"].update(t.validacao)
-    retreino["limiar"].update(
-        {"valor": t.limiar, "fora_da_dobra": fora_da_dobra_publicado(t.no_limiar_fora)}
-    )
-    retreino["metricas_teste"] = t.metricas_teste
-    publicadas, refeitas = metricas_comparaveis(manifest), metricas_comparaveis(retreino)
+    publicadas = metricas_comparaveis(manifest)
+    refeitas = metricas_comparaveis(numeros_do_treino(t))
     if set(publicadas) != set(refeitas):
         falhas.append(
             f"métricas do manifest ≠ do código: {sorted(set(publicadas) ^ set(refeitas))}"
         )
     for chave in sorted(set(publicadas) & set(refeitas)):
-        if abs(publicadas[chave] - refeitas[chave]) > tolerancia:
+        limite = tolerancia_limiares if e_limiar(chave) else tolerancia
+        if abs(publicadas[chave] - refeitas[chave]) > limite:
             falhas.append(
                 f"{chave}: manifest {publicadas[chave]:.6f} ≠ retreino {refeitas[chave]:.6f}"
             )
@@ -571,8 +752,8 @@ def cmd_verificar(args: argparse.Namespace) -> int:
         return 1
     print(
         f"OK: {manifest['algoritmo']} v{manifest['versao']} da vertente diabetes "
-        f"sobre versao_dados={manifest['dataset']['versao_dados']} reproduz o limiar, as métricas "
-        f"e as predições de ouro (tolerância {tolerancia}); critério: {criterio}"
+        f"sobre versao_dados={manifest['dataset']['versao_dados']} reproduz os limiares, as "
+        f"métricas e as predições de ouro (tolerância {tolerancia}); critério: {criterio}"
     )
     return 0
 

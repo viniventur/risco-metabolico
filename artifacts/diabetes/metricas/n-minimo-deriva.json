@@ -1,8 +1,8 @@
 {
-  "medido_em": "2026-10-19",
+  "medido_em": "2026-10-20",
   "vertente": "diabetes",
   "metodo": "docs/decisoes/0008-limiares-de-psi.md, decisão 2 (tools/medir_n_minimo_deriva.py)",
-  "versao_modelo": "1.0.0",
+  "versao_modelo": "1.1.0",
   "versao_dados": "dee1f27e9777",
   "linhas_snapshot": 253680,
   "reamostragens": 300,

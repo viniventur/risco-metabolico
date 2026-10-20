@@ -104,6 +104,7 @@ def test_treinar_e_verificar_em_pasta_temporaria(
         "pontos-de-operacao.json",
         "matriz-confusao.json",
         "por-grupo.json",
+        "limiares-por-idade.json",
     }
     # Na plataforma em que o modelo publicado foi treinado, o retreino é bit a bit igual; noutra
     # (o CI em Linux contra um treino em Windows), vale a tolerância medida.

@@ -52,8 +52,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Manifest da vertente diabetes: versão, limiar, métricas de validação e de teste
-         * @description Versão, release, hiperparâmetros, o limiar com o critério e as métricas do manifest.
+         * Manifest da vertente diabetes: versão, limiares, métricas de validação e de teste
+         * @description Versão, release, hiperparâmetros, os limiares com o critério e as métricas do manifest.
          */
         get: operations["model_info_diabetes_api_v1_diabetes_model_info_get"];
         put?: never;
@@ -160,7 +160,7 @@ export interface paths {
         put?: never;
         /**
          * Estima a probabilidade de diagnóstico de diabetes e a classifica pelo limiar
-         * @description Uma pessoa, dez respostas: probabilidade, limiar de triagem e classificação.
+         * @description Uma pessoa, dez respostas: probabilidade, o limiar do grupo de idade e a classificação.
          */
         post: operations["prever_diabetes_api_v1_diabetes_predicoes_post"];
         delete?: never;
@@ -1157,6 +1157,8 @@ export interface components {
                 [key: string]: unknown;
             };
             limiar: components["schemas"]["LimiarDiabetes"];
+            /** @description O limiar de cada grupo de idade, o que classifica; nulo num modelo de limiar único */
+            limiares_por_idade?: components["schemas"]["LimiaresPorIdadeDiabetes"] | null;
             metricas_teste: components["schemas"]["MetricasTesteDiabetes"];
             /** N Features Entrada */
             n_features_entrada: number;
@@ -1203,7 +1205,10 @@ export interface components {
         };
         /**
          * LimiarDiabetes
-         * @description O limiar de triagem: critério escrito, alvo de recall, valor e o ponto fora da dobra.
+         * @description O limiar único: critério escrito, alvo de recall, valor e o ponto fora da dobra.
+         *
+         *     É o critério na base inteira. Num modelo com `limiares_por_idade`, fica como referência — o
+         *     que classifica é o limiar do grupo de idade de cada pessoa.
          */
         LimiarDiabetes: {
             /** Criterio */
@@ -1213,6 +1218,36 @@ export interface components {
             recall_alvo: number;
             /** Valor */
             valor: number;
+        };
+        /**
+         * LimiarGrupoDiabetes
+         * @description O limiar de um grupo de idade: as faixas etárias dele, o valor e o ponto fora da dobra.
+         */
+        LimiarGrupoDiabetes: {
+            /**
+             * Faixas Etarias
+             * @description As faixas do BRFSS do grupo (1 a 13)
+             */
+            faixas_etarias: number[];
+            fora_da_dobra: components["schemas"]["PontoDeOperacaoDiabetes"];
+            /** Grupo */
+            grupo: string;
+            /** Valor */
+            valor: number;
+        };
+        /**
+         * LimiaresPorIdadeDiabetes
+         * @description O limiar de cada grupo de idade: o critério do limiar único aplicado dentro de cada um.
+         */
+        LimiaresPorIdadeDiabetes: {
+            /** Criterio */
+            criterio: string;
+            /** @description O ponto de operação na base inteira, cada pessoa no limiar do grupo dela */
+            fora_da_dobra: components["schemas"]["PontoDeOperacaoDiabetes"];
+            /** Grupos */
+            grupos: components["schemas"]["LimiarGrupoDiabetes"][];
+            /** Recall Alvo */
+            recall_alvo: number;
         };
         /**
          * LoteDiabetes
@@ -1292,6 +1327,9 @@ export interface components {
         /**
          * MetricasTesteDiabetes
          * @description A avaliação final, uma vez, no teste — do manifest, nunca escrita à mão.
+         *
+         *     As métricas `*_no_limiar` medem a regra que classifica: com `limiares_por_idade`, cada pessoa
+         *     no limiar do grupo de idade dela.
          */
         MetricasTesteDiabetes: {
             /** Brier */
@@ -1481,13 +1519,18 @@ export interface components {
              * @description Campos cujo valor, como o modelo o vê, está fora da faixa observada na base
              */
             fora_do_dominio_treino?: string[];
+            /**
+             * Grupo De Idade
+             * @description O grupo de idade cujo limiar classificou a pessoa (ex.: '18 a 44 anos'); nulo num modelo de limiar único
+             */
+            grupo_de_idade?: string | null;
             /** Imc */
             imc: number;
             /** Latencia Ms */
             latencia_ms: number;
             /**
              * Limiar
-             * @description Limiar de triagem do modelo servido; critério e valor em /diabetes/model/info
+             * @description Limiar de triagem aplicado à pessoa: o do grupo de idade dela (critério e tabela em /diabetes/model/info, `limiares_por_idade`)
              */
             limiar: number;
             /**

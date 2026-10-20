@@ -58,6 +58,8 @@ def montar_relatorio_html(
         f"<td>{html.escape(_valor_exibido(campo, valor))}</td></tr>"
         for campo, valor in entrada.valores_do_modelo().items()
     )
+    # O limiar que classificou é o do grupo de idade da pessoa (nenhum num modelo de limiar único).
+    grupo = f" ({html.escape(resposta.grupo_de_idade)})" if resposta.grupo_de_idade else ""
     extrapolou = ""
     if resposta.fora_do_dominio_treino:
         campos = ", ".join(html.escape(c) for c in resposta.fora_do_dominio_treino)
@@ -100,7 +102,7 @@ def montar_relatorio_html(
         <div class='metric'>
             <div class='metric-label'>Classificação</div>
             <div class='metric-value previsao'>{html.escape(resposta.classificacao)}</div>
-            <div class='metric-hint'>Limiar de triagem: {resposta.limiar * 100:.1f}%</div>
+            <div class='metric-hint'>Limiar de triagem{grupo}: {resposta.limiar * 100:.1f}%</div>
         </div>
         <div class='metric'>
             <div class='metric-label'>Probabilidade estimada</div>

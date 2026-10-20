@@ -31,7 +31,17 @@ class RespostaDiabetes(BaseModel):
     limiar: float = Field(
         ge=0.0,
         le=1.0,
-        description="Limiar de triagem do modelo servido; critério e valor em /diabetes/model/info",
+        description=(
+            "Limiar de triagem aplicado à pessoa: o do grupo de idade dela (critério e tabela em "
+            "/diabetes/model/info, `limiares_por_idade`)"
+        ),
+    )
+    grupo_de_idade: str | None = Field(
+        default=None,
+        description=(
+            "O grupo de idade cujo limiar classificou a pessoa (ex.: '18 a 44 anos'); nulo num "
+            "modelo de limiar único"
+        ),
     )
     risco_elevado: bool = Field(
         description="probabilidade >= limiar: a triagem sugere o exame de glicemia"
@@ -83,12 +93,36 @@ class PontoDeOperacaoDiabetes(BaseModel):
 
 
 class LimiarDiabetes(BaseModel):
-    """O limiar de triagem: critério escrito, alvo de recall, valor e o ponto fora da dobra."""
+    """O limiar único: critério escrito, alvo de recall, valor e o ponto fora da dobra.
+
+    É o critério na base inteira. Num modelo com `limiares_por_idade`, fica como referência — o
+    que classifica é o limiar do grupo de idade de cada pessoa.
+    """
 
     criterio: str
     recall_alvo: float
     valor: float
     fora_da_dobra: PontoDeOperacaoDiabetes
+
+
+class LimiarGrupoDiabetes(BaseModel):
+    """O limiar de um grupo de idade: as faixas etárias dele, o valor e o ponto fora da dobra."""
+
+    grupo: str
+    faixas_etarias: list[int] = Field(description="As faixas do BRFSS do grupo (1 a 13)")
+    valor: float
+    fora_da_dobra: PontoDeOperacaoDiabetes
+
+
+class LimiaresPorIdadeDiabetes(BaseModel):
+    """O limiar de cada grupo de idade: o critério do limiar único aplicado dentro de cada um."""
+
+    criterio: str
+    recall_alvo: float
+    grupos: list[LimiarGrupoDiabetes]
+    fora_da_dobra: PontoDeOperacaoDiabetes = Field(
+        description="O ponto de operação na base inteira, cada pessoa no limiar do grupo dela"
+    )
 
 
 class ValidacaoCruzadaDiabetes(BaseModel):
@@ -105,7 +139,11 @@ class ValidacaoCruzadaDiabetes(BaseModel):
 
 
 class MetricasTesteDiabetes(BaseModel):
-    """A avaliação final, uma vez, no teste — do manifest, nunca escrita à mão."""
+    """A avaliação final, uma vez, no teste — do manifest, nunca escrita à mão.
+
+    As métricas `*_no_limiar` medem a regra que classifica: com `limiares_por_idade`, cada pessoa
+    no limiar do grupo de idade dela.
+    """
 
     roc_auc: float
     pr_auc: float
@@ -139,6 +177,12 @@ class InfoModeloDiabetes(BaseModel):
     split: dict[str, Any]
     validacao_cruzada: ValidacaoCruzadaDiabetes
     limiar: LimiarDiabetes
+    limiares_por_idade: LimiaresPorIdadeDiabetes | None = Field(
+        default=None,
+        description=(
+            "O limiar de cada grupo de idade, o que classifica; nulo num modelo de limiar único"
+        ),
+    )
     metricas_teste: MetricasTesteDiabetes
     ambiente: dict[str, Any]
     notebook_origem: str

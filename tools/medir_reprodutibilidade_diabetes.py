@@ -51,9 +51,8 @@ from app.diabetes.treino.__main__ import (  # noqa: E402
     DADOS_OURO,
     MANIFESTO_PADRAO,
     ambiente_do_treino,
-    fora_da_dobra_publicado,
-    manifest_vazio,
     metricas_comparaveis,
+    numeros_do_treino,
     treinar_configuracao,
 )
 
@@ -70,18 +69,12 @@ def cmd_treinar(args: argparse.Namespace) -> int:
     casos = json.loads((DADOS_OURO / "entradas.json").read_text(encoding="utf-8"))
     pipe.HIPERPARAMETROS["random_state"] = args.semente  # só o XGBoost; split e dobras ficam em 42
     t = treinar_configuracao(quadro, casos)
-    numeros = manifest_vazio()
-    numeros["validacao_cruzada"].update(t.validacao)
-    numeros["limiar"].update(
-        {"valor": t.limiar, "fora_da_dobra": fora_da_dobra_publicado(t.no_limiar_fora)}
-    )
-    numeros["metricas_teste"] = t.metricas_teste
     descricao = {
         "sistema": platform.system(),
         "semente": args.semente,
         "versao_dados": manifest["dataset"]["versao_dados"],
         "ambiente": ambiente_do_treino(),
-        "metricas": metricas_comparaveis(numeros),
+        "metricas": metricas_comparaveis(numeros_do_treino(t)),
     }
     args.saida.parent.mkdir(parents=True, exist_ok=True)
     np.savez(
@@ -89,9 +82,14 @@ def cmd_treinar(args: argparse.Namespace) -> int:
         p_teste=t.p_teste,
         p_ouro=t.probas_ouro,
         limiar=np.array([t.limiar]),
+        limiares_ouro=t.limiares_ouro,
         descricao=np.array(json.dumps(descricao)),
     )
-    print(f"{descricao['sistema']} semente {args.semente}: limiar {t.limiar:.6f} -> {args.saida}")
+    print(
+        f"{descricao['sistema']} semente {args.semente}: limiar único {t.limiar:.6f}, por idade "
+        + ", ".join(f"{v:.6f}" for v in t.limiares_idade.values())
+        + f" -> {args.saida}"
+    )
     return 0
 
 
@@ -101,6 +99,7 @@ def _ler(caminho: Path) -> dict[str, Any]:
             "p_teste": npz["p_teste"],
             "p_ouro": npz["p_ouro"],
             "limiar": float(npz["limiar"][0]),
+            "limiares_ouro": npz["limiares_ouro"],
             **json.loads(str(npz["descricao"])),
         }
 
@@ -125,9 +124,10 @@ def cmd_comparar(args: argparse.Namespace) -> int:
 
     d_plataforma = desvio(base["p_teste"], outra["p_teste"])
     d_sementes = max(float(desvio(base["p_teste"], s["p_teste"]).max()) for s in sementes)
-    # Ouro: a classificação de cada caso, em cada treino, pelo limiar DESSE treino.
-    acima = np.vstack([t["p_ouro"] >= t["limiar"] for t in todos])
-    margens = np.vstack([np.abs(t["p_ouro"] - t["limiar"]) for t in todos])
+    # Ouro: a classificação de cada caso, em cada treino, pelo limiar DESSE treino para o grupo de
+    # idade do caso — o que a API aplica.
+    acima = np.vstack([t["p_ouro"] >= t["limiares_ouro"] for t in todos])
+    margens = np.vstack([np.abs(t["p_ouro"] - t["limiares_ouro"]) for t in todos])
     metricas = {
         chave: {
             "plataforma": abs(base["metricas"][chave] - outra["metricas"][chave]),

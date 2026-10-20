@@ -69,14 +69,16 @@ def _registro(
 
 
 def _montar_resposta(artefato: ArtefatoDiabetes, entrada: EntradaDiabetes) -> RespostaDiabetes:
-    """Prediz a probabilidade, classifica pelo limiar do artefato e devolve o IMC e a faixa."""
+    """Prediz a probabilidade, classifica pelo limiar do grupo de idade e devolve IMC e faixa."""
     inicio = time.perf_counter()
     valores = entrada.valores_do_modelo()
     probabilidade = prever(artefato, valores)
-    classificacao = classificar(probabilidade, artefato.limiar)
+    limiar, grupo_de_idade = artefato.limiar_de(entrada.faixa_etaria)
+    classificacao = classificar(probabilidade, limiar)
     return RespostaDiabetes(
         probabilidade=probabilidade,
-        limiar=artefato.limiar,
+        limiar=limiar,
+        grupo_de_idade=grupo_de_idade,
         risco_elevado=classificacao == RISCO_ELEVADO,
         classificacao=classificacao,
         # IMC e faixa são de tela e de relatório: o modelo usa o IMC arredondado, por dentro.
@@ -101,7 +103,7 @@ def prever_diabetes(
     artefato: ArtefatoDiabetes = Depends(obter_artefato_diabetes),
     sumidouro: SumidouroLog = Depends(obter_sumidouro),
 ) -> RespostaDiabetes:
-    """Uma pessoa, dez respostas: probabilidade, limiar de triagem e classificação."""
+    """Uma pessoa, dez respostas: probabilidade, o limiar do grupo de idade e a classificação."""
     resposta = _montar_resposta(artefato, entrada)
     tarefas.add_task(
         sumidouro.registrar,

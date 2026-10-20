@@ -30,6 +30,7 @@ def test_predicao_e_deterministica_e_traz_o_contrato(cliente, manifest_diabetes:
     assert set(a) == {
         "probabilidade",
         "limiar",
+        "grupo_de_idade",
         "risco_elevado",
         "classificacao",
         "imc",
@@ -38,7 +39,13 @@ def test_predicao_e_deterministica_e_traz_o_contrato(cliente, manifest_diabetes:
         "versao_modelo",
         "latencia_ms",
     }
-    assert a["limiar"] == manifest_diabetes["limiar"]["valor"]
+    # O limiar que classifica é o do grupo de idade da pessoa, da tabela do manifest.
+    grupo = next(
+        g
+        for g in manifest_diabetes["limiares_por_idade"]["grupos"]
+        if ENTRADA_PADRAO_DIABETES["Faixa_Etaria"] in g["faixas_etarias"]
+    )
+    assert a["limiar"] == grupo["valor"] and a["grupo_de_idade"] == grupo["grupo"]
     assert a["versao_modelo"] == manifest_diabetes["versao"]
     assert a["latencia_ms"] >= 0.0
 

@@ -1,0 +1,279 @@
+{
+  "versao": "1.1.0",
+  "criterio": "em cada grupo de idade, o maior limiar com recall >= 0.8 nas predições fora da dobra do treino",
+  "base": "predições fora da dobra do treino (a escolha); o teste, uma vez, para medir",
+  "limiar_unico": 0.12554778158664703,
+  "grupos": [
+    {
+      "grupo": "18 a 44 anos",
+      "faixas_etarias": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "n_treino": 43439,
+      "casos_treino": 1750,
+      "prevalencia_treino": 0.04028637859987569,
+      "probabilidade_media_fora_da_dobra": 0.04017296005882776,
+      "limiar": 0.029653484001755714,
+      "fora_da_dobra": {
+        "recall": 0.8,
+        "precisao": 0.09782001117942984,
+        "especificidade": 0.6902780109861114,
+        "encaminhados": 0.3294735145836691
+      },
+      "fora_da_dobra_limiar_unico": {
+        "recall": 0.4017142857142857,
+        "precisao": 0.21818746120422097,
+        "especificidade": 0.9395763870565377,
+        "encaminhados": 0.07417297819931398
+      },
+      "estabilidade": {
+        "limiar_por_dobra": [
+          0.0303120706230402,
+          0.02990511991083622,
+          0.024707218632102013,
+          0.03361593931913376,
+          0.025921454653143883
+        ],
+        "recall_cruzado": [
+          0.8116883116883117,
+          0.803763440860215,
+          0.7718309859154929,
+          0.8356545961002786,
+          0.7865168539325843
+        ]
+      },
+      "teste": {
+        "recall": 0.7777777777777778,
+        "precisao": 0.10050675675675676,
+        "especificidade": 0.6958011996572407,
+        "encaminhados": 0.3240284619594964
+      },
+      "teste_limiar_unico": {
+        "recall": 0.41612200435729846,
+        "precisao": 0.2369727047146402,
+        "especificidade": 0.9414453013424736,
+        "encaminhados": 0.0735267286991425
+      }
+    },
+    {
+      "grupo": "45 a 64 anos",
+      "faixas_etarias": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "n_treino": 88354,
+      "casos_treino": 11886,
+      "prevalencia_treino": 0.13452701632070987,
+      "probabilidade_media_fora_da_dobra": 0.13458602901255512,
+      "limiar": 0.10843631625175476,
+      "fora_da_dobra": {
+        "recall": 0.8000168265185933,
+        "precisao": 0.254162991473552,
+        "especificidade": 0.635089187634043,
+        "encaminhados": 0.42344432623310774
+      },
+      "fora_da_dobra_limiar_unico": {
+        "recall": 0.759801447080599,
+        "precisao": 0.269718961861243,
+        "especificidade": 0.6802322540147513,
+        "encaminhados": 0.3789641668741653
+      },
+      "estabilidade": {
+        "limiar_por_dobra": [
+          0.10611063987016678,
+          0.10879864543676376,
+          0.10924200713634491,
+          0.10538917034864426,
+          0.1114254891872406
+        ],
+        "recall_cruzado": [
+          0.7979209979209979,
+          0.8020698576972833,
+          0.8022071307300509,
+          0.7901234567901234,
+          0.8080808080808081
+        ]
+      },
+      "teste": {
+        "recall": 0.7982993197278911,
+        "precisao": 0.25345572354211665,
+        "especificidade": 0.6345228654507005,
+        "encaminhados": 0.42370167009837567
+      },
+      "teste_limiar_unico": {
+        "recall": 0.7540816326530613,
+        "precisao": 0.2679154078549849,
+        "especificidade": 0.679725085910653,
+        "encaminhados": 0.3786318920155571
+      }
+    },
+    {
+      "grupo": "65 anos ou mais",
+      "faixas_etarias": [
+        10,
+        11,
+        12,
+        13
+      ],
+      "n_treino": 71151,
+      "casos_treino": 14641,
+      "prevalencia_treino": 0.20577363635085943,
+      "probabilidade_media_fora_da_dobra": 0.2057143865574724,
+      "limiar": 0.16155649721622467,
+      "fora_da_dobra": {
+        "recall": 0.8000136602691073,
+        "precisao": 0.30032563267608525,
+        "especificidade": 0.517112015572465,
+        "encaminhados": 0.5481440879256791
+      },
+      "fora_da_dobra_limiar_unico": {
+        "recall": 0.8802677412745031,
+        "precisao": 0.27474471849751647,
+        "especificidade": 0.3979649619536365,
+        "encaminhados": 0.6592879931413472
+      },
+      "estabilidade": {
+        "limiar_por_dobra": [
+          0.15818946063518524,
+          0.16066348552703857,
+          0.16127099096775055,
+          0.1665169894695282,
+          0.16016964614391327
+        ],
+        "recall_cruzado": [
+          0.7889191026512576,
+          0.7989203778677463,
+          0.799660441426146,
+          0.8154865713289152,
+          0.7960998973657202
+        ]
+      },
+      "teste": {
+        "recall": 0.8040871934604905,
+        "precisao": 0.29950268953618187,
+        "especificidade": 0.515615130886378,
+        "encaminhados": 0.5498632736201797
+      },
+      "teste_limiar_unico": {
+        "recall": 0.8743869209809264,
+        "precisao": 0.27139715832205685,
+        "especificidade": 0.395396168152151,
+        "encaminhados": 0.6598582510184721
+      }
+    }
+  ],
+  "total": {
+    "fora_da_dobra": {
+      "recall": 0.8000141457721823,
+      "precisao": 0.2493441791768622,
+      "especificidade": 0.6100923471520092,
+      "encaminhados": 0.44704943235572375
+    },
+    "fora_da_dobra_limiar_unico": {
+      "recall": 0.8000141457721823,
+      "precisao": 0.270552778242878,
+      "especificidade": 0.650809826698804,
+      "encaminhados": 0.4120052822453485
+    },
+    "teste": {
+      "recall": 0.7999717074550856,
+      "precisao": 0.24950363997352745,
+      "especificidade": 0.6104609888474134,
+      "encaminhados": 0.44672421948912017
+    },
+    "teste_limiar_unico": {
+      "recall": 0.7945961239213467,
+      "precisao": 0.2686917005501076,
+      "especificidade": 0.6498958023221196,
+      "encaminhados": 0.41203484705140336
+    }
+  },
+  "pontos": [
+    {
+      "recall_alvo": 0.7,
+      "limiares": {
+        "18 a 44 anos": 0.045813798904418945,
+        "45 a 64 anos": 0.15438570082187653,
+        "65 anos ou mais": 0.20216599106788635
+      },
+      "recall": 0.7000389008735014,
+      "precisao": 0.28650620196552373,
+      "especificidade": 0.7177715309703607,
+      "encaminhados": 0.3404436691895301,
+      "vp": 19795,
+      "fp": 49296,
+      "vn": 125371,
+      "fn": 8482
+    },
+    {
+      "recall_alvo": 0.75,
+      "limiares": {
+        "18 a 44 anos": 0.036711644381284714,
+        "45 a 64 anos": 0.13036862015724182,
+        "65 anos ou mais": 0.1818505823612213
+      },
+      "recall": 0.7500442055380698,
+      "precisao": 0.2673077650202286,
+      "especificidade": 0.6671723908923838,
+      "encaminhados": 0.39096006780195525,
+      "vp": 21209,
+      "fp": 58134,
+      "vn": 116533,
+      "fn": 7068
+    },
+    {
+      "recall_alvo": 0.8,
+      "limiares": {
+        "18 a 44 anos": 0.029653484001755714,
+        "45 a 64 anos": 0.10843631625175476,
+        "65 anos ou mais": 0.16155649721622467
+      },
+      "recall": 0.8000141457721823,
+      "precisao": 0.2493441791768622,
+      "especificidade": 0.6100923471520092,
+      "encaminhados": 0.44704943235572375,
+      "vp": 22622,
+      "fp": 68104,
+      "vn": 106563,
+      "fn": 5655
+    },
+    {
+      "recall_alvo": 0.85,
+      "limiares": {
+        "18 a 44 anos": 0.021721435710787773,
+        "45 a 64 anos": 0.08703768253326416,
+        "65 anos ou mais": 0.139744371175766
+      },
+      "recall": 0.8500901792976624,
+      "precisao": 0.2285437207047034,
+      "especificidade": 0.5354531766160752,
+      "encaminhados": 0.5182661226742352,
+      "vp": 24038,
+      "fp": 81141,
+      "vn": 93526,
+      "fn": 4239
+    },
+    {
+      "recall_alvo": 0.9,
+      "limiares": {
+        "18 a 44 anos": 0.015444790944457054,
+        "45 a 64 anos": 0.06569918245077133,
+        "65 anos ou mais": 0.1152077242732048
+      },
+      "recall": 0.9000247551013191,
+      "precisao": 0.20627330199384017,
+      "especificidade": 0.439333131043643,
+      "encaminhados": 0.6079509618416903,
+      "vp": 25450,
+      "fp": 97930,
+      "vn": 76737,
+      "fn": 2827
+    }
+  ]
+}

@@ -1367,6 +1367,17 @@
           "limiar": {
             "$ref": "#/components/schemas/LimiarDiabetes"
           },
+          "limiares_por_idade": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LimiaresPorIdadeDiabetes"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "O limiar de cada grupo de idade, o que classifica; nulo num modelo de limiar único"
+          },
           "metricas_teste": {
             "$ref": "#/components/schemas/MetricasTesteDiabetes"
           },
@@ -1476,7 +1487,7 @@
         "type": "object"
       },
       "LimiarDiabetes": {
-        "description": "O limiar de triagem: critério escrito, alvo de recall, valor e o ponto fora da dobra.",
+        "description": "O limiar único: critério escrito, alvo de recall, valor e o ponto fora da dobra.\n\nÉ o critério na base inteira. Num modelo com `limiares_por_idade`, fica como referência — o\nque classifica é o limiar do grupo de idade de cada pessoa.",
         "properties": {
           "criterio": {
             "title": "Criterio",
@@ -1501,6 +1512,70 @@
           "fora_da_dobra"
         ],
         "title": "LimiarDiabetes",
+        "type": "object"
+      },
+      "LimiarGrupoDiabetes": {
+        "description": "O limiar de um grupo de idade: as faixas etárias dele, o valor e o ponto fora da dobra.",
+        "properties": {
+          "faixas_etarias": {
+            "description": "As faixas do BRFSS do grupo (1 a 13)",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Faixas Etarias",
+            "type": "array"
+          },
+          "fora_da_dobra": {
+            "$ref": "#/components/schemas/PontoDeOperacaoDiabetes"
+          },
+          "grupo": {
+            "title": "Grupo",
+            "type": "string"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "number"
+          }
+        },
+        "required": [
+          "grupo",
+          "faixas_etarias",
+          "valor",
+          "fora_da_dobra"
+        ],
+        "title": "LimiarGrupoDiabetes",
+        "type": "object"
+      },
+      "LimiaresPorIdadeDiabetes": {
+        "description": "O limiar de cada grupo de idade: o critério do limiar único aplicado dentro de cada um.",
+        "properties": {
+          "criterio": {
+            "title": "Criterio",
+            "type": "string"
+          },
+          "fora_da_dobra": {
+            "$ref": "#/components/schemas/PontoDeOperacaoDiabetes",
+            "description": "O ponto de operação na base inteira, cada pessoa no limiar do grupo dela"
+          },
+          "grupos": {
+            "items": {
+              "$ref": "#/components/schemas/LimiarGrupoDiabetes"
+            },
+            "title": "Grupos",
+            "type": "array"
+          },
+          "recall_alvo": {
+            "title": "Recall Alvo",
+            "type": "number"
+          }
+        },
+        "required": [
+          "criterio",
+          "recall_alvo",
+          "grupos",
+          "fora_da_dobra"
+        ],
+        "title": "LimiaresPorIdadeDiabetes",
         "type": "object"
       },
       "LoteDiabetes": {
@@ -1659,7 +1734,7 @@
         "type": "object"
       },
       "MetricasTesteDiabetes": {
-        "description": "A avaliação final, uma vez, no teste — do manifest, nunca escrita à mão.",
+        "description": "A avaliação final, uma vez, no teste — do manifest, nunca escrita à mão.\n\nAs métricas `*_no_limiar` medem a regra que classifica: com `limiares_por_idade`, cada pessoa\nno limiar do grupo de idade dela.",
         "properties": {
           "brier": {
             "title": "Brier",
@@ -2084,6 +2159,18 @@
             "title": "Fora Do Dominio Treino",
             "type": "array"
           },
+          "grupo_de_idade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "O grupo de idade cujo limiar classificou a pessoa (ex.: '18 a 44 anos'); nulo num modelo de limiar único",
+            "title": "Grupo De Idade"
+          },
           "imc": {
             "title": "Imc",
             "type": "number"
@@ -2093,7 +2180,7 @@
             "type": "number"
           },
           "limiar": {
-            "description": "Limiar de triagem do modelo servido; critério e valor em /diabetes/model/info",
+            "description": "Limiar de triagem aplicado à pessoa: o do grupo de idade dela (critério e tabela em /diabetes/model/info, `limiares_por_idade`)",
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Limiar",
@@ -2701,7 +2788,7 @@
     },
     "/api/v1/diabetes/model/info": {
       "get": {
-        "description": "Versão, release, hiperparâmetros, o limiar com o critério e as métricas do manifest.",
+        "description": "Versão, release, hiperparâmetros, os limiares com o critério e as métricas do manifest.",
         "operationId": "model_info_diabetes_api_v1_diabetes_model_info_get",
         "parameters": [
           {
@@ -2745,7 +2832,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Manifest da vertente diabetes: versão, limiar, métricas de validação e de teste",
+        "summary": "Manifest da vertente diabetes: versão, limiares, métricas de validação e de teste",
         "tags": [
           "diabetes"
         ]
@@ -3200,7 +3287,7 @@
     },
     "/api/v1/diabetes/predicoes": {
       "post": {
-        "description": "Uma pessoa, dez respostas: probabilidade, limiar de triagem e classificação.",
+        "description": "Uma pessoa, dez respostas: probabilidade, o limiar do grupo de idade e a classificação.",
         "operationId": "prever_diabetes_api_v1_diabetes_predicoes_post",
         "parameters": [
           {
